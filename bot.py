@@ -115,9 +115,8 @@ def _do_fetch_jobs(new_only: bool = False) -> None:
             send("✅ No new jobs found right now. Check back later!")
             return
 
-        from notifier import _role_label
-        kind  = "new (unseen)" if new_only else "latest"
-        send(f"*🚀 {len(jobs)} {kind} Web3 {_role_label()} job{'s' if len(jobs) != 1 else ''}:*")
+        label = "new (unseen)" if new_only else "latest"
+        send(f"*🚀 {len(jobs)} {label} Web3 marketing job{'s' if len(jobs) != 1 else ''}:*")
         send_jobs(jobs)
     except Exception as e:
         send(f"❌ Error fetching jobs: {e}")
@@ -164,9 +163,8 @@ def handle_command(text: str, msg_id: int = 0) -> None:
                 seen_handles.add(handle)
 
         if links:
-            from notifier import _role_label
             send(
-                f"*Companies currently hiring for {_role_label()} on X:*\n"
+                "*Companies currently hiring for marketing on X:*\n"
                 "_Tap any to view their profile_\n\n"
                 + "\n".join(links)
             )
@@ -176,15 +174,13 @@ def handle_command(text: str, msg_id: int = 0) -> None:
                 "Send /jobs to fetch fresh listings first."
             )
     elif cmd in ("/help", "/start"):
-        from notifier import _role_label
         send(
-            f"*Web3 Job Bot* 🤖\n\n"
-            f"Tracking: *{_role_label()}* roles\n\n"
-            f"/jobs — show latest matching jobs\n"
-            f"/new — show only jobs you haven't seen yet\n"
-            f"/twitter — X profiles of companies currently hiring\n"
-            f"/clear — delete all bot messages in this chat\n"
-            f"/help — this message"
+            "*Web3 Job Bot* 🤖\n\n"
+            "/jobs — show latest Web3 marketing jobs\n"
+            "/new — show only jobs you haven't seen yet\n"
+            "/twitter — X profiles of companies hiring for marketing\n"
+            "/clear — delete all bot messages in this chat\n"
+            "/help — this message"
         )
     else:
         send("Unknown command. Try /jobs, /new, /clear, /twitter, or /help.")

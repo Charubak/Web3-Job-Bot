@@ -11,276 +11,99 @@ from typing import Optional
 MAX_AGE_DAYS = 45
 
 # ---------------------------------------------------------------------------
-# Role presets — built-in keyword lists for common Web3 job categories
-# Each entry is a list of strings that must appear in the job title (lowercase).
+# Keyword filters — job title must match at least one
 # ---------------------------------------------------------------------------
 
-ROLE_PRESETS = {
-    "marketing": [
-        "marketing",
-        "growth marketer",
-        "growth manager",
-        "growth lead",
-        "growth director",
-        "community",
-        "content",
-        "brand",
-        "gtm",
-        "go-to-market",
-        "partnerships",
-        "kol",
-        "social media",
-        "communications",
-        " pr ",
-        "public relations",
-        "customer acquisition",
-        "user acquisition",
-        "ambassador",
-        "influencer",
-        "campaign",
-        "narrative",
-        "ecosystem",
-        "devrel",
-        "developer relations",
-        "demand generation",
-        "product marketing",
-        "growth marketing",
-    ],
-    "engineering": [
-        "engineer",
-        "developer",
-        "solidity",
-        "smart contract",
-        "blockchain developer",
-        "backend",
-        "frontend",
-        "full stack",
-        "fullstack",
-        "rust developer",
-        "typescript developer",
-        "web3 developer",
-        "protocol engineer",
-        "infrastructure engineer",
-        "dapp",
-        "evm",
-        "zkp",
-        "zero knowledge",
-        "cryptography engineer",
-    ],
-    "legal": [
-        "legal",
-        "compliance",
-        "counsel",
-        "regulatory",
-        "policy",
-        "general counsel",
-        "legal officer",
-        "chief legal",
-    ],
-    "design": [
-        "designer",
-        " design",
-        "ux ",
-        "ui/ux",
-        "ui ",
-        "product design",
-        "visual design",
-        "graphic designer",
-        "creative director",
-        "motion designer",
-    ],
-    "product": [
-        "product manager",
-        "product lead",
-        "head of product",
-        "product owner",
-        "chief product",
-        "vp product",
-        "product director",
-    ],
-    "operations": [
-        "operations manager",
-        "ops manager",
-        "chief of staff",
-        "finance manager",
-        "people operations",
-        "head of operations",
-        "treasury",
-        "financial controller",
-    ],
-    "bd": [
-        "business development",
-        "bd manager",
-        "bd lead",
-        "head of bd",
-        "account executive",
-        "account manager",
-        "revenue",
-        "partner manager",
-        "head of sales",
-        "sales manager",
-        "partnerships manager",
-    ],
-    "research": [
-        "researcher",
-        "research analyst",
-        "protocol researcher",
-        "security researcher",
-        "economist",
-        "quantitative researcher",
-        "cryptographer",
-        "defi researcher",
-    ],
-    "data": [
-        "data analyst",
-        "data scientist",
-        "data engineer",
-        "analytics engineer",
-        "business intelligence",
-        "data lead",
-        "head of data",
-        "quantitative analyst",
-    ],
-}
+INCLUDE_KEYWORDS = [
+    "marketing",
+    "growth marketer",
+    "growth manager",
+    "growth lead",
+    "growth director",
+    "community",
+    "content",
+    "brand",
+    "gtm",
+    "go-to-market",
+    "partnerships",
+    "kol",
+    "social media",
+    "communications",
+    " pr ",
+    "public relations",
+    "customer acquisition",
+    "user acquisition",
+    "ambassador",
+    "influencer",
+    "awareness",
+    "campaign",
+    "narrative",
+    "ecosystem",
+    "devrel",
+    "developer relations",
+    "demand generation",
+    "product marketing",
+    "growth marketing",
+]
 
-# Per-role exclusion phrases (applied only when that role is selected)
-ROLE_EXCLUDE_PHRASES = {
-    "marketing": [
-        "frontend engineer",
-        "backend engineer",
-        "software engineer",
-        "engineering manager",
-        "engineering director",
-        "data engineer",
-        "principal engineer",
-        "algorithm engineer",
-        "content delivery",
-        "content moderator",
-        "content moderation",
-        "human resources",
-        "hr lead",
-        "hr manager",
-        "recruiting",
-        "recruiter",
-        "legal counsel",
-        "risk manager",
-        "financial analyst",
-        "data analyst",
-        "data scientist",
-        "machine learning",
-        "qa engineer",
-        "qa lead",
-        "security engineer",
-        "security analyst",
-        "network engineer",
-        "site reliability",
-        "devops",
-    ],
-    "engineering": [
-        "marketing manager",
-        "content manager",
-        "community manager",
-        "brand manager",
-        "social media manager",
-        "recruiting",
-        "recruiter",
-    ],
-    "legal": [
-        "marketing",
-        "engineering",
-        "design",
-        "recruiter",
-    ],
-    "design": [
-        "marketing manager",
-        "engineering",
-        "recruiter",
-    ],
-    "product": [
-        "marketing",
-        "recruiter",
-    ],
-    "operations": [
-        "recruiter",
-        "talent acquisition",
-    ],
-    "bd": [
-        "marketing manager",
-        "engineering",
-        "recruiter",
-    ],
-    "research": [
-        "recruiter",
-        "marketing manager",
-    ],
-    "data": [
-        "recruiter",
-        "marketing manager",
-        "community manager",
-    ],
-}
+# These in the TITLE → not actually a marketing role
+EXCLUDE_TITLE_PHRASES = [
+    "talent acquisition",   # HR/recruiting
+    "frontend engineer",
+    "backend engineer",
+    "software engineer",
+    "engineering manager",
+    "engineering director",
+    "data engineer",
+    "principal engineer",
+    "algorithm engineer",
+    "business intelligence",
+    "customer care",
+    "customer success",
+    "customer support",
+    "game reviewer",
+    "content delivery",     # operational/logistics, not marketing
+    "content moderator",
+    "content moderation",
+    "human resources",
+    "hr lead",
+    "hr manager",
+    "recruiting",
+    "recruiter",
+    "legal counsel",
+    "compliance",
+    "risk manager",
+    "financial analyst",
+    "data analyst",
+    "data scientist",
+    "machine learning",
+    "qa engineer",
+    "qa lead",
+    "security engineer",
+    "security analyst",
+    "network engineer",
+    "site reliability",
+    "devops",
+]
 
 # ---------------------------------------------------------------------------
-# Build keyword lists from config
+# Location allowlist — ONLY these pass
+# Everything else with a specific geography is excluded
 # ---------------------------------------------------------------------------
 
-def _build_include_keywords() -> list:
-    """Build include keyword list from JOB_ROLES config setting."""
-    try:
-        from config import JOB_ROLES
-    except Exception:
-        JOB_ROLES = ["marketing"]
-
-    keywords = []
-    for role in JOB_ROLES:
-        if role in ROLE_PRESETS:
-            keywords.extend(ROLE_PRESETS[role])
-        else:
-            keywords.append(role)   # custom keyword
-
-    # Deduplicate, preserve order
-    seen, result = set(), []
-    for kw in keywords:
-        if kw not in seen:
-            seen.add(kw)
-            result.append(kw)
-    return result
-
-
-def _build_exclude_phrases() -> list:
-    """Build exclusion phrase list from selected roles."""
-    try:
-        from config import JOB_ROLES
-    except Exception:
-        JOB_ROLES = ["marketing"]
-
-    phrases = []
-    for role in JOB_ROLES:
-        phrases.extend(ROLE_EXCLUDE_PHRASES.get(role, []))
-    seen, result = set(), []
-    for p in phrases:
-        if p not in seen:
-            seen.add(p)
-            result.append(p)
-    return result
-
-
-INCLUDE_KEYWORDS   = _build_include_keywords()
-EXCLUDE_TITLE_PHRASES = _build_exclude_phrases()
-
-# ---------------------------------------------------------------------------
-# Location allowlist (used when LOCATION_TYPE=remote)
-# ---------------------------------------------------------------------------
-
-_REMOTE_KEYWORDS = [
+ALLOWED_LOCATION_KEYWORDS = [
     "remote",
     "worldwide",
     "global",
     "anywhere",
     "distributed",
+    "dubai",
+    "uae",
+    "singapore",
+    "hong kong",
 ]
 
-# US-restricted patterns — excluded even when they mention "remote"
+# US-restricted patterns — also excluded even if they contain "remote"
 US_RESTRICTED_PATTERNS = [
     "us only",
     "us citizen",
@@ -295,6 +118,7 @@ US_RESTRICTED_PATTERNS = [
     "remote (usa)",
     "remote (united states)",
     "united states",
+    # US cities
     "new york",
     "san francisco",
     "austin",
@@ -314,12 +138,14 @@ US_RESTRICTED_PATTERNS = [
     "washington, d",
 ]
 
-# On-site patterns — excluded everywhere (for remote and specific modes)
+# On-site patterns — excluded everywhere
 ONSITE_PATTERNS = [
     "on-site",
     "onsite",
     "in-office",
+    "hybrid",
 ]
+
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -361,6 +187,7 @@ def _parse_posted_date(posted: str) -> Optional[datetime]:
         "%Y-%m-%d",
     ):
         try:
+            s = posted[: len(fmt) + 6]   # +6 for timezone suffix
             dt = datetime.strptime(posted[:19], fmt[:19])
             if dt.tzinfo is None:
                 dt = dt.replace(tzinfo=timezone.utc)
@@ -378,9 +205,10 @@ def _parse_posted_date(posted: str) -> Optional[datetime]:
 
 
 def _is_too_old(job) -> bool:
+    """Return True if the job was posted more than MAX_AGE_DAYS ago."""
     dt = _parse_posted_date(job.posted)
     if dt is None:
-        return False
+        return False   # unknown date → assume recent, don't discard
     cutoff = datetime.now(timezone.utc) - timedelta(days=MAX_AGE_DAYS)
     return dt < cutoff
 
@@ -394,7 +222,6 @@ def _is_excluded_title(title: str) -> bool:
     t = _decode(title).lower()
     for phrase in EXCLUDE_TITLE_PHRASES:
         if phrase in t:
-            # Don't exclude "product marketing" or "growth marketing" for marketing role
             if phrase == "product manager" and ("product marketing" in t or "growth marketing" in t):
                 continue
             return True
@@ -403,44 +230,23 @@ def _is_excluded_title(title: str) -> bool:
 
 def _is_location_allowed(job) -> bool:
     """
-    Filter based on LOCATION_TYPE from config:
-      any      → always allow
-      remote   → allowlist (remote/worldwide/global) + block US-restricted
-      specific → allow if matches PREFERRED_LOCATIONS or is remote
+    Allowlist approach:
+    - Empty location → allow (assume remote / unknown)
+    - Contains an allowed keyword → allow (subject to US check below)
+    - Anything else → deny
     """
-    try:
-        from config import LOCATION_TYPE, PREFERRED_LOCATIONS
-    except Exception:
-        LOCATION_TYPE = "remote"
-        PREFERRED_LOCATIONS = []
-
-    if LOCATION_TYPE == "any":
-        return True
-
     loc = _decode(job.location or "").lower().strip()
     if not loc:
-        return True   # unknown → assume remote
+        return True
 
-    # On-site always denied in remote and specific modes
+    # US-restricted and on-site always deny
+    if any(p in loc for p in US_RESTRICTED_PATTERNS):
+        return False
     if any(p in loc for p in ONSITE_PATTERNS):
         return False
 
-    if LOCATION_TYPE == "remote":
-        if any(p in loc for p in US_RESTRICTED_PATTERNS):
-            return False
-        return any(kw in loc for kw in _REMOTE_KEYWORDS)
-
-    if LOCATION_TYPE == "specific":
-        # Allow remote-sounding jobs
-        if any(kw in loc for kw in _REMOTE_KEYWORDS):
-            # Still reject US-restricted remote
-            if any(p in loc for p in US_RESTRICTED_PATTERNS):
-                return False
-            return True
-        # Allow preferred locations
-        return any(city in loc for city in PREFERRED_LOCATIONS)
-
-    return False   # unknown LOCATION_TYPE → deny
+    # Must contain at least one allowed keyword
+    return any(kw in loc for kw in ALLOWED_LOCATION_KEYWORDS)
 
 
 # ---------------------------------------------------------------------------
@@ -450,10 +256,10 @@ def _is_location_allowed(job) -> bool:
 def apply_filters(jobs: list) -> list:
     """
     Keep jobs that:
-    1. Title matches at least one configured role keyword
-    2. Title doesn't match a role-specific exclusion phrase
-    3. Location passes the configured location mode
-    4. Posted within the last MAX_AGE_DAYS days
+    1. Title matches a marketing/growth keyword
+    2. Title doesn't match an exclude phrase
+    3. Location is remote, worldwide, or Dubai/Singapore/HK (or unknown)
+    4. Were posted within the last MAX_AGE_DAYS days
     """
     result = []
     for job in jobs:
