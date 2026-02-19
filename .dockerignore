@@ -1,0 +1,8 @@
+.env
+seen_jobs.db
+current_companies.json
+__pycache__
+*.pyc
+*.pyo
+bot.log
+nohup.out

@@ -1,0 +1,10 @@
+.env
+seen_jobs.db
+current_companies.json
+__pycache__/
+*.pyc
+*.pyo
+bot.log
+scraper.log
+nohup.out
+.DS_Store

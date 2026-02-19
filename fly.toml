@@ -1,0 +1,22 @@
+# fly.toml — web3-job-bot
+# Background worker: runs continuously, never auto-stops
+
+app = 'web3-job-bot'
+primary_region = 'sin'
+
+[build]
+
+[env]
+  DATA_DIR = '/data'
+
+[processes]
+  app = 'python3 -u bot.py'
+
+[[mounts]]
+  source = 'job_data'
+  destination = '/data'
+
+[[vm]]
+  memory = '256mb'
+  cpu_kind = 'shared'
+  cpus = 1
