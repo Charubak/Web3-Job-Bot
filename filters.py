@@ -177,7 +177,21 @@ def _parse_posted_date(posted: str) -> Optional[datetime]:
         except Exception:
             pass
 
-    # ISO 8601 variants
+    # ISO 8601 fast path
+    iso_candidate = posted
+    if iso_candidate.endswith("Z"):
+        iso_candidate = iso_candidate[:-1] + "+00:00"
+    try:
+        dt = datetime.fromisoformat(iso_candidate)
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        else:
+            dt = dt.astimezone(timezone.utc)
+        return dt
+    except Exception:
+        pass
+
+    # Common explicit datetime formats
     for fmt in (
         "%Y-%m-%dT%H:%M:%S%z",
         "%Y-%m-%dT%H:%M:%S.%f%z",
@@ -187,17 +201,23 @@ def _parse_posted_date(posted: str) -> Optional[datetime]:
         "%Y-%m-%d",
     ):
         try:
-            s = posted[: len(fmt) + 6]   # +6 for timezone suffix
-            dt = datetime.strptime(posted[:19], fmt[:19])
+            dt = datetime.strptime(posted, fmt)
             if dt.tzinfo is None:
                 dt = dt.replace(tzinfo=timezone.utc)
+            else:
+                dt = dt.astimezone(timezone.utc)
             return dt
         except Exception:
             pass
 
     # RFC 2822 (RSS/Atom: "Thu, 19 Feb 2026 06:32:03 GMT")
     try:
-        return parsedate_to_datetime(posted)
+        dt = parsedate_to_datetime(posted)
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        else:
+            dt = dt.astimezone(timezone.utc)
+        return dt
     except Exception:
         pass
 

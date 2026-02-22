@@ -830,7 +830,7 @@ def fetch_cryptojobslist_telegram() -> list[Job]:
                 if pending_field:
                     value = line.strip()
                     if pending_field == "company":
-                        value = re.sub(r"^at\s+", "", value, flags=re.IGNORECASE).strip()
+                        value = re.sub(r"^at\b[\s:,-]*", "", value, flags=re.IGNORECASE).strip()
                     if pending_field == "title":
                         title = value
                     elif pending_field == "company":

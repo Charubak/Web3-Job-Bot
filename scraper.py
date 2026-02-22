@@ -26,6 +26,7 @@ _INVALID_COMPANIES = {"at", "@", "dev.fun", "", "n/a"}
 
 def _save_companies(jobs: list) -> None:
     """Save unique companies with open marketing roles to a cache file."""
+    Path(COMPANIES_CACHE).parent.mkdir(parents=True, exist_ok=True)
     seen_lower: set[str] = set()
     companies = []
     for j in jobs:
@@ -58,7 +59,7 @@ def main(dry_run: bool = False) -> None:
         try:
             from notifier import _send
             _send(
-                f"⚠️ *Board health alert:* only {len(raw_jobs)} raw jobs fetched "
+                f"⚠️ Board health alert: only {len(raw_jobs)} raw jobs fetched "
                 f"(expected >500). One or more boards may be down."
             )
         except Exception:

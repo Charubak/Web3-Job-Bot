@@ -18,7 +18,7 @@ import time
 import threading
 import schedule
 import httpx
-from config import TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
+from config import TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, SCRAPE_INTERVAL_HOURS
 
 API = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}"
 POLL_TIMEOUT = 30  # long-poll seconds
@@ -74,10 +74,15 @@ def send(text: str) -> None:
 # ---------------------------------------------------------------------------
 
 def handle_clear(user_msg_id: int) -> None:
-    """Delete every bot message by sweeping all message IDs up to current."""
+    """Delete messages sent by this bot in the current process lifetime."""
+    del user_msg_id
+    to_delete = sorted(set(_sent_msg_ids))
     _sent_msg_ids.clear()
+    if not to_delete:
+        send("Nothing to clear yet.")
+        return
     deleted = 0
-    for msg_id in range(1, user_msg_id + 1):
+    for msg_id in to_delete:
         try:
             resp = httpx.post(
                 f"{API}/deleteMessage",
@@ -88,7 +93,7 @@ def handle_clear(user_msg_id: int) -> None:
                 deleted += 1
         except Exception:
             pass
-    print(f"[bot] /clear — deleted {deleted} of {user_msg_id} messages")
+    print(f"[bot] /clear - deleted {deleted} of {len(to_delete)} tracked messages")
 
 
 def _do_fetch_jobs(new_only: bool = False) -> None:
@@ -106,10 +111,8 @@ def _do_fetch_jobs(new_only: bool = False) -> None:
         jobs = apply_filters(raw)
 
         if new_only:
-            from storage import filter_unseen, mark_seen
+            from storage import filter_unseen
             jobs = filter_unseen(jobs)
-            if jobs:
-                mark_seen(jobs)
 
         if not jobs:
             send("✅ No new jobs found right now. Check back later!")
@@ -118,6 +121,9 @@ def _do_fetch_jobs(new_only: bool = False) -> None:
         label = "new (unseen)" if new_only else "latest"
         send(f"*🚀 {len(jobs)} {label} Web3 marketing job{'s' if len(jobs) != 1 else ''}:*")
         send_jobs(jobs)
+        if new_only:
+            from storage import mark_seen
+            mark_seen(jobs)
     except Exception as e:
         send(f"❌ Error fetching jobs: {e}")
         print(f"[bot] handle_jobs error: {e}")
@@ -192,6 +198,9 @@ def handle_command(text: str, msg_id: int = 0) -> None:
 
 def _scheduled_scrape() -> None:
     """Run the full scraper pipeline and send new jobs to Telegram."""
+    if not _fetch_lock.acquire(blocking=False):
+        print("[scheduler] Skipping run - fetch already in progress.")
+        return
     print("[scheduler] Starting scheduled scrape...")
     try:
         import scraper
@@ -200,12 +209,16 @@ def _scheduled_scrape() -> None:
     except Exception as e:
         print(f"[scheduler] ERROR: {e}")
         send(f"⚠️ Scheduled scrape failed: {e}")
+    finally:
+        _fetch_lock.release()
 
 
 def _run_scheduler() -> None:
-    """Run _scheduled_scrape every 6 hours. Executes once immediately on start."""
+    """Run _scheduled_scrape every configured interval. Executes once on start."""
     _scheduled_scrape()                       # run now on startup
-    schedule.every(6).hours.do(_scheduled_scrape)
+    interval_hours = max(1, SCRAPE_INTERVAL_HOURS)
+    print(f"[scheduler] Interval set to every {interval_hours} hour(s).")
+    schedule.every(interval_hours).hours.do(_scheduled_scrape)
     while True:
         schedule.run_pending()
         time.sleep(60)

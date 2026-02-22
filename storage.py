@@ -9,6 +9,7 @@ DB_PATH = _data_dir / "seen_jobs.db"
 
 
 def _connect() -> sqlite3.Connection:
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(DB_PATH)
     conn.execute(
         """
