@@ -36,7 +36,7 @@ A Telegram bot that scrapes 15 web3 job sources every 6 hours and delivers filte
 
 ## Filters
 
-- **Title must match:** marketing, growth, community, content, brand, GTM, partnerships, KOL, social media, communications, PR, devrel, product marketing, etc.
+- **Title must match:** marketing, growth, community, content, brand, GTM, partnerships, KOL, social media, communications, PR, product marketing, etc.
 - **Location:** Remote, worldwide, global, Dubai, Singapore, Hong Kong only — US-restricted roles excluded
 - **Age:** Jobs older than 45 days are excluded
 - **Dedup:** Same job won't appear twice across runs

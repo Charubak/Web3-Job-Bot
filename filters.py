@@ -39,8 +39,6 @@ INCLUDE_KEYWORDS = [
     "campaign",
     "narrative",
     "ecosystem",
-    "devrel",
-    "developer relations",
     "demand generation",
     "product marketing",
     "growth marketing",
@@ -84,6 +82,11 @@ EXCLUDE_TITLE_PHRASES = [
     "network engineer",
     "site reliability",
     "devops",
+    "devrel",
+    "developer relations",
+    "developer advocate",
+    "developer advocacy",
+    "developer evangelist",
 ]
 
 # ---------------------------------------------------------------------------
