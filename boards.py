@@ -337,19 +337,21 @@ def fetch_cryptojobslist_web3() -> list[Job]:
 # ---------------------------------------------------------------------------
 
 GREENHOUSE_COMPANIES = [
-    ("coinbase",   "Coinbase"),
-    ("consensys",  "Consensys"),
-    ("alchemy",    "Alchemy"),
-    ("ripple",     "Ripple"),
-    ("fireblocks", "Fireblocks"),
-    ("bitgo",      "BitGo"),
-    ("gemini",     "Gemini"),
-    ("nansen",     "Nansen"),
-    ("avalabs",    "Ava Labs"),
-    ("paradigm",   "Paradigm"),
-    ("messari",    "Messari"),
-    ("figment",    "Figment"),
-    ("solana",     "Solana Foundation"),
+    ("coinbase",      "Coinbase"),
+    ("consensys",     "Consensys"),
+    ("alchemy",       "Alchemy"),
+    ("ripple",        "Ripple"),
+    ("fireblocks",    "Fireblocks"),
+    ("bitgo",         "BitGo"),
+    ("gemini",        "Gemini"),
+    ("nansen",        "Nansen"),
+    ("avalabs",       "Ava Labs"),
+    ("paradigm",      "Paradigm"),
+    ("messari",       "Messari"),
+    ("figment",       "Figment"),
+    ("solana",        "Solana Foundation"),
+    ("okx",           "OKX"),
+    ("openzeppelin",  "OpenZeppelin"),
 ]
 
 
@@ -395,11 +397,13 @@ def fetch_greenhouse() -> list[Job]:
 # ---------------------------------------------------------------------------
 
 LEVER_COMPANIES = [
-    ("binance",   "Binance"),
-    ("1inch",     "1inch"),
-    ("certik",    "CertiK"),
-    ("anchorage", "Anchorage Digital"),
-    ("ledger",    "Ledger"),
+    ("binance",        "Binance"),
+    ("1inch",          "1inch"),
+    ("certik",         "CertiK"),
+    ("anchorage",      "Anchorage Digital"),
+    ("ledger",         "Ledger"),
+    ("immutable",      "Immutable"),
+    ("animocabrands",  "Animoca Brands"),
 ]
 
 
