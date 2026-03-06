@@ -4,7 +4,7 @@ A Telegram bot that scrapes 15 web3 job sources every 6 hours and delivers filte
 
 ## What it does
 
-- Scrapes 1,200+ raw jobs across 15 sources every 6 hours
+- Scrapes 1,700+ raw jobs across 15 sources every 6 hours
 - Filters for marketing, growth, community, content, brand, DevRel, and GTM roles
 - Only shows remote jobs (or Dubai / Singapore / Hong Kong)
 - Deduplicates so you never see the same job twice
@@ -17,12 +17,12 @@ A Telegram bot that scrapes 15 web3 job sources every 6 hours and delivers filte
 |------|--------|
 | RSS | cryptocurrencyjobs.co, remote3.co |
 | HTML scrape | web3.career, cryptojobslist.com, blockace.io, crypto.jobs |
-| JSON API | Greenhouse (13 companies), Lever (5 companies + Aave), RemoteOK |
+| JSON API | Greenhouse (15 companies), Lever (7 companies + Aave), RemoteOK |
 | Telegram channels | @web3hiring, @cryptojobsdaily, @cryptojobslist |
 
-**Greenhouse companies:** Coinbase, Consensys, Alchemy, Ripple, Fireblocks, BitGo, Gemini, Nansen, Ava Labs, Paradigm, Messari, Figment, Solana Foundation
+**Greenhouse companies:** Coinbase, Consensys, Alchemy, Ripple, Fireblocks, BitGo, Gemini, Nansen, Ava Labs, Paradigm, Messari, Figment, Solana Foundation, OKX, OpenZeppelin
 
-**Lever companies:** Binance, 1inch, CertiK, Anchorage Digital, Ledger, Aave
+**Lever companies:** Binance, 1inch, CertiK, Anchorage Digital, Ledger, Immutable, Animoca Brands, Aave
 
 ## Telegram Commands
 
