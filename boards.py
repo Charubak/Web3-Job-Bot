@@ -387,7 +387,7 @@ def fetch_greenhouse() -> list[Job]:
     """Query Greenhouse public job board API — all companies in parallel."""
     from concurrent.futures import ThreadPoolExecutor, as_completed
     all_jobs: list[Job] = []
-    with ThreadPoolExecutor(max_workers=8) as ex:
+    with ThreadPoolExecutor(max_workers=4) as ex:
         futures = {ex.submit(_fetch_greenhouse_one, slug, name): slug
                    for slug, name in GREENHOUSE_COMPANIES}
         for f in as_completed(futures):
@@ -448,7 +448,7 @@ def fetch_lever() -> list[Job]:
     """Query Lever public posting API — all companies in parallel."""
     from concurrent.futures import ThreadPoolExecutor, as_completed
     all_jobs: list[Job] = []
-    with ThreadPoolExecutor(max_workers=8) as ex:
+    with ThreadPoolExecutor(max_workers=4) as ex:
         futures = {ex.submit(_fetch_lever_one, slug, name): slug
                    for slug, name in LEVER_COMPANIES}
         for f in as_completed(futures):
@@ -1065,7 +1065,7 @@ def fetch_all() -> list[Job]:
 
     results: dict[int, list[Job]] = {}
 
-    with ThreadPoolExecutor(max_workers=8) as executor:
+    with ThreadPoolExecutor(max_workers=4) as executor:
         futures = {executor.submit(fn): i for i, fn in enumerate(BOARDS)}
         for future in as_completed(futures):
             idx = futures[future]
