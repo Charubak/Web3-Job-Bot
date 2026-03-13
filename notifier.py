@@ -21,6 +21,22 @@ def _sort_by_recency(jobs: list) -> list:
     return sorted(jobs, key=_key, reverse=True)
 
 
+def _age_label(posted: str) -> str:
+    """Return a human-readable age string e.g. '2d ago', 'today'."""
+    dt = _parse_posted_date(posted)
+    if not dt:
+        return ""
+    delta = datetime.now(timezone.utc) - dt
+    days = delta.days
+    if days == 0:
+        return " · today"
+    if days == 1:
+        return " · 1d ago"
+    if days < 30:
+        return f" · {days}d ago"
+    return ""
+
+
 def _format_job(job) -> str:
     salary_part = f" | 💰 {html_lib.escape(job.salary)}" if job.salary else ""
     location_part = html_lib.escape(job.location or "Remote")
@@ -29,9 +45,10 @@ def _format_job(job) -> str:
     source = html_lib.escape(job.source or "")
     url = html_lib.escape(job.url or "", quote=True)
     link = f'<a href="{url}">Apply</a>' if url else "Apply"
+    age = _age_label(job.posted)
     return (
         f"🟢 <b>{title}</b> - {company}\n"
-        f"📍 {location_part}{salary_part}\n"
+        f"📍 {location_part}{salary_part}{age}\n"
         f"🔗 {link} · <i>{source}</i>"
     )
 

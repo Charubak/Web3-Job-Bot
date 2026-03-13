@@ -356,38 +356,42 @@ GREENHOUSE_COMPANIES = [
 ]
 
 
-def fetch_greenhouse() -> list[Job]:
-    """Query Greenhouse public job board API for verified web3 companies."""
-    all_jobs: list[Job] = []
-    for slug, company_name in GREENHOUSE_COMPANIES:
-        try:
-            resp = httpx.get(
-                f"https://boards-api.greenhouse.io/v1/boards/{slug}/jobs",
-                headers=HEADERS,
-                timeout=15,
-            )
-            if resp.status_code != 200:
+def _fetch_greenhouse_one(slug: str, company_name: str) -> list[Job]:
+    try:
+        resp = httpx.get(
+            f"https://boards-api.greenhouse.io/v1/boards/{slug}/jobs",
+            headers=HEADERS,
+            timeout=12,
+        )
+        if resp.status_code != 200:
+            return []
+        jobs = []
+        for j in resp.json().get("jobs", []):
+            url = j.get("absolute_url", "")
+            if not url:
                 continue
-            for j in resp.json().get("jobs", []):
-                url = j.get("absolute_url", "")
-                if not url:
-                    continue
-                title = html.unescape(j.get("title", "").strip())
-                location = j.get("location", {}).get("name", "")
-                posted = j.get("first_published", "")
-                all_jobs.append(
-                    Job(
-                        id=_make_id(url),
-                        title=title,
-                        company=company_name,
-                        location=location,
-                        url=url,
-                        source=f"greenhouse/{slug}",
-                        posted=posted,
-                    )
-                )
-        except Exception as e:
-            print(f"[greenhouse/{slug}] ERROR: {e}")
+            title = html.unescape(j.get("title", "").strip())
+            location = j.get("location", {}).get("name", "")
+            posted = j.get("first_published", "")
+            jobs.append(Job(
+                id=_make_id(url), title=title, company=company_name,
+                location=location, url=url, source=f"greenhouse/{slug}", posted=posted,
+            ))
+        return jobs
+    except Exception as e:
+        print(f"[greenhouse/{slug}] ERROR: {e}")
+        return []
+
+
+def fetch_greenhouse() -> list[Job]:
+    """Query Greenhouse public job board API — all companies in parallel."""
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    all_jobs: list[Job] = []
+    with ThreadPoolExecutor(max_workers=8) as ex:
+        futures = {ex.submit(_fetch_greenhouse_one, slug, name): slug
+                   for slug, name in GREENHOUSE_COMPANIES}
+        for f in as_completed(futures):
+            all_jobs.extend(f.result())
     print(f"[greenhouse] {len(all_jobs)} jobs fetched across {len(GREENHOUSE_COMPANIES)} companies")
     return all_jobs
 
@@ -409,42 +413,46 @@ LEVER_COMPANIES = [
 ]
 
 
-def fetch_lever() -> list[Job]:
-    """Query Lever public posting API for verified web3 companies."""
-    all_jobs: list[Job] = []
-    for slug, company_name in LEVER_COMPANIES:
-        try:
-            resp = httpx.get(
-                f"https://api.lever.co/v0/postings/{slug}?mode=json",
-                headers=HEADERS,
-                timeout=15,
-            )
-            if resp.status_code != 200:
+def _fetch_lever_one(slug: str, company_name: str) -> list[Job]:
+    try:
+        resp = httpx.get(
+            f"https://api.lever.co/v0/postings/{slug}?mode=json",
+            headers=HEADERS,
+            timeout=12,
+        )
+        if resp.status_code != 200:
+            return []
+        jobs = []
+        for j in resp.json():
+            url = j.get("hostedUrl", "")
+            if not url:
                 continue
-            for j in resp.json():
-                url = j.get("hostedUrl", "")
-                if not url:
-                    continue
-                title = html.unescape(j.get("text", "").strip())
-                cats = j.get("categories", {})
-                location = cats.get("location", "")
-                workplace = j.get("workplaceType", "")
-                if workplace == "remote" and not location:
-                    location = "Remote"
-                posted = str(j.get("createdAt", ""))
-                all_jobs.append(
-                    Job(
-                        id=_make_id(url),
-                        title=title,
-                        company=company_name,
-                        location=location,
-                        url=url,
-                        source=f"lever/{slug}",
-                        posted=posted,
-                    )
-                )
-        except Exception as e:
-            print(f"[lever/{slug}] ERROR: {e}")
+            title = html.unescape(j.get("text", "").strip())
+            cats = j.get("categories", {})
+            location = cats.get("location", "")
+            workplace = j.get("workplaceType", "")
+            if workplace == "remote" and not location:
+                location = "Remote"
+            posted = str(j.get("createdAt", ""))
+            jobs.append(Job(
+                id=_make_id(url), title=title, company=company_name,
+                location=location, url=url, source=f"lever/{slug}", posted=posted,
+            ))
+        return jobs
+    except Exception as e:
+        print(f"[lever/{slug}] ERROR: {e}")
+        return []
+
+
+def fetch_lever() -> list[Job]:
+    """Query Lever public posting API — all companies in parallel."""
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    all_jobs: list[Job] = []
+    with ThreadPoolExecutor(max_workers=8) as ex:
+        futures = {ex.submit(_fetch_lever_one, slug, name): slug
+                   for slug, name in LEVER_COMPANIES}
+        for f in as_completed(futures):
+            all_jobs.extend(f.result())
     print(f"[lever] {len(all_jobs)} jobs fetched across {len(LEVER_COMPANIES)} companies")
     return all_jobs
 
@@ -1053,15 +1061,31 @@ def _title_company_key(job: Job) -> str:
 
 
 def fetch_all() -> list[Job]:
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+
+    results: dict[int, list[Job]] = {}
+
+    with ThreadPoolExecutor(max_workers=8) as executor:
+        futures = {executor.submit(fn): i for i, fn in enumerate(BOARDS)}
+        for future in as_completed(futures):
+            idx = futures[future]
+            try:
+                results[idx] = future.result()
+            except Exception as e:
+                print(f"[fetch_all] Board {BOARDS[idx].__name__} ERROR: {e}")
+                results[idx] = []
+
     all_jobs: list[Job] = []
     seen_ids: set[str] = set()
     seen_title_company: set[str] = set()
-    for board_fn in BOARDS:
-        for job in board_fn():
+
+    for idx in range(len(BOARDS)):
+        for job in results.get(idx, []):
             tc_key = _title_company_key(job)
             if job.id in seen_ids or tc_key in seen_title_company:
                 continue
             all_jobs.append(job)
             seen_ids.add(job.id)
             seen_title_company.add(tc_key)
+
     return all_jobs

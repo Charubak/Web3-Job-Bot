@@ -179,17 +179,39 @@ def handle_command(text: str, msg_id: int = 0) -> None:
                 "No company data cached yet.\n"
                 "Send /jobs to fetch fresh listings first."
             )
+    elif cmd in ("/stats",):
+        import sqlite3, os
+        from pathlib import Path
+        from boards import BOARDS
+        data_dir = os.environ.get("DATA_DIR", str(Path(__file__).parent))
+        db_path = Path(data_dir) / "seen_jobs.db"
+        try:
+            conn = sqlite3.connect(db_path)
+            total_seen = conn.execute("SELECT COUNT(*) FROM seen_jobs").fetchone()[0]
+            oldest = conn.execute("SELECT MIN(seen_at) FROM seen_jobs").fetchone()[0]
+            conn.close()
+        except Exception:
+            total_seen, oldest = 0, None
+        oldest_str = oldest[:10] if oldest else "n/a"
+        send(
+            f"<b>Bot Stats</b>\n\n"
+            f"Boards active: {len(BOARDS)}\n"
+            f"Jobs in dedup DB: {total_seen}\n"
+            f"Tracking since: {oldest_str}\n"
+            f"Scrape interval: every {SCRAPE_INTERVAL_HOURS}h"
+        )
     elif cmd in ("/help", "/start"):
         send(
             "*Web3 Job Bot* 🤖\n\n"
             "/jobs — show latest Web3 marketing jobs\n"
             "/new — show only jobs you haven't seen yet\n"
             "/twitter — X profiles of companies hiring for marketing\n"
+            "/stats — bot status and DB info\n"
             "/clear — delete all bot messages in this chat\n"
             "/help — this message"
         )
     else:
-        send("Unknown command. Try /jobs, /new, /clear, /twitter, or /help.")
+        send("Unknown command. Try /jobs, /new, /clear, /twitter, /stats, or /help.")
 
 
 # ---------------------------------------------------------------------------
