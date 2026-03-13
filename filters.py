@@ -88,7 +88,7 @@ EXCLUDE_TITLE_PHRASES = [
     "developer advocacy",
     "developer evangelist",
     "internship",
-    "intern ",
+    " intern",
     "(intern)",
     "intern,",
 ]
