@@ -337,21 +337,22 @@ def fetch_cryptojobslist_web3() -> list[Job]:
 # ---------------------------------------------------------------------------
 
 GREENHOUSE_COMPANIES = [
-    ("coinbase",      "Coinbase"),
-    ("consensys",     "Consensys"),
-    ("alchemy",       "Alchemy"),
-    ("ripple",        "Ripple"),
-    ("fireblocks",    "Fireblocks"),
-    ("bitgo",         "BitGo"),
-    ("gemini",        "Gemini"),
-    ("nansen",        "Nansen"),
-    ("avalabs",       "Ava Labs"),
-    ("paradigm",      "Paradigm"),
-    ("messari",       "Messari"),
-    ("figment",       "Figment"),
-    ("solana",        "Solana Foundation"),
-    ("okx",           "OKX"),
-    ("openzeppelin",  "OpenZeppelin"),
+    ("coinbase",        "Coinbase"),
+    ("consensys",       "Consensys"),
+    ("alchemy",         "Alchemy"),
+    ("ripple",          "Ripple"),
+    ("fireblocks",      "Fireblocks"),
+    ("bitgo",           "BitGo"),
+    ("gemini",          "Gemini"),
+    ("nansen",          "Nansen"),
+    ("avalabs",         "Ava Labs"),
+    ("paradigm",        "Paradigm"),
+    ("messari",         "Messari"),
+    ("figment",         "Figment"),
+    ("solana",          "Solana Foundation"),
+    ("okx",             "OKX"),
+    ("openzeppelin",    "OpenZeppelin"),
+    ("jumpcrypto",      "Jump Crypto"),
 ]
 
 
@@ -404,6 +405,7 @@ LEVER_COMPANIES = [
     ("ledger",         "Ledger"),
     ("immutable",      "Immutable"),
     ("animocabrands",  "Animoca Brands"),
+    ("aurora-dev",     "Aurora (NEAR)"),
 ]
 
 
@@ -876,6 +878,58 @@ def fetch_cryptojobslist_telegram() -> list[Job]:
 
 
 # ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# Board 15: Remotive — public JSON API, no auth, remote jobs only
+# Broad remote job board with crypto/blockchain/web3 categories
+# ---------------------------------------------------------------------------
+
+def fetch_remotive() -> list[Job]:
+    """Remotive public API — Marketing category, filtered for web3/crypto titles."""
+    try:
+        resp = httpx.get(
+            "https://remotive.com/api/remote-jobs",
+            params={"category": "Marketing"},
+            headers=HEADERS,
+            timeout=15,
+        )
+        if resp.status_code != 200:
+            print(f"[remotive.com] HTTP {resp.status_code}")
+            return []
+        web3_kw = ["crypto", "blockchain", "web3", "defi", "nft", "token", "dao", "dex", "protocol", "layer"]
+        jobs = []
+        for j in resp.json().get("jobs", []):
+            title_co = (j.get("title", "") + " " + j.get("company_name", "") + " " + j.get("description", "")[:200]).lower()
+            if not any(kw in title_co for kw in web3_kw):
+                continue
+            url = j.get("url", "")
+            if not url:
+                continue
+            title = html.unescape(j.get("title", "").strip())
+            company = html.unescape(j.get("company_name", "").strip())
+            location = j.get("candidate_required_location", "") or "Remote"
+            posted = j.get("publication_date", "")
+            salary = j.get("salary", "") or ""
+            jobs.append(
+                Job(
+                    id=_make_id(url),
+                    title=title,
+                    company=company,
+                    location=location,
+                    url=url,
+                    source="remotive.com",
+                    salary=salary,
+                    posted=posted,
+                )
+            )
+        print(f"[remotive.com] {len(jobs)} web3 marketing jobs fetched")
+        return jobs
+    except Exception as e:
+        print(f"[remotive.com] ERROR: {e}")
+        return []
+
+
+
+
 # X.com hiring posts via Bing search
 # Note: X/Twitter blocked all search engine crawlers in 2023, so this
 # returns 0 results in practice. Kept as a canary — if X ever re-enables
@@ -983,6 +1037,7 @@ BOARDS = [
     fetch_lever_aave,
     fetch_cryptojobsdaily_telegram,
     fetch_cryptojobslist_telegram,
+    fetch_remotive,
     fetch_twitter_bing,
 ]
 

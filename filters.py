@@ -90,58 +90,50 @@ EXCLUDE_TITLE_PHRASES = [
 ]
 
 # ---------------------------------------------------------------------------
-# Location allowlist — ONLY these pass
-# Everything else with a specific geography is excluded
+# Location filter — open remote only
+# A job passes ONLY if it has a remote/global keyword AND no geo qualifier.
 # ---------------------------------------------------------------------------
 
-ALLOWED_LOCATION_KEYWORDS = [
+# These keywords signal truly open remote work (must have at least one)
+REMOTE_KEYWORDS = [
     "remote",
     "worldwide",
     "global",
     "anywhere",
     "distributed",
-    "dubai",
-    "uae",
-    "singapore",
-    "hong kong",
 ]
 
-# US-restricted patterns — also excluded even if they contain "remote"
-US_RESTRICTED_PATTERNS = [
-    "us only",
-    "us citizen",
-    "must be in us",
-    "us work authorization",
-    "remote - usa",
-    "remote, usa",
-    "remote - us",
-    "remote, us",
-    "us / remote",
-    "remote (us)",
-    "remote (usa)",
-    "remote (united states)",
-    "united states",
-    # US cities
-    "new york",
-    "san francisco",
-    "austin",
-    "los angeles",
-    "boston",
-    "chicago",
-    "seattle",
-    "miami",
-    "denver",
-    "nyc",
-    "bay area",
-    "silicon valley",
-    "remote - ny",
-    "remote - ca",
-    "california",
-    "texas",
-    "washington, d",
+# Geo qualifiers — if ANY of these appear in the location string, the job
+# is geo-restricted (even if "remote" is also present) and gets blocked.
+GEO_QUALIFIERS = [
+    # Regions
+    "europe", "european", "emea", "apac", "latam", "latin america",
+    "asia", "asia pacific", "africa", "middle east",
+    "north america", "south america", "oceania",
+    # Countries
+    "united states", "united kingdom", "great britain",
+    "usa", "us ", " us,", "(us)", "(usa)",
+    " uk", "uk ", "(uk)",
+    "germany", "france", "spain", "italy", "netherlands", "poland",
+    "portugal", "sweden", "norway", "denmark", "finland", "belgium",
+    "austria", "switzerland", "ireland", "greece", "czech", "hungary",
+    "canada", "australia", "new zealand", "india", "japan", "china",
+    "south korea", "korea", "brazil", "argentina", "mexico", "colombia",
+    "turkey", "nigeria", "south africa", "kenya", "egypt",
+    "singapore", "hong kong", "dubai", "uae",
+    # Major cities (when they appear in location, job is tied to that city)
+    "new york", "san francisco", "los angeles", "chicago", "seattle",
+    "boston", "austin", "miami", "nyc", "bay area",
+    "london", "berlin", "paris", "amsterdam", "madrid", "rome",
+    "toronto", "vancouver", "sydney", "melbourne",
+    "mumbai", "bangalore", "delhi", "tokyo", "shanghai", "beijing",
+    # Generic geo-restrict phrases
+    "must be based in", "must reside in", "must be located in",
+    "must live in", "residency required", "work authorization",
+    " only", # catches "europe only", "uk only" but not "remote only"
 ]
 
-# On-site patterns — excluded everywhere
+# On-site patterns — always excluded
 ONSITE_PATTERNS = [
     "on-site",
     "onsite",
@@ -149,6 +141,28 @@ ONSITE_PATTERNS = [
     "hybrid",
 ]
 
+
+# Companies known to geo-restrict all roles (even when listed as "Remote")
+COMPANY_DENYLIST = [
+    "tether",
+    "tether operations",
+]
+
+# Geo phrases in job TITLES that indicate a geo-restricted role
+TITLE_GEO_PHRASES = [
+    " - us",
+    " (us)",
+    ", us",
+    " - usa",
+    "americas",
+    " latam",
+    " apac",
+    " emea",
+    " europe",
+    " uk",
+    " irl ",   # "IRL" = in real life = on-site
+    "(irl)",
+]
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -253,23 +267,30 @@ def _is_excluded_title(title: str) -> bool:
 
 def _is_location_allowed(job) -> bool:
     """
-    Allowlist approach:
-    - Empty location → allow (assume remote / unknown)
-    - Contains an allowed keyword → allow (subject to US check below)
-    - Anything else → deny
+    Open-remote filter:
+    - Empty location → allow (assume globally open)
+    - On-site patterns → deny
+    - Must contain a remote/global keyword → deny if absent
+    - Even with "remote", deny if a geo qualifier is also present
+      (means geo-restricted remote, e.g. "Remote - Mexico", "Remote LATAM")
     """
     loc = _decode(job.location or "").lower().strip()
     if not loc:
         return True
 
-    # US-restricted and on-site always deny
-    if any(p in loc for p in US_RESTRICTED_PATTERNS):
-        return False
+    # Always block on-site
     if any(p in loc for p in ONSITE_PATTERNS):
         return False
 
-    # Must contain at least one allowed keyword
-    return any(kw in loc for kw in ALLOWED_LOCATION_KEYWORDS)
+    # Must have at least one open-remote keyword
+    if not any(kw in loc for kw in REMOTE_KEYWORDS):
+        return False
+
+    # Block even if remote when a geo qualifier is present
+    if any(q in loc for q in GEO_QUALIFIERS):
+        return False
+
+    return True
 
 
 # ---------------------------------------------------------------------------
@@ -293,6 +314,14 @@ def apply_filters(jobs: list) -> list:
         if not _is_location_allowed(job):
             continue
         if _is_too_old(job):
+            continue
+        # Block denylisted companies (geo-restrict all roles regardless of listing)
+        company_lower = _decode(job.company or "").lower()
+        if any(d in company_lower for d in COMPANY_DENYLIST):
+            continue
+        # Block titles with geo-restriction phrases
+        title_lower = _decode(job.title or "").lower()
+        if any(p in title_lower for p in TITLE_GEO_PHRASES):
             continue
         result.append(job)
     return result

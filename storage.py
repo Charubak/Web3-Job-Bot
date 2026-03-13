@@ -1,6 +1,6 @@
 import os
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 # On Fly.io the /data volume is mounted here; locally use the project dir
@@ -47,7 +47,7 @@ def mark_seen(jobs: list) -> None:
     if not jobs:
         return
     conn = _connect()
-    now = datetime.utcnow().isoformat()
+    now = datetime.now(timezone.utc).isoformat()
     conn.executemany(
         "INSERT OR IGNORE INTO seen_jobs (id, title, url, seen_at) VALUES (?, ?, ?, ?)",
         [(j.id, j.title, j.url, now) for j in jobs],

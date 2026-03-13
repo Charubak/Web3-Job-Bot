@@ -1,3 +1,4 @@
+import time
 import httpx
 import html as html_lib
 from datetime import datetime, timezone
@@ -53,21 +54,35 @@ def _split_messages(lines: list[str]) -> list[str]:
     return messages
 
 
-def _send(text: str) -> None:
-    resp = httpx.post(
-        f"{TELEGRAM_API}/sendMessage",
-        json={
-            "chat_id": TELEGRAM_CHAT_ID,
-            "text": text,
-            "parse_mode": "HTML",
-            "disable_web_page_preview": True,
-        },
-        timeout=15,
-    )
-    resp.raise_for_status()
-    data = resp.json()
-    if not data.get("ok"):
-        raise RuntimeError(f"Telegram send failed: {data.get('description', data)}")
+def _send(text: str, _retries: int = 3) -> None:
+    for attempt in range(_retries):
+        try:
+            resp = httpx.post(
+                f"{TELEGRAM_API}/sendMessage",
+                json={
+                    "chat_id": TELEGRAM_CHAT_ID,
+                    "text": text,
+                    "parse_mode": "HTML",
+                    "disable_web_page_preview": True,
+                },
+                timeout=15,
+            )
+            if resp.status_code == 429:
+                retry_after = int(resp.json().get("parameters", {}).get("retry_after", 5))
+                print(f"[notifier] Rate limited — waiting {retry_after}s")
+                time.sleep(retry_after)
+                continue
+            resp.raise_for_status()
+            data = resp.json()
+            if not data.get("ok"):
+                raise RuntimeError(f"Telegram send failed: {data.get('description', data)}")
+            return
+        except httpx.HTTPStatusError as e:
+            if attempt < _retries - 1:
+                time.sleep(2 ** attempt)
+            else:
+                raise
+    raise RuntimeError(f"_send failed after {_retries} attempts")
 
 
 def send_jobs(jobs: list) -> None:
@@ -85,5 +100,7 @@ def send_jobs(jobs: list) -> None:
     for i, chunk in enumerate(chunks):
         prefix = header if i == 0 else f"<i>(continued {i+1}/{len(chunks)})</i>\n\n"
         _send(prefix + chunk)
+        if i < len(chunks) - 1:
+            time.sleep(1)  # avoid Telegram rate limit between chunks
 
     print(f"[notifier] Sent {len(jobs)} job(s) across {len(chunks)} message(s).")
