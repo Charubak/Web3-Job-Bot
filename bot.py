@@ -110,8 +110,8 @@ def _do_fetch_jobs(new_only: bool = False) -> None:
         raw = fetch_all()
         jobs = apply_filters(raw)
 
+        from storage import filter_unseen, mark_seen
         if new_only:
-            from storage import filter_unseen
             jobs = filter_unseen(jobs)
 
         if not jobs:
@@ -121,9 +121,7 @@ def _do_fetch_jobs(new_only: bool = False) -> None:
         label = "new (unseen)" if new_only else "latest"
         send(f"*🚀 {len(jobs)} {label} Web3 marketing job{'s' if len(jobs) != 1 else ''}:*")
         send_jobs(jobs)
-        if new_only:
-            from storage import mark_seen
-            mark_seen(jobs)
+        mark_seen(jobs)  # always mark seen so scheduler won't re-send these
     except Exception as e:
         send(f"❌ Error fetching jobs: {e}")
         print(f"[bot] handle_jobs error: {e}")
