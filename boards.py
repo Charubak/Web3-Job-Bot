@@ -25,10 +25,25 @@ class Job:
     source: str
     salary: str = ""
     posted: str = ""
+    description: str = ""
 
 
 def _make_id(url: str) -> str:
     return hashlib.sha256(url.encode()).hexdigest()[:16]
+
+
+_URL_SHORTENERS = ("tinyurl.com", "bit.ly", "ow.ly", "t.co", "buff.ly", "rb.gy", "cutt.ly")
+
+def _resolve_url(url: str) -> str:
+    """Follow redirects for shortened URLs to get the real apply link."""
+    if not any(s in url for s in _URL_SHORTENERS):
+        return url
+    try:
+        resp = httpx.head(url, follow_redirects=True, timeout=8, headers=HEADERS)
+        final = str(resp.url)
+        return final if final.startswith("http") else url
+    except Exception:
+        return url
 
 
 def _split_title_company(raw: str) -> tuple[str, str]:
@@ -42,12 +57,28 @@ def _split_title_company(raw: str) -> tuple[str, str]:
 
 
 def _extract_location_from_summary(summary: str) -> str:
-    """Pull location hints out of an RSS summary string."""
+    """
+    Pull location hints out of an RSS summary string.
+    Returns the location string so filters.py can decide if it's allowed.
+    Checks for remote/global keywords first, then geo-restricted patterns.
+    """
     text = BeautifulSoup(summary, "html.parser").get_text(" ", strip=True).lower()
-    for keyword in ["worldwide", "global", "anywhere", "remote", "on-site", "hybrid"]:
+
+    # Remote/global = good
+    for keyword in ["worldwide", "global", "anywhere", "distributed"]:
         if keyword in text:
-            # Return title-cased version
             return keyword.title()
+    if "remote" in text and not any(
+        p in text for p in ["remote - ", "remote, ", "remote (", "based in", "located in"]
+    ):
+        return "Remote"
+
+    # "based in X" or "located in X" — extract the city/country as location
+    import re as _re
+    m = _re.search(r"(?:based|located)\s+in\s+([\w\s,]+?)(?:\.|,|$)", text)
+    if m:
+        return m.group(1).strip().title()
+
     return ""
 
 
@@ -65,7 +96,9 @@ def fetch_cryptocurrencyjobs() -> list[Job]:
                 continue
             raw_title = entry.get("title", "").strip()
             title, company = _split_title_company(raw_title)
-            location = _extract_location_from_summary(entry.get("summary", ""))
+            summary = entry.get("summary", "")
+            location = _extract_location_from_summary(summary)
+            description = BeautifulSoup(summary, "html.parser").get_text(" ", strip=True)
             jobs.append(
                 Job(
                     id=_make_id(url),
@@ -75,6 +108,7 @@ def fetch_cryptocurrencyjobs() -> list[Job]:
                     url=url,
                     source="cryptocurrencyjobs.co",
                     posted=entry.get("published", ""),
+                    description=description,
                 )
             )
         print(f"[cryptocurrencyjobs.co] {len(jobs)} jobs fetched")
@@ -434,9 +468,14 @@ def _fetch_lever_one(slug: str, company_name: str) -> list[Job]:
             if workplace == "remote" and not location:
                 location = "Remote"
             posted = str(j.get("createdAt", ""))
+            description = " ".join(filter(None, [
+                j.get("descriptionPlain", ""),
+                j.get("additionalPlain", ""),
+            ]))
             jobs.append(Job(
                 id=_make_id(url), title=title, company=company_name,
                 location=location, url=url, source=f"lever/{slug}", posted=posted,
+                description=description,
             ))
         return jobs
     except Exception as e:
@@ -657,7 +696,7 @@ def fetch_web3hiring_telegram() -> list[Job]:
             if not ext_links:
                 continue
 
-            url = ext_links[0]
+            url = _resolve_url(ext_links[0])
             full_text = text_el.get_text("\n", strip=True)
             lines = [l.strip() for l in full_text.splitlines() if l.strip()]
 
@@ -777,7 +816,7 @@ def fetch_cryptojobsdaily_telegram() -> list[Job]:
                 a["href"] for a in msg.select("a[href]")
                 if "http" in a.get("href", "") and "t.me" not in a["href"]
             ]
-            url = ext_links[0] if ext_links else ""
+            url = _resolve_url(ext_links[0]) if ext_links else ""
             if not url:
                 continue
 
@@ -862,7 +901,7 @@ def fetch_cryptojobslist_telegram() -> list[Job]:
                 a["href"] for a in msg.select("a[href]")
                 if "http" in a.get("href", "") and "t.me" not in a["href"]
             ]
-            url = ext_links[0] if ext_links else ""
+            url = _resolve_url(ext_links[0]) if ext_links else ""
             if not url:
                 continue
 

@@ -152,6 +152,32 @@ COMPANY_DENYLIST = [
     "tether operations",
 ]
 
+# Phrases in job DESCRIPTIONS that explicitly require presence in a location
+DESCRIPTION_GEO_PHRASES = [
+    "must be based in",
+    "must be located in",
+    "must reside in",
+    "must be residing in",
+    "must live in",
+    "required to be based in",
+    "required to reside in",
+    "required to live in",
+    "need to be based in",
+    "need to be located in",
+    "expected to be based in",
+    "authorized to work in the us",
+    "authorized to work in the united states",
+    "authorized to work in the uk",
+    "authorized to work in the united kingdom",
+    "right to work in the us",
+    "right to work in the uk",
+    "right to work in the united states",
+    "right to work in the united kingdom",
+    "eligible to work in the us",
+    "eligible to work in the united states",
+    "legally authorized to work in",
+]
+
 # Geo phrases in job TITLES that indicate a geo-restricted role
 TITLE_GEO_PHRASES = [
     " - us",
@@ -326,6 +352,10 @@ def apply_filters(jobs: list) -> list:
         # Block titles with geo-restriction phrases
         title_lower = _decode(job.title or "").lower()
         if any(p in title_lower for p in TITLE_GEO_PHRASES):
+            continue
+        # Block if job description explicitly requires presence in a location
+        desc_lower = _decode(getattr(job, "description", "") or "").lower()
+        if desc_lower and any(p in desc_lower for p in DESCRIPTION_GEO_PHRASES):
             continue
         result.append(job)
     return result
