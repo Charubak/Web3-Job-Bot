@@ -210,20 +210,30 @@ def _parse_posted_date(posted: str) -> Optional[datetime]:
     if not posted or posted in ("None", "0", ""):
         return None
 
-    # Relative strings: "16h", "2d", "3w", "1mo" (from web3.career, cryptojobslist)
+    # Relative strings — two formats:
+    # "16h", "2d", "3w", "1mo"  (web3.career, cryptojobslist)
+    # "16 days ago", "2 hours ago"  (crypto.jobs)
     _now = datetime.now(timezone.utc)
-    m = re.fullmatch(r"(\d+)\s*(h|d|w|mo|m)", posted.lower())
-    if m:
-        n, unit = int(m.group(1)), m.group(2)
+    _rel = re.fullmatch(r"(\d+)\s*(h|d|w|mo|m)", posted.lower())
+    if _rel:
+        _n, _unit = int(_rel.group(1)), _rel.group(2)
+    else:
+        _long = re.search(r"(\d+)\s*(hour|day|week|month)s?\s+ago", posted.lower())
+        if _long:
+            _n = int(_long.group(1))
+            _unit = {"hour": "h", "day": "d", "week": "w", "month": "mo"}[_long.group(2)]
+        else:
+            _n = _unit = None
+    if _unit:
         try:
-            if unit == "h":
-                return _now - timedelta(hours=n)
-            if unit == "d":
-                return _now - timedelta(days=n)
-            if unit == "w":
-                return _now - timedelta(weeks=n)
-            if unit in ("mo", "m"):
-                return _now - timedelta(days=n * 30)
+            if _unit == "h":
+                return _now - timedelta(hours=_n)
+            if _unit == "d":
+                return _now - timedelta(days=_n)
+            if _unit == "w":
+                return _now - timedelta(weeks=_n)
+            if _unit in ("mo", "m"):
+                return _now - timedelta(days=_n * 30)
         except Exception:
             pass
 

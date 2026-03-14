@@ -622,25 +622,25 @@ def fetch_cryptojobs() -> list[Job]:
         resp.raise_for_status()
         soup = BeautifulSoup(resp.text, "html.parser")
         jobs = []
-        for card in soup.select("a.job-url"):
+        for row in soup.select("tr.job-entry"):
+            card = row.select_one("a.job-url")
+            if not card:
+                continue
             href = card.get("href", "")
             url = href if href.startswith("http") else base + href
 
             title_el = card.select_one("p.job-title")
             title = html.unescape(title_el.get_text(strip=True)) if title_el else ""
 
-            # Company is the <span> directly after the <p>
             spans = card.find_all("span", recursive=False)
             company = html.unescape(spans[0].get_text(strip=True)) if spans else ""
             if not company:
-                # fallback: find first non-empty span
                 for s in card.find_all("span"):
                     t = s.get_text(strip=True)
                     if t and len(t) < 80:
                         company = t
                         break
 
-            # Location is inside the <small> block
             location = ""
             small = card.select_one("div.hidden-xs small")
             if small:
@@ -649,6 +649,14 @@ def fetch_cryptojobs() -> list[Job]:
                     if "🌍" in t or "remote" in t.lower():
                         location = t.replace("🌍", "").strip()
                         break
+
+            # Date: "16 days ago" text in a <small> inside the row (outside the card)
+            posted = ""
+            for small_el in row.select("small"):
+                txt = small_el.get_text(strip=True)
+                if re.search(r"\d+\s*(day|hour|week|month)", txt, re.I):
+                    posted = txt
+                    break
 
             if not title:
                 continue
@@ -661,6 +669,7 @@ def fetch_cryptojobs() -> list[Job]:
                     location=location,
                     url=url,
                     source="crypto.jobs",
+                    posted=posted,
                 )
             )
         print(f"[crypto.jobs] {len(jobs)} jobs fetched")
