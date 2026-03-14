@@ -51,6 +51,12 @@ def _resolve_url(url: str) -> str:
         return url
 
 
+def _tg_posted(msg) -> str:
+    """Extract ISO datetime from a Telegram message's <time> element."""
+    time_el = msg.select_one("time[datetime]")
+    return time_el["datetime"] if time_el else ""
+
+
 def _split_title_company(raw: str) -> tuple[str, str]:
     """Split 'Job Title at Company Name' into (title, company)."""
     raw = html.unescape(raw)
@@ -737,6 +743,7 @@ def fetch_web3hiring_telegram() -> list[Job]:
                     location="",  # not in post; filters will pass unknowns through
                     url=url,
                     source="@web3hiring",
+                    posted=_tg_posted(msg),
                 )
             )
 
@@ -845,6 +852,7 @@ def fetch_cryptojobsdaily_telegram() -> list[Job]:
                     location=fields.get("location", ""),
                     url=url,
                     source="@cryptojobsdaily",
+                    posted=_tg_posted(msg),
                 )
             )
 
@@ -931,6 +939,7 @@ def fetch_cryptojobslist_telegram() -> list[Job]:
                     url=url,
                     source="@cryptojobslist",
                     salary=salary,
+                    posted=_tg_posted(msg),
                 )
             )
 
@@ -1133,6 +1142,7 @@ def fetch_web3marketingjobs_telegram() -> list[Job]:
                 location="",
                 url=url,
                 source="@web3marketingjobs",
+                posted=_tg_posted(msg),
             ))
 
         print(f"[@web3marketingjobs] {len(jobs)} jobs fetched")
@@ -1194,6 +1204,7 @@ def fetch_web3_marketing_jobs_telegram() -> list[Job]:
                 location=location,
                 url=url,
                 source="@web3_marketing_jobs",
+                posted=_tg_posted(msg),
             ))
 
         print(f"[@web3_marketing_jobs] {len(jobs)} jobs fetched")
@@ -1224,8 +1235,6 @@ BOARDS = [
     fetch_cryptojobslist_telegram,
     fetch_remotive,
     fetch_twitter_bing,
-    fetch_web3marketingjobs_telegram,
-    fetch_web3_marketing_jobs_telegram,
 ]
 
 
