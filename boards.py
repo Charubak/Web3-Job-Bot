@@ -1083,6 +1083,127 @@ def fetch_twitter_bing() -> list[Job]:
 
 
 # ---------------------------------------------------------------------------
+# Board 16: @web3marketingjobs Telegram — exclusively web3 marketing roles
+# Format: "🚨 Title @ Company\nLearn more: URL\nCompany description..."
+# ---------------------------------------------------------------------------
+
+def fetch_web3marketingjobs_telegram() -> list[Job]:
+    """Scrape @web3marketingjobs — 100% web3 marketing job posts."""
+    try:
+        resp = httpx.get(
+            "https://t.me/s/web3marketingjobs",
+            headers=HEADERS,
+            follow_redirects=True,
+            timeout=15,
+        )
+        resp.raise_for_status()
+        soup = BeautifulSoup(resp.text, "html.parser")
+        jobs = []
+
+        for msg in soup.select(".tgme_widget_message_wrap"):
+            text_el = msg.select_one(".tgme_widget_message_text")
+            if not text_el:
+                continue
+            lines = [l.strip() for l in text_el.get_text("\n", strip=True).splitlines() if l.strip()]
+
+            # Format: line 0 = "🚨", line 1 = "Title @ Company"
+            title = company = ""
+            for line in lines[:3]:
+                m = re.match(r"(.+?)\s+@\s+(.+)", line)
+                if m and len(m.group(1)) > 3:
+                    title = html.unescape(m.group(1).strip())
+                    company = html.unescape(m.group(2).strip())
+                    break
+            if not title:
+                continue
+
+            ext_links = [
+                a["href"] for a in msg.select("a[href]")
+                if "http" in a.get("href", "") and "t.me" not in a["href"]
+                and "/job/" in a.get("href", "")  # only specific job pages, not homepage
+            ]
+            url = ext_links[0] if ext_links else ""
+            if not url:
+                continue
+
+            jobs.append(Job(
+                id=_make_id(url),
+                title=title,
+                company=company,
+                location="",
+                url=url,
+                source="@web3marketingjobs",
+            ))
+
+        print(f"[@web3marketingjobs] {len(jobs)} jobs fetched")
+        return jobs
+    except Exception as e:
+        print(f"[@web3marketingjobs] ERROR: {e}")
+        return []
+
+
+# ---------------------------------------------------------------------------
+# Board 17: @web3_marketing_jobs Telegram — web3 marketing roles
+# Format: "📢 Company is Hiring! Position: Title Location: Loc Apply now: URL"
+# ---------------------------------------------------------------------------
+
+def fetch_web3_marketing_jobs_telegram() -> list[Job]:
+    """Scrape @web3_marketing_jobs — web3 marketing job posts."""
+    try:
+        resp = httpx.get(
+            "https://t.me/s/web3_marketing_jobs",
+            headers=HEADERS,
+            follow_redirects=True,
+            timeout=15,
+        )
+        resp.raise_for_status()
+        soup = BeautifulSoup(resp.text, "html.parser")
+        jobs = []
+
+        for msg in soup.select(".tgme_widget_message_wrap"):
+            text_el = msg.select_one(".tgme_widget_message_text")
+            if not text_el:
+                continue
+            full_text = text_el.get_text(" ", strip=True)
+
+            # Format: "📢 Company is Hiring! Position: Title Location: Loc"
+            company_m = re.search(r"📢\s+(.+?)\s+is Hiring!", full_text)
+            title_m = re.search(r"Position:\s+(.+?)(?:\s+Location:|$)", full_text)
+            loc_m = re.search(r"Location:\s+(.+?)(?:\s+Apply|$)", full_text)
+            if not company_m or not title_m:
+                continue
+
+            title = html.unescape(title_m.group(1).strip())
+            company = html.unescape(company_m.group(1).strip())
+            location = loc_m.group(1).strip() if loc_m else ""
+            # Strip flag emojis from location
+            location = re.sub(r"[\U0001F1E0-\U0001F1FF]", "", location).strip()
+
+            ext_links = [
+                a["href"] for a in msg.select("a[href]")
+                if "http" in a.get("href", "") and "t.me" not in a["href"]
+            ]
+            url = ext_links[0] if ext_links else ""
+            if not url:
+                continue
+
+            jobs.append(Job(
+                id=_make_id(url),
+                title=title,
+                company=company,
+                location=location,
+                url=url,
+                source="@web3_marketing_jobs",
+            ))
+
+        print(f"[@web3_marketing_jobs] {len(jobs)} jobs fetched")
+        return jobs
+    except Exception as e:
+        print(f"[@web3_marketing_jobs] ERROR: {e}")
+        return []
+
+
+# ---------------------------------------------------------------------------
 # Main entry point
 # ---------------------------------------------------------------------------
 
@@ -1103,6 +1224,8 @@ BOARDS = [
     fetch_cryptojobslist_telegram,
     fetch_remotive,
     fetch_twitter_bing,
+    fetch_web3marketingjobs_telegram,
+    fetch_web3_marketing_jobs_telegram,
 ]
 
 
