@@ -210,6 +210,23 @@ def _parse_posted_date(posted: str) -> Optional[datetime]:
     if not posted or posted in ("None", "0", ""):
         return None
 
+    # Relative strings: "16h", "2d", "3w", "1mo" (from web3.career, cryptojobslist)
+    _now = datetime.now(timezone.utc)
+    m = re.fullmatch(r"(\d+)\s*(h|d|w|mo|m)", posted.lower())
+    if m:
+        n, unit = int(m.group(1)), m.group(2)
+        try:
+            if unit == "h":
+                return _now - timedelta(hours=n)
+            if unit == "d":
+                return _now - timedelta(days=n)
+            if unit == "w":
+                return _now - timedelta(weeks=n)
+            if unit in ("mo", "m"):
+                return _now - timedelta(days=n * 30)
+        except Exception:
+            pass
+
     # Lever: Unix timestamp in milliseconds (13 digits)
     if re.fullmatch(r"\d{13}", posted):
         try:
