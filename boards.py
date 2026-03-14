@@ -35,13 +35,18 @@ def _make_id(url: str) -> str:
 _URL_SHORTENERS = ("tinyurl.com", "bit.ly", "ow.ly", "t.co", "buff.ly", "rb.gy", "cutt.ly")
 
 def _resolve_url(url: str) -> str:
-    """Follow redirects for shortened URLs to get the real apply link."""
+    """Follow redirects for shortened URLs. Returns empty string if final URL is 404."""
     if not any(s in url for s in _URL_SHORTENERS):
         return url
     try:
         resp = httpx.head(url, follow_redirects=True, timeout=8, headers=HEADERS)
         final = str(resp.url)
-        return final if final.startswith("http") else url
+        if not final.startswith("http"):
+            return url
+        # Drop the job if the resolved page is gone
+        if resp.status_code == 404:
+            return ""
+        return final
     except Exception:
         return url
 
@@ -444,6 +449,7 @@ LEVER_COMPANIES = [
     ("immutable",      "Immutable"),
     ("animocabrands",  "Animoca Brands"),
     ("aurora-dev",     "Aurora (NEAR)"),
+    ("offchainlabs",   "Arbitrum (Offchain Labs)"),
 ]
 
 
@@ -697,6 +703,8 @@ def fetch_web3hiring_telegram() -> list[Job]:
                 continue
 
             url = _resolve_url(ext_links[0])
+            if not url:
+                continue
             full_text = text_el.get_text("\n", strip=True)
             lines = [l.strip() for l in full_text.splitlines() if l.strip()]
 
