@@ -86,9 +86,10 @@ def select_chat(updates, digest: str, start: float, end: float, now: float):
     return next(iter(matches.items()))
 
 
-def pair(token: str, expected_bot: str, digest: str, issued: str, expires: str, *, now=None, call=api_call):
-    now = now or datetime.now(timezone.utc)
-    start, end = verify_window(digest, issued, expires, now)
+def pair(token: str, expected_bot: str, digest: str, issued: str, expires: str, *, now=None, call=api_call, clock=None):
+    clock = clock or (lambda: now or datetime.now(timezone.utc))
+    checked_at = clock()
+    start, end = verify_window(digest, issued, expires, checked_at)
     if not token or expected_bot != "charubak_web3jobs_bot":
         raise PairingError("Expected bot configuration is missing")
     bot = call(token, "getMe")
@@ -99,7 +100,7 @@ def pair(token: str, expected_bot: str, digest: str, issued: str, expires: str, 
         raise PairingError("Existing webhook or unexpected status prevents pairing; no webhook was changed")
     # No offset: do not acknowledge/discard updates. No allowed_updates: preserve settings.
     updates = call(token, "getUpdates", {"limit": 100, "timeout": 0})
-    chat_id, message_id = select_chat(updates, digest, start, end, now.timestamp())
+    chat_id, message_id = select_chat(updates, digest, start, end, checked_at.timestamp())
     text = (
         "Your original Web3 job chat is verified. One final setup step:\n\n"
         "In GitHub → Charubak/Web3-Job-Bot → Settings → Secrets and variables → Actions, "
@@ -108,6 +109,8 @@ def pair(token: str, expected_bot: str, digest: str, issued: str, expires: str, 
         "Then tell dot it is saved. Job alerts are not enabled yet. "
         "Never post your bot API token in a message."
     )
+    # Reads may have taken time; never start a send after the approved window.
+    verify_window(digest, issued, expires, clock())
     result = call(token, "sendMessage", {"chat_id": chat_id, "text": text,
                   "reply_parameters": {"message_id": message_id}, "disable_web_page_preview": True})
     if (not isinstance(result, dict) or not isinstance(result.get("chat"), dict) or

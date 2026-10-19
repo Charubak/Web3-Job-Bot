@@ -81,6 +81,13 @@ class PairingTests(unittest.TestCase):
             self.run_pair(updates=[{"message": {"text": "unrelated private message"}}])
         self.assertEqual(stream.getvalue(), "")
 
+    def test_expiry_during_reads_stops_before_send(self):
+        call = MagicMock(side_effect=[{"username": BOT, "is_bot": True}, {"url": ""}, [update()]])
+        clock = MagicMock(side_effect=[NOW, datetime(2026, 10, 19, 16, 6, tzinfo=timezone.utc)])
+        with self.assertRaises(pairing.PairingError):
+            pairing.pair("token", BOT, DIGEST, ISSUED, EXPIRES, clock=clock, call=call)
+        self.assertEqual(call.call_count, 3)
+
     def test_bad_ack_is_uncertain_not_retried(self):
         with self.assertRaisesRegex(pairing.PairingError, "unconfirmed"):
             self.run_pair(send={"chat": {"id": 456, "type": "private"}, "message_id": 9})
