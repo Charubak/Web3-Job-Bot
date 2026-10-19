@@ -6,6 +6,7 @@ import logging
 import os
 import re
 import sys
+import time
 from datetime import datetime, timezone
 
 import httpx
@@ -14,6 +15,10 @@ MAX_BODY = 2 * 1024 * 1024
 
 
 class PairingError(RuntimeError):
+    pass
+
+
+class NoHandshake(PairingError):
     pass
 
 
@@ -82,8 +87,10 @@ def select_chat(updates, digest: str, start: float, end: float, now: float):
                 any(k in message for k in ("forward_origin", "forward_from", "via_bot", "sender_chat"))):
             continue
         matches[chat_id] = message_id
+    if not matches:
+        raise NoHandshake("No fresh owner handshake found; no setup reply was attempted")
     if len(matches) != 1:
-        raise PairingError("No unique fresh owner handshake found; no setup reply was attempted")
+        raise PairingError("Multiple owner handshakes found; no setup reply was attempted")
     return next(iter(matches.items()))
 
 
@@ -113,8 +120,10 @@ def diagnose_updates(updates, digest, start, end, now):
     return result
 
 
-def pair(token: str, expected_bot: str, digest: str, issued: str, expires: str, *, now=None, call=api_call, clock=None, diagnostic=False):
+def pair(token: str, expected_bot: str, digest: str, issued: str, expires: str, *, now=None, call=api_call, clock=None, diagnostic=False, wait_seconds=0, sleep=time.sleep, monotonic=time.monotonic):
     clock = clock or (lambda: now or datetime.now(timezone.utc))
+    if type(wait_seconds) is not int or not 0 <= wait_seconds <= 180:
+        raise PairingError("Invalid bounded listening window")
     checked_at = clock()
     start, end = verify_window(digest, issued, expires, checked_at)
     if not token or expected_bot != "charubak_web3jobs_bot":
@@ -125,12 +134,32 @@ def pair(token: str, expected_bot: str, digest: str, issued: str, expires: str, 
     webhook = call(token, "getWebhookInfo")
     if not isinstance(webhook, dict) or webhook.get("url") != "":
         raise PairingError("Existing webhook or unexpected status prevents pairing; no webhook was changed")
-    # No offset: do not acknowledge/discard updates. No allowed_updates: preserve settings.
-    updates = call(token, "getUpdates", {"limit": 100, "timeout": 0})
-    if diagnostic:
-        print(json.dumps(diagnose_updates(updates, digest, start, end, checked_at.timestamp()), sort_keys=True))
-        return False
-    chat_id, message_id = select_chat(updates, digest, start, end, checked_at.timestamp())
+    deadline = monotonic() + wait_seconds
+    if wait_seconds:
+        print("Listening for the owner handshake for at most 180 seconds; no updates will be acknowledged.", flush=True)
+    def check_deadline():
+        if wait_seconds and monotonic() >= deadline:
+            raise NoHandshake("Bounded listening window ended; no setup reply was attempted")
+
+    while True:
+        check_deadline()
+        verify_window(digest, issued, expires, clock())
+        # No offset: do not acknowledge/discard updates. No allowed_updates: preserve settings.
+        updates = call(token, "getUpdates", {"limit": 100, "timeout": 0})
+        check_deadline()
+        checked_at = clock()
+        verify_window(digest, issued, expires, checked_at)
+        if diagnostic:
+            print(json.dumps(diagnose_updates(updates, digest, start, end, checked_at.timestamp()), sort_keys=True))
+            return False
+        try:
+            chat_id, message_id = select_chat(updates, digest, start, end, checked_at.timestamp())
+            break
+        except NoHandshake:
+            remaining = deadline - monotonic()
+            if remaining <= 0 or (isinstance(updates, list) and len(updates) == 100):
+                raise
+            sleep(min(2, remaining))
     text = (
         "Your original Web3 job chat is verified. One final setup step:\n\n"
         "In GitHub → Charubak/Web3-Job-Bot → Settings → Secrets and variables → Actions, "
@@ -139,7 +168,8 @@ def pair(token: str, expected_bot: str, digest: str, issued: str, expires: str, 
         "Then tell dot it is saved. Job alerts are not enabled yet. "
         "Never post your bot API token in a message."
     )
-    # Reads may have taken time; never start a send after the approved window.
+    # Reads may have taken time; never start a send after the approved windows.
+    check_deadline()
     verify_window(digest, issued, expires, clock())
     result = call(token, "sendMessage", {"chat_id": chat_id, "text": text,
                   "reply_parameters": {"message_id": message_id}, "disable_web_page_preview": True})
@@ -156,10 +186,11 @@ def main():
         if os.getenv("GITHUB_RUN_ATTEMPT") != "1" or os.getenv("GITHUB_RUN_NUMBER") != "1":
             raise PairingError("Automatic/repeated pairing attempts are disabled")
         diagnostic = sys.argv[1:] == ["--diagnose"]
-        if sys.argv[1:] and not diagnostic:
+        listening = sys.argv[1:] == ["--listen-once"]
+        if sys.argv[1:] and not (diagnostic or listening):
             raise PairingError("Unsupported pairing arguments")
         pair(os.getenv("TELEGRAM_BOT_TOKEN", ""), os.getenv("EXPECTED_BOT", ""),
-             os.getenv("PAIRING_SHA256", ""), os.getenv("PAIRING_ISSUED", ""), os.getenv("PAIRING_EXPIRES", ""), diagnostic=diagnostic)
+             os.getenv("PAIRING_SHA256", ""), os.getenv("PAIRING_ISSUED", ""), os.getenv("PAIRING_EXPIRES", ""), diagnostic=diagnostic, wait_seconds=180 if listening else 0)
     except PairingError as exc:
         print(str(exc))
         return 1

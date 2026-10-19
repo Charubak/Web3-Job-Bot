@@ -83,7 +83,7 @@ class PairingTests(unittest.TestCase):
 
     def test_expiry_during_reads_stops_before_send(self):
         call = MagicMock(side_effect=[{"username": BOT, "is_bot": True}, {"url": ""}, [update()]])
-        clock = MagicMock(side_effect=[NOW, datetime(2026, 10, 19, 16, 6, tzinfo=timezone.utc)])
+        clock = MagicMock(side_effect=[NOW, NOW, datetime(2026, 10, 19, 16, 6, tzinfo=timezone.utc)])
         with self.assertRaises(pairing.PairingError):
             pairing.pair("token", BOT, DIGEST, ISSUED, EXPIRES, clock=clock, call=call)
         self.assertEqual(call.call_count, 3)
@@ -122,6 +122,61 @@ class PairingTests(unittest.TestCase):
         self.assertTrue(result["trimmed_nonce_present"])
         with self.assertRaises(pairing.PairingError):
             pairing.select_chat([item], DIGEST, NOW.timestamp()-60, NOW.timestamp()+60, NOW.timestamp())
+
+    def test_bounded_listener_can_match_later_message_without_acknowledging(self):
+        call = MagicMock(side_effect=[{"username": BOT, "is_bot": True}, {"url": ""}, [], [update()], {"chat": {"id": 123, "type": "private"}, "message_id": 9}])
+        sleeper = MagicMock()
+        with redirect_stdout(io.StringIO()):
+            self.assertTrue(pairing.pair("token", BOT, DIGEST, ISSUED, EXPIRES, now=NOW, call=call, wait_seconds=5, sleep=sleeper, monotonic=MagicMock(return_value=0)))
+        self.assertEqual(call.call_count, 5)
+        self.assertEqual(sleeper.call_args.args, (2,))
+        self.assertEqual(call.call_args_list[3].args[2], {"limit": 100, "timeout": 0})
+
+    def test_bounded_listener_stops_without_sending_at_deadline(self):
+        call = MagicMock(side_effect=[{"username": BOT, "is_bot": True}, {"url": ""}, []])
+        with redirect_stdout(io.StringIO()), self.assertRaises(pairing.NoHandshake):
+            pairing.pair("token", BOT, DIGEST, ISSUED, EXPIRES, now=NOW, call=call, wait_seconds=5, monotonic=MagicMock(side_effect=[0, 0, 5]))
+        self.assertEqual(call.call_count, 3)
+
+    def test_bounded_listener_does_not_retry_api_conflicts(self):
+        call = MagicMock(side_effect=[{"username": BOT, "is_bot": True}, {"url": ""}, pairing.PairingError("verification unavailable")])
+        with redirect_stdout(io.StringIO()), self.assertRaises(pairing.PairingError):
+            pairing.pair("token", BOT, DIGEST, ISSUED, EXPIRES, now=NOW, call=call, wait_seconds=5)
+        self.assertEqual(call.call_count, 3)
+
+    def test_listener_does_not_poll_again_after_sleep_reaches_deadline(self):
+        state = {"time": 0, "polls": 0}
+        def call(token, method, payload=None):
+            if method == "getMe": return {"username": BOT, "is_bot": True}
+            if method == "getWebhookInfo": return {"url": ""}
+            if method == "getUpdates":
+                state["polls"] += 1
+                state["time"] = 179
+                return []
+            self.fail("Must not send")
+        def sleep(seconds): state["time"] += seconds
+        with redirect_stdout(io.StringIO()), self.assertRaises(pairing.NoHandshake):
+            pairing.pair("token", BOT, DIGEST, ISSUED, EXPIRES, now=NOW, call=call, wait_seconds=180, sleep=sleep, monotonic=lambda: state["time"])
+        self.assertEqual(state, {"time": 180, "polls": 1})
+
+    def test_listener_rejects_match_returned_after_deadline(self):
+        state = {"time": 0}
+        def call(token, method, payload=None):
+            if method == "getMe": return {"username": BOT, "is_bot": True}
+            if method == "getWebhookInfo": return {"url": ""}
+            if method == "getUpdates":
+                state["time"] = 181
+                return [update()]
+            self.fail("Must not send")
+        with redirect_stdout(io.StringIO()), self.assertRaises(pairing.NoHandshake):
+            pairing.pair("token", BOT, DIGEST, ISSUED, EXPIRES, now=NOW, call=call, wait_seconds=180, monotonic=lambda: state["time"])
+
+    def test_listener_checks_expiry_before_poll(self):
+        call = MagicMock(side_effect=[{"username": BOT, "is_bot": True}, {"url": ""}])
+        clock = MagicMock(side_effect=[NOW, datetime(2026, 10, 19, 16, 6, tzinfo=timezone.utc)])
+        with redirect_stdout(io.StringIO()), self.assertRaises(pairing.PairingError):
+            pairing.pair("token", BOT, DIGEST, ISSUED, EXPIRES, clock=clock, call=call, wait_seconds=180)
+        self.assertEqual(call.call_count, 2)
 
     def test_rerun_refused_before_api(self):
         with patch.dict(pairing.os.environ, {"GITHUB_RUN_ATTEMPT": "2"}), patch.object(pairing, "pair") as call, redirect_stdout(io.StringIO()):
