@@ -1,0 +1,400 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-19T13:28:00Z",
+  "purpose": "Official-source employer headquarters evidence. Unknown entries are not eligible for automatic alerts.",
+  "rules": [
+    "Country classification concerns the employer's explicit headquarters or stated company base, not the role location, remote eligibility, applicant nationality or office presence.",
+    "Unknown is not verified non-India; do not auto-allow an unknown employer under a verified-non-India policy.",
+    "Use exact normalized aliases only within the cryptocurrency/Web3 employer context. Do not use substring matching or apply parent-company HQ to an unidentified subsidiary.",
+    "Registered office, incorporation, regulatory license, press-release dateline, conference venue and individual employee location are insufficient by themselves.",
+    "Refresh sources when evidence materially changes; verified_at is the research date, not a guarantee of permanent location."
+  ],
+  "summary": {
+    "total": 20,
+    "verified_non_india": 11,
+    "unknown": 9,
+    "verified_india": 0
+  },
+  "employers": [
+    {
+      "employer_name": "Consensys",
+      "aliases": [
+        "Consensys",
+        "ConsenSys",
+        "Consensys Software Inc."
+      ],
+      "verification_status": "verified",
+      "base_country_code": "US",
+      "base_country": "United States",
+      "base_city": "Fort Worth",
+      "is_india_based": false,
+      "official_source_url": "https://consensys.com/about/office-locations",
+      "evidence": "Consensys Headquarters; 5049 Edwards Ranch Road, Fort Worth, TX 76109",
+      "source_publication_date": null,
+      "checked_at": "2026-10-19",
+      "evidence_type": "explicit_headquarters",
+      "notes": "Global/remote-first workforce is separate from its stated corporate headquarters."
+    },
+    {
+      "employer_name": "Ripple",
+      "aliases": [
+        "Ripple",
+        "Ripple Labs"
+      ],
+      "verification_status": "verified",
+      "base_country_code": "US",
+      "base_country": "United States",
+      "base_city": "San Francisco",
+      "is_india_based": false,
+      "official_source_url": "https://ripple.com/insights/ripple-and-uc-berkeley-launch-the-university-digital-asset-xcelerator-udax-to-supercharge-the-xrp-ecosystem/",
+      "evidence": "The company describes the cohort closing summit at Ripple’s San Francisco headquarters.",
+      "source_publication_date": null,
+      "checked_at": "2026-10-19",
+      "evidence_type": "explicit_headquarters",
+      "notes": "Do not confuse Ripple corporate HQ with separately branded subsidiaries such as Ripple Treasury."
+    },
+    {
+      "employer_name": "Fireblocks",
+      "aliases": [
+        "Fireblocks"
+      ],
+      "verification_status": "verified",
+      "base_country_code": "US",
+      "base_country": "United States",
+      "base_city": "New York City",
+      "is_india_based": false,
+      "official_source_url": "https://www.fireblocks.com/careers/positions/4691708006",
+      "evidence": "Official job posting refers to employees working from our NYC HQ.",
+      "source_publication_date": null,
+      "checked_at": "2026-10-19",
+      "evidence_type": "explicit_headquarters",
+      "notes": "A job page can establish employer HQ only when it explicitly says HQ; the job's own location alone is insufficient."
+    },
+    {
+      "employer_name": "BitGo",
+      "aliases": [
+        "BitGo",
+        "BitGo Holdings",
+        "BitGo Holdings, Inc."
+      ],
+      "verification_status": "verified",
+      "base_country_code": "US",
+      "base_country": "United States",
+      "base_city": "Sioux Falls",
+      "is_india_based": false,
+      "official_source_url": "https://www.bitgo.com/legal/disclosures/",
+      "evidence": "BitGo Holdings, Inc. is a Delaware corporation headquartered in Sioux Falls, South Dakota.",
+      "source_publication_date": null,
+      "checked_at": "2026-10-19",
+      "evidence_type": "explicit_headquarters",
+      "notes": "Current investor FAQ separately lists offices including India. That office is not corporate HQ. Older pages mention Palo Alto, also in the US."
+    },
+    {
+      "employer_name": "Gemini",
+      "aliases": [
+        "Gemini",
+        "Gemini Space Station"
+      ],
+      "verification_status": "verified",
+      "base_country_code": "US",
+      "base_country": "United States",
+      "base_city": "New York City",
+      "is_india_based": false,
+      "official_source_url": "https://www.gemini.com/early-careers",
+      "evidence": "All interns are required to relocate to Gemini’s New York City headquarters.",
+      "source_publication_date": null,
+      "checked_at": "2026-10-19",
+      "evidence_type": "explicit_headquarters",
+      "notes": "Applies to crypto employer Gemini, not unrelated businesses or Google's product."
+    },
+    {
+      "employer_name": "Figment",
+      "aliases": [
+        "Figment"
+      ],
+      "verification_status": "verified",
+      "base_country_code": "CA",
+      "base_country": "Canada",
+      "base_city": "Toronto",
+      "is_india_based": false,
+      "official_source_url": "https://www.figment.io/emea/",
+      "evidence": "Figment is headquartered in Toronto, Canada.",
+      "source_publication_date": null,
+      "checked_at": "2026-10-19",
+      "evidence_type": "explicit_headquarters",
+      "notes": "The same source distinguishes the London registered office of Figment Europe Ltd. and a remote-first workforce across countries."
+    },
+    {
+      "employer_name": "Solana Foundation",
+      "aliases": [
+        "Solana Foundation",
+        "The Solana Foundation"
+      ],
+      "verification_status": "verified",
+      "base_country_code": "CH",
+      "base_country": "Switzerland",
+      "base_city": "Zug",
+      "is_india_based": false,
+      "official_source_url": "https://solana.org/en",
+      "evidence": "The Solana Foundation is a non-profit foundation based in Zug, Switzerland.",
+      "source_publication_date": null,
+      "checked_at": "2026-10-19",
+      "evidence_type": "explicit_company_base",
+      "notes": "Do not use this record for Solana Labs or arbitrary Solana ecosystem companies."
+    },
+    {
+      "employer_name": "CertiK",
+      "aliases": [
+        "CertiK",
+        "Certik"
+      ],
+      "verification_status": "verified",
+      "base_country_code": "US",
+      "base_country": "United States",
+      "base_city": "New York",
+      "is_india_based": false,
+      "official_source_url": "https://www.certik.com/company/about",
+      "evidence": "Founded in 2017 and headquartered in New York, CertiK is the largest Web3 security services provider.",
+      "source_publication_date": null,
+      "checked_at": "2026-10-19",
+      "evidence_type": "explicit_headquarters",
+      "notes": null
+    },
+    {
+      "employer_name": "Ledger",
+      "aliases": [
+        "Ledger",
+        "Ledger SAS"
+      ],
+      "verification_status": "verified",
+      "base_country_code": "FR",
+      "base_country": "France",
+      "base_city": "Paris",
+      "is_india_based": false,
+      "official_source_url": "https://careers.ledger.com/our-locations/",
+      "evidence": "The official careers locations page identifies Paris, France HQ and calls it the global HQ.",
+      "source_publication_date": "2026-09-14",
+      "checked_at": "2026-10-19",
+      "evidence_type": "explicit_headquarters",
+      "notes": "Vierzon is identified as production facility; London, Singapore, Zurich and US offices are separate regional locations."
+    },
+    {
+      "employer_name": "Immutable",
+      "aliases": [
+        "Immutable",
+        "Immutable Pty Ltd"
+      ],
+      "verification_status": "verified",
+      "base_country_code": "AU",
+      "base_country": "Australia",
+      "base_city": "Sydney",
+      "is_india_based": false,
+      "official_source_url": "https://www.immutable.com/legal/candidate-privacy-notice",
+      "evidence": "Immutable is headquartered in Sydney, Australia, and recruits globally.",
+      "source_publication_date": "2026-04",
+      "checked_at": "2026-10-19",
+      "evidence_type": "explicit_headquarters",
+      "notes": null
+    },
+    {
+      "employer_name": "Animoca Brands",
+      "aliases": [
+        "Animoca Brands",
+        "Animoca Brands Corporation Limited"
+      ],
+      "verification_status": "verified",
+      "base_country_code": "HK",
+      "base_country": "Hong Kong",
+      "base_city": "Hong Kong",
+      "is_india_based": false,
+      "official_source_url": "https://www.animocabrands.com/press-kit",
+      "evidence": "Official press kit quick reference lists Headquarters: Hong Kong.",
+      "source_publication_date": null,
+      "checked_at": "2026-10-19",
+      "evidence_type": "explicit_headquarters",
+      "notes": "HK is an ISO 3166-1 country/territory code. An Australian corporate registration is not the stated headquarters."
+    },
+    {
+      "employer_name": "Alchemy",
+      "aliases": [
+        "Alchemy"
+      ],
+      "verification_status": "unknown",
+      "base_country_code": null,
+      "base_country": null,
+      "base_city": null,
+      "is_india_based": null,
+      "official_source_url": null,
+      "evidence": null,
+      "source_publication_date": null,
+      "checked_at": "2026-10-19",
+      "evidence_type": null,
+      "consulted_official_urls": [
+        "https://www.alchemy.com/company"
+      ],
+      "notes": "Official company page reviewed; clear current HQ/base statement was not established in this focused pass."
+    },
+    {
+      "employer_name": "Nansen",
+      "aliases": [
+        "Nansen"
+      ],
+      "verification_status": "unknown",
+      "base_country_code": null,
+      "base_country": null,
+      "base_city": null,
+      "is_india_based": null,
+      "official_source_url": null,
+      "evidence": null,
+      "source_publication_date": null,
+      "checked_at": "2026-10-19",
+      "evidence_type": null,
+      "consulted_official_urls": [
+        "https://nansen.ai/about-us"
+      ],
+      "notes": "Official about page reviewed; clear current HQ/base statement was not established. Third-party Singapore claims were not promoted to verified evidence."
+    },
+    {
+      "employer_name": "Ava Labs",
+      "aliases": [
+        "Ava Labs",
+        "AvaLabs"
+      ],
+      "verification_status": "unknown",
+      "base_country_code": null,
+      "base_country": null,
+      "base_city": null,
+      "is_india_based": null,
+      "official_source_url": null,
+      "evidence": null,
+      "source_publication_date": null,
+      "checked_at": "2026-10-19",
+      "evidence_type": null,
+      "consulted_official_urls": [
+        "https://www.avalabs.org/careers",
+        "https://www.avalabs.org/team"
+      ],
+      "notes": "Official pages identify New York City and Miami offices, but an office list alone does not establish headquarters."
+    },
+    {
+      "employer_name": "Messari",
+      "aliases": [
+        "Messari"
+      ],
+      "verification_status": "unknown",
+      "base_country_code": null,
+      "base_country": null,
+      "base_city": null,
+      "is_india_based": null,
+      "official_source_url": null,
+      "evidence": null,
+      "source_publication_date": null,
+      "checked_at": "2026-10-19",
+      "evidence_type": null,
+      "consulted_official_urls": [],
+      "notes": "Search found third-party HQ claims and republished job descriptions; no direct official HQ/base statement established in this focused pass."
+    },
+    {
+      "employer_name": "OpenZeppelin",
+      "aliases": [
+        "OpenZeppelin",
+        "Open Zeppelin"
+      ],
+      "verification_status": "unknown",
+      "base_country_code": null,
+      "base_country": null,
+      "base_city": null,
+      "is_india_based": null,
+      "official_source_url": null,
+      "evidence": null,
+      "source_publication_date": null,
+      "checked_at": "2026-10-19",
+      "evidence_type": null,
+      "consulted_official_urls": [
+        "https://www.openzeppelin.com/about-us",
+        "https://www.openzeppelin.com/careers"
+      ],
+      "notes": "Official pages describe a remote-first distributed team across 40+ countries. No single current HQ/base country established."
+    },
+    {
+      "employer_name": "Binance",
+      "aliases": [
+        "Binance"
+      ],
+      "verification_status": "unknown",
+      "base_country_code": null,
+      "base_country": null,
+      "base_city": null,
+      "is_india_based": null,
+      "official_source_url": null,
+      "evidence": null,
+      "source_publication_date": null,
+      "checked_at": "2026-10-19",
+      "evidence_type": null,
+      "consulted_official_urls": [
+        "https://www.binance.com/en/careers"
+      ],
+      "notes": "No unambiguous current global HQ/base country established. Do not infer HQ from regulatory registrations, regional offices or user-generated Binance Square posts. Binance.US is a separate employer."
+    },
+    {
+      "employer_name": "1inch",
+      "aliases": [
+        "1inch",
+        "1inch Network"
+      ],
+      "verification_status": "unknown",
+      "base_country_code": null,
+      "base_country": null,
+      "base_city": null,
+      "is_india_based": null,
+      "official_source_url": null,
+      "evidence": null,
+      "source_publication_date": null,
+      "checked_at": "2026-10-19",
+      "evidence_type": null,
+      "consulted_official_urls": [],
+      "notes": "No unambiguous official HQ/base statement established in this focused pass. Foundation registration and team locations require separate treatment."
+    },
+    {
+      "employer_name": "Aave/Avara",
+      "aliases": [
+        "Aave",
+        "Avara",
+        "Aave Labs"
+      ],
+      "verification_status": "unknown",
+      "base_country_code": null,
+      "base_country": null,
+      "base_city": null,
+      "is_india_based": null,
+      "official_source_url": null,
+      "evidence": null,
+      "source_publication_date": null,
+      "checked_at": "2026-10-19",
+      "evidence_type": null,
+      "consulted_official_urls": [],
+      "notes": "Employer identity requires resolution as well as location. Aave protocol, DAO and corporate development employer must not be assumed interchangeable."
+    },
+    {
+      "employer_name": "Offchain Labs",
+      "aliases": [
+        "Offchain Labs",
+        "Offchain"
+      ],
+      "verification_status": "unknown",
+      "base_country_code": null,
+      "base_country": null,
+      "base_city": null,
+      "is_india_based": null,
+      "official_source_url": null,
+      "evidence": null,
+      "source_publication_date": null,
+      "checked_at": "2026-10-19",
+      "evidence_type": null,
+      "consulted_official_urls": [
+        "https://www.offchain.io/"
+      ],
+      "notes": "Official website reviewed, but no explicit current HQ/base statement established. Third-party directories disagree on city and were not used."
+    }
+  ]
+}

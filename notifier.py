@@ -2,12 +2,21 @@ import time
 import httpx
 import html as html_lib
 from datetime import datetime, timezone
-from config import TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, SILENT_IF_EMPTY
-from filters import _parse_posted_date
+from config import TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, SILENT_IF_EMPTY, validate_telegram_config
+from filters import _parse_posted_date, classify_job
+from urllib.parse import urlsplit
 
 TELEGRAM_API = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}"
 MAX_MSG_LEN = 4096
 _SPLIT_BUFFER = 200
+
+
+class DeliveryRejected(RuntimeError):
+    """Telegram explicitly rejected a request; no delivery took place."""
+
+
+class DeliveryUnconfirmed(RuntimeError):
+    """Telegram may have accepted the request; manual reconciliation is needed."""
 
 
 def _sort_by_recency(jobs: list) -> list:
@@ -38,17 +47,22 @@ def _age_label(posted: str) -> str:
 
 
 def _format_job(job) -> str:
-    salary_part = f" | 💰 {html_lib.escape(job.salary)}" if job.salary else ""
-    location_part = html_lib.escape(job.location or "Remote")
-    title = html_lib.escape(job.title or "")
-    company = html_lib.escape(job.company or "")
-    source = html_lib.escape(job.source or "")
-    url = html_lib.escape(job.url or "", quote=True)
-    link = f'<a href="{url}">Apply</a>' if url else "Apply"
+    def esc(value, limit):
+        return html_lib.escape(str(value or "")[:limit])
+    salary_part = f" | 💰 {esc(job.salary, 120)}" if job.salary else ""
+    location_part = esc(job.location or "See verified eligibility", 200)
+    title, company, source = esc(job.title, 220), esc(job.company, 100), esc(job.source, 70)
+    raw_url = str(job.url or "")
+    safe_url = raw_url if len(raw_url) <= 1500 and urlsplit(raw_url).scheme in ("http", "https") else ""
+    link = f'<a href="{html_lib.escape(safe_url, quote=True)}">Apply</a>' if safe_url else "Listing URL unavailable"
     age = _age_label(job.posted)
+    decision = classify_job(job)
+    timezone_part = f"\n🕒 {esc(decision.timezone_note, 300)}" if decision.timezone_note else ""
+    evidence = esc(decision.reason, 360)
     return (
         f"🟢 <b>{title}</b> - {company}\n"
         f"📍 {location_part}{salary_part}{age}\n"
+        f"✓ {evidence}{timezone_part}\n"
         f"🔗 {link} · <i>{source}</i>"
     )
 
@@ -72,52 +86,70 @@ def _split_messages(lines: list[str]) -> list[str]:
 
 
 def _send(text: str, _retries: int = 3) -> None:
+    validate_telegram_config()
     for attempt in range(_retries):
         try:
             resp = httpx.post(
                 f"{TELEGRAM_API}/sendMessage",
-                json={
-                    "chat_id": TELEGRAM_CHAT_ID,
-                    "text": text,
-                    "parse_mode": "HTML",
-                    "disable_web_page_preview": True,
-                },
+                json={"chat_id": TELEGRAM_CHAT_ID, "text": text,
+                      "parse_mode": "HTML", "disable_web_page_preview": True},
                 timeout=15,
             )
-            if resp.status_code == 429:
+            if resp.status_code == 429 and attempt < _retries - 1:
                 retry_after = int(resp.json().get("parameters", {}).get("retry_after", 5))
-                print(f"[notifier] Rate limited — waiting {retry_after}s")
-                time.sleep(retry_after)
+                # A 429 is a confirmed rejection; ambiguous network errors are not retried.
+                if retry_after > 30:
+                    raise DeliveryRejected("Telegram requested a longer retry delay; try a later run")
+                time.sleep(max(1, retry_after))
                 continue
-            resp.raise_for_status()
-            data = resp.json()
-            if not data.get("ok"):
-                raise RuntimeError(f"Telegram send failed: {data.get('description', data)}")
+            if resp.status_code >= 500:
+                raise DeliveryUnconfirmed("Telegram server error; delivery needs reconciliation")
+            if resp.is_error or not resp.json().get("ok"):
+                raise DeliveryRejected(f"Telegram rejected the message (HTTP {resp.status_code})")
             return
-        except httpx.HTTPStatusError as e:
-            if attempt < _retries - 1:
-                time.sleep(2 ** attempt)
-            else:
-                raise
-    raise RuntimeError(f"_send failed after {_retries} attempts")
+        except (httpx.HTTPError, ValueError) as exc:
+            # Never leak the bot token embedded in request URLs.
+            raise DeliveryUnconfirmed("Telegram delivery unconfirmed; not retried automatically") from None
+    raise DeliveryRejected("Telegram rate limit retries exhausted")
 
 
-def send_jobs(jobs: list) -> None:
+def send_jobs(jobs: list, on_sent=None, on_unconfirmed=None, on_attempt=None, on_rejected=None) -> None:
+    """Persist each acknowledged chunk before sending the next one."""
     if not jobs:
         if not SILENT_IF_EMPTY:
-            _send("No new Web3 marketing jobs today.")
+            _send("No new qualified Web3 Growth / GTM / Product Marketing jobs.")
         return
-
     jobs = _sort_by_recency(jobs)
-
-    header = f"<b>🚀 {len(jobs)} New Web3 Marketing Job{'s' if len(jobs) != 1 else ''}</b>\n\n"
-    formatted = [_format_job(j) for j in jobs]
-    chunks = _split_messages(formatted)
-
-    for i, chunk in enumerate(chunks):
-        prefix = header if i == 0 else f"<i>(continued {i+1}/{len(chunks)})</i>\n\n"
-        _send(prefix + chunk)
-        if i < len(chunks) - 1:
-            time.sleep(1)  # avoid Telegram rate limit between chunks
-
+    header = f"<b>🚀 {len(jobs)} qualified Web3 job(s)</b>\n\n"
+    chunks = []
+    current_jobs, current_lines = [], []
+    for job in jobs:
+        line = _format_job(job)
+        if len(line) > MAX_MSG_LEN - 300:
+            raise ValueError("Formatted job exceeds Telegram message limit")
+        if current_lines and len("\n\n".join(current_lines + [line])) > MAX_MSG_LEN - 300:
+            chunks.append((current_jobs, current_lines))
+            current_jobs, current_lines = [], []
+        current_jobs.append(job)
+        current_lines.append(line)
+    if current_lines:
+        chunks.append((current_jobs, current_lines))
+    for index, (batch, lines) in enumerate(chunks):
+        prefix = header if index == 0 else f"<i>continued {index + 1}/{len(chunks)}</i>\n\n"
+        if on_attempt:
+            on_attempt(batch)
+        try:
+            _send(prefix + "\n\n".join(lines))
+        except DeliveryRejected:
+            if on_rejected:
+                on_rejected(batch)
+            raise
+        except DeliveryUnconfirmed:
+            if on_unconfirmed:
+                on_unconfirmed(batch)
+            raise
+        if on_sent:
+            on_sent(batch)
+        if index < len(chunks) - 1:
+            time.sleep(1)
     print(f"[notifier] Sent {len(jobs)} job(s) across {len(chunks)} message(s).")
