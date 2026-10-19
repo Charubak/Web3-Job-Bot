@@ -43,6 +43,7 @@ Board requests are bounded and run with limited concurrency. Source errors are l
 The repository includes:
 
 - `tests.yml`: offline tests on pull requests and relevant pushes. No Telegram secrets are provided.
+- `setup.yml`: deployment readiness on a `main` push that changes this setup workflow, or manual dispatch. Reports only whether the two existing Telegram secrets are present, never their values. It confirms the public cache inventory, restores the exact newest state for preview or initializes only a confirmed missing baseline, verifies the new cache, and never sends messages. Inventory/restore errors stop initialization. Existing seen/pending history is not reset.
 - `jobs.yml`: search at 00:17, 06:17, 12:17 and 18:17 UTC, **disabled unless** repository variable `JOB_ALERTS_ENABLED` is set to `true`. Manual mode defaults to `preview`.
 
 The scheduled workflow uses standard `ubuntu-latest` runners, 12-minute timeouts, read-only repository permissions, pinned actions, and no paid AI APIs. Both workflows refuse automatic execution in a private repository; the job-search workflow also refuses forks and non-default branches.
@@ -52,8 +53,8 @@ GitHub currently provides standard hosted-runner usage free for public repositor
 ### Activation checklist (explicit owner actions)
 
 1. Review and merge the patch into `main` after tests pass. Merging alone does not enable scheduled delivery.
-2. In Actions → Scheduled job search, manually run `preview`. Inspect source errors, qualified jobs, review reasons and employer-evidence coverage.
-3. Run `initialize`. This records currently qualified matches as a baseline **without sending anything**. It does not mark review jobs as seen. Future newly qualified matches can still be delivered.
+2. Inspect the successful Deployment readiness run, including source errors, review reasons and employer-evidence coverage. If no readiness run completed, manually run Scheduled job search in `preview` mode.
+3. If Deployment readiness did not initialize a baseline, run `initialize`. This records currently qualified matches as a baseline **without sending anything**. It does not mark review jobs as seen. Future newly qualified matches can still be delivered. Do not reset a restored delivery history.
 4. In repository Settings → Secrets and variables → Actions, set `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` yourself for the intended bot and private chat. Verify that recipient before activation. Do not paste credentials into chat, source files, issues or logs.
 5. Only when ready to send to that recipient, run manual mode `send`. Then set repository variable `JOB_ALERTS_ENABLED=true` to enable future scheduled delivery. Set it to `false` to stop scheduling.
 
