@@ -25,6 +25,7 @@ class NoHandshake(PairingError):
 def api_call(token: str, method: str, payload: dict | None = None):
     if method not in {"getMe", "getWebhookInfo", "getUpdates", "sendMessage"}:
         raise PairingError("Unsupported pairing operation")
+    category = "unexpected_error"
     try:
         with httpx.stream("POST", f"https://api.telegram.org/bot{token}/{method}",
                           json=payload or {}, timeout=15, follow_redirects=False) as response:
@@ -32,18 +33,47 @@ def api_call(token: str, method: str, payload: dict | None = None):
             for chunk in response.iter_bytes():
                 body.extend(chunk)
                 if len(body) > MAX_BODY:
+                    category = "response_too_large"
                     raise ValueError("response too large")
             if response.status_code != 200:
+                status = response.status_code
+                category = f"HTTP_{status}" if type(status) is int and 100 <= status <= 599 else "invalid_status"
                 raise ValueError("request rejected")
+            category = "invalid_response"
             data = json.loads(body)
             if not isinstance(data, dict) or data.get("ok") is not True:
                 raise ValueError("request rejected")
             return data["result"]
-    except Exception:
+    except Exception as exc:
+        if isinstance(exc, httpx.TimeoutException):
+            category = "timeout"
+        elif isinstance(exc, httpx.TransportError):
+            category = "transport_error"
         # Do not include request URLs (token), descriptions, or response bodies.
         if method == "sendMessage":
             raise PairingError("Setup reply delivery is unconfirmed; inspect the original chat before any retry") from None
-        raise PairingError("Telegram verification unavailable; no setup reply was attempted") from None
+        raise PairingError(f"Telegram verification failed: method={method} category={category}; no setup reply was attempted") from None
+
+
+def verify_api(token: str, expected_bot: str, *, call=api_call):
+    """One no-send probe; print only fixed method names and safe result categories."""
+    if not token or expected_bot != "charubak_web3jobs_bot":
+        raise PairingError("Expected bot configuration is missing")
+    bot = call(token, "getMe")
+    if not isinstance(bot, dict) or bot.get("is_bot") is not True or bot.get("username") != expected_bot:
+        raise PairingError("Configured token belongs to an unexpected bot; verification refused")
+    print("method=getMe category=expected_bot_verified", flush=True)
+    webhook = call(token, "getWebhookInfo")
+    if not isinstance(webhook, dict) or not isinstance(webhook.get("url"), str):
+        raise PairingError("method=getWebhookInfo category=invalid_response")
+    if webhook["url"]:
+        print("method=getWebhookInfo category=webhook_present; update probe skipped", flush=True)
+        return
+    print("method=getWebhookInfo category=no_webhook", flush=True)
+    updates = call(token, "getUpdates", {"limit": 1, "timeout": 0})
+    if not isinstance(updates, list) or len(updates) > 1:
+        raise PairingError("method=getUpdates category=invalid_response")
+    print("method=getUpdates category=ok; no updates acknowledged or messages sent", flush=True)
 
 
 def verify_window(digest: str, issued: str, expires: str, now: datetime):
@@ -185,6 +215,9 @@ def main():
     try:
         if os.getenv("GITHUB_RUN_ATTEMPT") != "1" or os.getenv("GITHUB_RUN_NUMBER") != "1":
             raise PairingError("Automatic/repeated pairing attempts are disabled")
+        if sys.argv[1:] == ["--verify-api"]:
+            verify_api(os.getenv("TELEGRAM_BOT_TOKEN", ""), os.getenv("EXPECTED_BOT", ""))
+            return 0
         diagnostic = sys.argv[1:] == ["--diagnose"]
         listening = sys.argv[1:] == ["--listen-once"]
         if sys.argv[1:] and not (diagnostic or listening):

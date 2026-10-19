@@ -100,6 +100,51 @@ class PairingTests(unittest.TestCase):
             self.assertNotIn("private payload", str(ctx.exception))
             self.assertEqual(request.call_count, 1)
 
+    def test_api_probe_never_sends_or_reveals_private_updates(self):
+        call = MagicMock(side_effect=[{"username": BOT, "is_bot": True}, {"url": ""}, [update()]])
+        output = io.StringIO()
+        with redirect_stdout(output):
+            pairing.verify_api("fake-test-token", BOT, call=call)
+        self.assertEqual([x.args[1] for x in call.call_args_list], ["getMe", "getWebhookInfo", "getUpdates"])
+        self.assertEqual(call.call_args_list[2].args[2], {"limit": 1, "timeout": 0})
+        for private in [TEXT, "fake-test-token", "123", "77"]:
+            self.assertNotIn(private, output.getvalue())
+        self.assertIn("method=getUpdates category=ok", output.getvalue())
+
+    def test_api_probe_existing_webhook_stops_before_updates(self):
+        call = MagicMock(side_effect=[{"username": BOT, "is_bot": True}, {"url": "https://private-webhook.example/secret"}])
+        output = io.StringIO()
+        with redirect_stdout(output):
+            pairing.verify_api("token", BOT, call=call)
+        self.assertEqual(call.call_count, 2)
+        self.assertNotIn("private-webhook", output.getvalue())
+        self.assertIn("webhook_present", output.getvalue())
+
+    def test_api_errors_keep_only_method_and_safe_http_category(self):
+        for status in [400, 401, 403, 404, 409, 429, 500, 503]:
+            response = MagicMock(status_code=status)
+            response.iter_bytes.return_value = [b'{"description":"private-response-body"}']
+            with patch.object(pairing.httpx, "stream") as stream:
+                stream.return_value.__enter__.return_value = response
+                with self.assertRaises(pairing.PairingError) as ctx:
+                    pairing.api_call("fake-token", "getUpdates")
+            self.assertEqual(str(ctx.exception), f"Telegram verification failed: method=getUpdates category=HTTP_{status}; no setup reply was attempted")
+            self.assertEqual(stream.call_count, 1)
+
+    def test_api_timeout_never_exposes_request_or_exception(self):
+        with patch.object(pairing.httpx, "stream", side_effect=pairing.httpx.ReadTimeout("private-token-and-url")):
+            with self.assertRaises(pairing.PairingError) as ctx:
+                pairing.api_call("fake-token", "getMe")
+        self.assertIn("method=getMe category=timeout", str(ctx.exception))
+        self.assertNotIn("private", str(ctx.exception))
+        self.assertNotIn("fake-token", str(ctx.exception))
+
+    def test_api_probe_cli_never_calls_pair(self):
+        with patch.dict(pairing.os.environ, {"GITHUB_RUN_ATTEMPT": "1", "GITHUB_RUN_NUMBER": "1"}), patch.object(pairing.sys, "argv", ["pair_telegram.py", "--verify-api"]), patch.object(pairing, "verify_api") as probe, patch.object(pairing, "pair") as send:
+            self.assertEqual(pairing.main(), 0)
+            probe.assert_called_once()
+            send.assert_not_called()
+
     def test_later_distinct_run_refused_before_api(self):
         with patch.dict(pairing.os.environ, {"GITHUB_RUN_ATTEMPT": "1", "GITHUB_RUN_NUMBER": "2"}), patch.object(pairing, "pair") as call, redirect_stdout(io.StringIO()):
             self.assertEqual(pairing.main(), 1)
