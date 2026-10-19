@@ -157,10 +157,14 @@ class RecipientEnvelopeTests(unittest.TestCase):
         with patch.object(envelope, "DEFAULT_PATH", self.path):
             self.assertEqual(envelope.resolve_chat_id(TOKEN), CHAT)
 
-    def test_explicit_configuration_takes_precedence_without_reading_file(self):
-        with patch.object(Path, "open", side_effect=AssertionError("Must not read a file")):
-            for value in (CHAT, " 00" + CHAT, "bad"):
-                self.assertEqual(envelope.resolve_chat_id(TOKEN, value), value)
+    def test_explicit_configuration_must_match_encrypted_recipient(self):
+        self.assertEqual(envelope.resolve_chat_id(TOKEN, CHAT, self.path), CHAT)
+        self.assert_rejected(envelope.resolve_chat_id, TOKEN, "987654321", self.path)
+        self.assert_rejected(envelope.resolve_chat_id, TOKEN, "bad", self.path)
+
+    def test_explicit_configuration_works_without_envelope(self):
+        missing = self.path.with_name("missing.json")
+        self.assertEqual(envelope.resolve_chat_id(TOKEN, CHAT, missing), CHAT)
 
     def test_non_string_explicit_configuration_does_not_fall_back(self):
         for value in (None, True, 1):

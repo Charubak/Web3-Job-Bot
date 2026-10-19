@@ -151,25 +151,26 @@ def open_envelope(token, payload) -> str:
 def resolve_chat_id(token, configured="", path=None) -> str:
     """Resolve configuration without requiring secrets for offline previews.
 
-    Explicit settings are returned unchanged for the caller's normal validation.
-    A missing token or file means unconfigured; an invalid present file fails.
+    An existing encrypted recipient must match any explicit setting.
+    Offline previews need no token; invalid or conflicting configuration fails.
     """
     try:
         if not isinstance(configured, str):
             raise RecipientEnvelopeError(_ERROR)
-        if configured != "":
-            return configured
         if not token:
-            return ""
+            return configured
         try:
             with Path(DEFAULT_PATH if path is None else path).open("rb") as stream:
                 encoded = stream.read(_MAX_FILE_BYTES + 1)
         except FileNotFoundError:
-            return ""
+            return configured
         if len(encoded) > _MAX_FILE_BYTES:
             raise RecipientEnvelopeError(_ERROR)
         payload = json.loads(encoded, object_pairs_hook=_unique_object)
-        return open_envelope(token, payload)
+        resolved = open_envelope(token, payload)
+        if configured and _chat_id(configured) != resolved:
+            raise RecipientEnvelopeError(_ERROR)
+        return resolved
     except Exception:
         raise RecipientEnvelopeError(_ERROR) from None
 
