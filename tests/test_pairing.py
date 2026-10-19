@@ -105,6 +105,24 @@ class PairingTests(unittest.TestCase):
             self.assertEqual(pairing.main(), 1)
             call.assert_not_called()
 
+    def test_diagnostic_reports_booleans_without_send_or_private_data(self):
+        call = MagicMock(side_effect=[{"username": BOT, "is_bot": True}, {"url": ""}, [update()]])
+        output = io.StringIO()
+        with redirect_stdout(output):
+            self.assertFalse(pairing.pair("token", BOT, DIGEST, ISSUED, EXPIRES, now=NOW, call=call, diagnostic=True))
+        self.assertEqual(call.call_count, 3)
+        self.assertIn('"exact_nonce_present": true', output.getvalue())
+        self.assertNotIn(TEXT, output.getvalue())
+        self.assertNotIn("123", output.getvalue())
+
+    def test_diagnostic_distinguishes_whitespace_without_matching_it_for_send(self):
+        item = update(); item["message"]["text"] = "  " + TEXT + "\n"
+        result = pairing.diagnose_updates([item], DIGEST, NOW.timestamp()-60, NOW.timestamp()+60, NOW.timestamp())
+        self.assertFalse(result["exact_nonce_present"])
+        self.assertTrue(result["trimmed_nonce_present"])
+        with self.assertRaises(pairing.PairingError):
+            pairing.select_chat([item], DIGEST, NOW.timestamp()-60, NOW.timestamp()+60, NOW.timestamp())
+
     def test_rerun_refused_before_api(self):
         with patch.dict(pairing.os.environ, {"GITHUB_RUN_ATTEMPT": "2"}), patch.object(pairing, "pair") as call, redirect_stdout(io.StringIO()):
             self.assertEqual(pairing.main(), 1)
