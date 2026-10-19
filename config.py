@@ -5,6 +5,13 @@ load_dotenv()
 
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
+if TELEGRAM_BOT_TOKEN:
+    try:
+        from recipient_envelope import resolve_chat_id
+        TELEGRAM_CHAT_ID = resolve_chat_id(TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID)
+    except Exception:
+        # Never include cryptographic payloads or private configuration in logs.
+        TELEGRAM_CHAT_ID = ""
 SCRAPE_INTERVAL_HOURS = int(os.getenv("SCRAPE_INTERVAL_HOURS", "6"))
 SILENT_IF_EMPTY = os.getenv("SILENT_IF_EMPTY", "true").lower() == "true"
 

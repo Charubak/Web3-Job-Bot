@@ -2,6 +2,10 @@ name: Scheduled job search
 on:
   schedule:
     - cron: '17 */6 * * *'
+  workflow_run:
+    workflows: ['Activate verified private-chat job alerts']
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
     inputs:
       mode:
@@ -17,12 +21,13 @@ concurrency:
   cancel-in-progress: false
 jobs:
   search:
-    # Disabled by default; no paid runner/private-repo fallback and no fork alerts.
+    # Alerts require a verified activation receipt; explicit false disables scheduled checks.
     if: >-
       github.repository == 'Charubak/Web3-Job-Bot' &&
       github.event.repository.private == false &&
       github.ref == format('refs/heads/{0}', github.event.repository.default_branch) &&
-      (github.event_name == 'workflow_dispatch' || vars.JOB_ALERTS_ENABLED == 'true')
+      (github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success') &&
+      (github.event_name == 'workflow_dispatch' || vars.JOB_ALERTS_ENABLED != 'false')
     runs-on: ubuntu-latest
     timeout-minutes: 12
     env:
@@ -49,23 +54,25 @@ jobs:
       - name: Initialize a baseline (no Telegram)
         if: github.event_name == 'workflow_dispatch' && inputs.mode == 'initialize'
         run: python scraper.py --initialize-state --report data/run_report.json
-      - name: Validate delivery configuration before preparing
-        if: github.event_name == 'schedule' || inputs.mode == 'send'
+      - name: Require acknowledged activation for this expected bot and private chat
+        id: activation
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_run' || inputs.mode == 'send'
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python -c "from config import validate_telegram_config; validate_telegram_config()"
+          EXPECTED_BOT: charubak_web3jobs_bot
+        run: python activation.py check >> "$GITHUB_OUTPUT"
       - name: Prepare and fence selected jobs (no Telegram)
-        if: github.event_name == 'schedule' || inputs.mode == 'send'
+        if: (github.event_name == 'schedule' || github.event_name == 'workflow_run' || inputs.mode == 'send') && steps.activation.outputs.active == 'true'
         run: python scraper.py --prepare-send data/pending_plan.json --max-alerts 10 --report data/run_report.json
       - name: Persist fence before any Telegram request
-        if: github.event_name == 'schedule' || inputs.mode == 'send'
+        if: (github.event_name == 'schedule' || github.event_name == 'workflow_run' || inputs.mode == 'send') && steps.activation.outputs.active == 'true'
         uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: data/seen_jobs.db
           key: job-alert-state-v1-${{ github.run_id }}-${{ github.run_attempt }}-prepared
       - name: Verify durable fence exists (cache-save warnings are insufficient)
-        if: github.event_name == 'schedule' || inputs.mode == 'send'
+        if: (github.event_name == 'schedule' || github.event_name == 'workflow_run' || inputs.mode == 'send') && steps.activation.outputs.active == 'true'
         uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: data/seen_jobs.db
@@ -73,7 +80,7 @@ jobs:
           lookup-only: true
           fail-on-cache-miss: true
       - name: Deliver newly qualified jobs
-        if: github.event_name == 'schedule' || inputs.mode == 'send'
+        if: (github.event_name == 'schedule' || github.event_name == 'workflow_run' || inputs.mode == 'send') && steps.activation.outputs.active == 'true'
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -81,7 +88,7 @@ jobs:
       - name: Save acknowledged deliveries, including before a later send failure
         if: >-
           always() && steps.state.outcome == 'success' &&
-          (github.event_name == 'schedule' || inputs.mode != 'preview') &&
+          (inputs.mode == 'initialize' || steps.activation.outputs.active == 'true') &&
           hashFiles('data/seen_jobs.db') != ''
         uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:

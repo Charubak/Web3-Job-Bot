@@ -1,0 +1,7 @@
+{
+  "ciphertext": "c2a0e432da3d186a7f0f7160d45c1ff9854c787fdac9c7a98b0e173ae7a475d8c7b2d32e2df9daff99b3b0ed83ab12e08fc0b6fe7e653151cb54013b7c90e5dfff2020ba39da34463b7d919e5b8b404d84d8",
+  "ephemeral_public_key": "2dc6d1a057e24c06b5a72334024d08e4a23707c939ab2665b524d9fefb9a8c3a",
+  "nonce": "848f78579cfcb38ed43ce86c",
+  "recipient_public_key": "f2ee7497b2794ee95adbdeb030f415bb98a8e3248807eba731edff1400c2a258",
+  "version": 1
+}

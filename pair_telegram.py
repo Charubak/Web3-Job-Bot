@@ -23,7 +23,7 @@ class NoHandshake(PairingError):
 
 
 def api_call(token: str, method: str, payload: dict | None = None):
-    if method not in {"getMe", "getWebhookInfo", "getUpdates", "sendMessage"}:
+    if method not in {"getMe", "getChat", "getWebhookInfo", "getUpdates", "sendMessage"}:
         raise PairingError("Unsupported pairing operation")
     category = "unexpected_error"
     try:
