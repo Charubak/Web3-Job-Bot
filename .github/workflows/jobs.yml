@@ -1,7 +1,7 @@
 name: Scheduled job search
 on:
   schedule:
-    - cron: '17 */6 * * *'
+    - cron: '30 3 * * *' # 09:00 India Standard Time
   workflow_run:
     workflows: ['Activate verified private-chat job alerts']
     types: [completed]
