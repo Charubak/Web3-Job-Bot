@@ -7,8 +7,11 @@ import hashlib
 import html
 import re
 import time
+from copy import copy
 from threading import BoundedSemaphore
 from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
+from urllib.parse import unquote_plus, urlsplit, urlunsplit
 
 import feedparser
 import httpx
@@ -85,8 +88,52 @@ class Job:
     employer_country_verified_at: str = ""
 
 
+_TRACKING_QUERY_KEYS = {
+    "gclid", "dclid", "fbclid", "msclkid", "mc_cid", "mc_eid",
+    "gh_src", "lever-source", "lever-origin",
+}
+
+
+def canonical_job_url(url: str) -> str:
+    """Remove safe tracking variations without erasing a requisition's identity.
+
+    Unknown query keys (including ref/source/job IDs), their ordering and raw
+    encoding remain intact. Hash routes and job-identifying fragments may name
+    different jobs, so only ordinary page anchors are discarded. This also
+    preserves existing hashes for URLs that are already canonical.
+    """
+    try:
+        parts = urlsplit(url.strip())
+    except ValueError:
+        return url.strip()
+    if parts.scheme.lower() not in {"http", "https"} or not parts.netloc:
+        return url.strip()
+    query = []
+    for item in parts.query.split("&"):
+        key = unquote_plus(item.partition("=")[0]).lower()
+        if key.startswith("utm_") or key in _TRACKING_QUERY_KEYS:
+            continue
+        query.append(item)
+    fragment = parts.fragment
+    if not ("/" in fragment or "=" in fragment or
+            re.search(r"(?:job|posting|position|vacancy|requisition)[-_:]\w", fragment, re.I)):
+        fragment = ""
+    # Never alter potential userinfo; ordinary public posting hosts are safe
+    # to lowercase because DNS names are case-insensitive.
+    netloc = parts.netloc if "@" in parts.netloc else parts.netloc.lower()
+    return urlunsplit((parts.scheme.lower(), netloc, parts.path, "&".join(query), fragment))
+
+
 def _make_id(url: str) -> str:
-    return hashlib.sha256(url.encode()).hexdigest()[:16]
+    return hashlib.sha256(canonical_job_url(url).encode()).hexdigest()[:16]
+
+
+def _company_text(value: str) -> str:
+    """A shifted table column containing an age is not employer evidence."""
+    value = html.unescape(value).strip()
+    if re.fullmatch(r"(?:today|yesterday|just now|\d+\s*(?:[smhdwy]|seconds?|minutes?|hours?|days?|weeks?|months?|years?)(?:\s+ago)?)", value, re.I):
+        return ""
+    return value
 
 
 _URL_SHORTENERS = ("tinyurl.com", "bit.ly", "ow.ly", "t.co", "buff.ly", "rb.gy", "cutt.ly")
@@ -202,24 +249,31 @@ def _scrape_web3career_page(path: str) -> list[Job]:
         if len(tds) < 2:
             continue
 
-        # Title: h2 inside first td
-        h2 = tds[0].find("h2")
+        # Both old and current layouts use semantic headings. In the current
+        # layout title/company/location share the first td; td[1] is the age.
+        h2 = row.find("h2")
         title = h2.get_text(strip=True) if h2 else tds[0].get_text(strip=True)
 
-        # Company: h3 inside second td
-        h3 = tds[1].find("h3")
-        company = h3.get_text(strip=True) if h3 else tds[1].get_text(strip=True)
+        h3 = row.find("h3")
+        company = _company_text(h3.get_text(strip=True) if h3 else
+                                tds[1].get_text(strip=True) if not tds[1].find("time") else "")
 
-        # Location: td containing a link to /web3-jobs-<location>
+        # Keep the whole explicit location, including inline qualifiers such
+        # as "Remote - US only" that do not necessarily have their own link.
         locations = []
-        for td in tds[2:]:
-            for loc_link in td.find_all("a", href=lambda h: h and "/web3-jobs-" in h):
+        for location_el in row.select(".job-location-mobile"):
+            value = location_el.get_text(" ", strip=True).replace("📍", "").strip()
+            value = re.sub(r"\s+,", ",", value)
+            if value:
+                locations.append(value)
+        for loc_link in row.find_all("a", href=lambda h: h and "/web3-jobs-" in h):
+            if not loc_link.find_parent(class_="job-location-mobile"):
                 locations.append(loc_link.get_text(" ", strip=True))
         location = "; ".join(dict.fromkeys(locations))
 
-        # Posted: time element
+        # Prefer an absolute posting timestamp over a rounded display age.
         time_el = row.find("time")
-        posted = time_el.get_text(strip=True) if time_el else ""
+        posted = (time_el.get("datetime") or time_el.get_text(strip=True)) if time_el else ""
 
         if not title:
             continue
@@ -471,7 +525,8 @@ def _fetch_greenhouse_one(slug: str, company_name: str) -> list[Job]:
                 continue
             title = html.unescape(j.get("title", "").strip())
             location = j.get("location", {}).get("name", "")
-            posted = j.get("first_published", "")
+            # updated_at can refresh an old requisition; it is not its age.
+            posted = j.get("first_published") or ""
             jobs.append(Job(
                 id=_make_id(url), title=title, company=company_name,
                 location=location, url=url, source=f"greenhouse/{slug}", posted=posted,
@@ -545,7 +600,7 @@ def _fetch_lever_one(slug: str, company_name: str) -> list[Job]:
                 continue
             title = html.unescape(j.get("text", "").strip())
             location = _lever_location(j)
-            posted = str(j.get("createdAt", ""))
+            posted = str(j.get("createdAt") or "")
             description = _lever_description(j)
             jobs.append(Job(
                 id=_make_id(url), title=title, company=company_name,
@@ -847,7 +902,7 @@ def fetch_lever_aave() -> list[Job]:
                     location=location,
                     url=url,
                     source="lever/aave",
-                    posted=str(j.get("createdAt", "")),
+                    posted=str(j.get("createdAt") or ""),
                     description=_lever_description(j),
                 )
             )
@@ -1314,8 +1369,48 @@ def _title_company_key(job: Job) -> str:
     return f"{t}||{c}"
 
 
-def fetch_all() -> list[Job]:
+def _preserve_duplicate_posting_dates(jobs: list[Job], now: datetime) -> list[Job]:
+    """Keep oldest same-requisition evidence before duplicate rows disappear.
+
+    A title/company match is deliberately insufficient here. Primary posting
+    dates outrank aggregator publication dates for the identical canonical URL.
+    Missing/future dates remain uncertain unless an older copy proves expiry.
+    """
+    from filters import MAX_AGE_DAYS, _is_primary_source, _parse_posted_date
+
+    primary_urls = {canonical_job_url(job.url) for job in jobs
+                    if job.url and _is_primary_source(job)}
+    earliest = {}
+    for job in jobs:
+        if not job.url:
+            continue
+        key = canonical_job_url(job.url)
+        if key in primary_urls and not _is_primary_source(job):
+            continue
+        posted = _parse_posted_date(job.posted, now=now)
+        if posted is not None and posted <= now:
+            earliest[key] = min(earliest.get(key, posted), posted)
+
+    reconciled = []
+    cutoff = now - timedelta(days=MAX_AGE_DAYS)
+    for job in jobs:
+        oldest = earliest.get(canonical_job_url(job.url)) if job.url else None
+        posted = _parse_posted_date(job.posted, now=now)
+        if oldest is not None and ((posted is not None and oldest < posted <= now) or
+                                   ((posted is None or posted > now) and oldest < cutoff)):
+            job = copy(job)
+            job.posted = oldest.isoformat()
+        reconciled.append(job)
+    return reconciled
+
+
+def fetch_all(*, now: datetime | None = None) -> list[Job]:
     from concurrent.futures import ThreadPoolExecutor, as_completed
+    from filters import _is_primary_source
+
+    now = now or datetime.now(timezone.utc)
+    if now.tzinfo is None:
+        now = now.replace(tzinfo=timezone.utc)
 
     results: dict[int, list[Job]] = {}
 
@@ -1333,16 +1428,17 @@ def fetch_all() -> list[Job]:
     seen_ids: set[str] = set()
     seen_title_company: set[str] = set()
 
-    candidates = [job for idx in range(len(BOARDS)) for job in results.get(idx, [])]
+    candidates = _preserve_duplicate_posting_dates(
+        [job for idx in range(len(BOARDS)) for job in results.get(idx, [])], now)
     candidates.sort(key=lambda job: (
-        not job.source.startswith(("greenhouse/", "lever/")),
+        not _is_primary_source(job),
         not bool(job.description),
         not bool(job.location),
     ))
     for job in candidates:
         tc_key = _title_company_key(job)
         # Unknown companies cannot safely identify cross-board duplicates.
-        is_primary = job.source.startswith(("greenhouse/", "lever/"))
+        is_primary = _is_primary_source(job)
         # Separate ATS requisitions can have the same title but different
         # eligibility. Keep both; suppress lower-information reposts instead.
         if job.id in seen_ids or (not is_primary and job.company.strip() and tc_key in seen_title_company):

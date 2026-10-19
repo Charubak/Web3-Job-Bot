@@ -26,7 +26,7 @@ def job(**changes):
     fields = dict(
         id="sample-job", title="Senior Growth Marketing Manager", company="Example Labs",
         location="Remote - Worldwide", url="https://jobs.lever.co/example/123",
-        source="lever/example", posted="2026-10-18T12:00:00Z", salary="",
+        source="lever/example", posted="2026-10-05T12:00:00Z", salary="",
         description=DESCRIPTION, employer_country="United Kingdom",
         employer_country_source="https://example.com/about",
         employer_country_verified_at="2026-10-18",
@@ -348,8 +348,22 @@ class DecisionTests(unittest.TestCase):
 
     def test_stale_date_is_rejected(self):
         self.assert_status("rejected", posted="2026-01-01")
-        self.assert_status("rejected", posted="46d")
-        self.assert_status("qualified", posted="45d")
+        self.assert_status("rejected", posted="31d")
+        self.assert_status("qualified", posted="30d")
+
+    def test_age_window_is_inclusive_at_fourteen_and_thirty_days(self):
+        for delta, expected in (
+            (timedelta(days=14) - timedelta(microseconds=1), "rejected"),
+            (timedelta(days=14), "qualified"),
+            (timedelta(days=21), "qualified"),
+            (timedelta(days=30), "qualified"),
+            (timedelta(days=30) + timedelta(microseconds=1), "rejected"),
+        ):
+            with self.subTest(delta=delta):
+                self.assert_status(expected, posted=(NOW - delta).isoformat())
+        self.assert_status("rejected", posted="today")
+        self.assert_status("rejected", posted="13d")
+        self.assert_status("review", posted=(NOW + timedelta(seconds=1)).isoformat())
 
     def test_no_application_url_is_review(self):
         self.assert_status("review", url="")

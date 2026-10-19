@@ -114,9 +114,10 @@ def _do_fetch_jobs(new_only: bool = False) -> None:
         from filters import apply_filters
         from employers import enrich_employers
         from notifier import send_jobs
+        from storage import reconcile_job_history
 
         raw = fetch_all()
-        jobs = apply_filters(enrich_employers(raw))
+        jobs = apply_filters(enrich_employers(reconcile_job_history(raw, persist=True)))
 
         from storage import filter_unseen, mark_seen, mark_unconfirmed, clear_unconfirmed
         if new_only:

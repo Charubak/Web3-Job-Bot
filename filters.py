@@ -14,7 +14,8 @@ from email.utils import parsedate_to_datetime
 from typing import Literal, Optional
 from urllib.parse import urlparse
 
-MAX_AGE_DAYS = 45
+MIN_AGE_DAYS = 14
+MAX_AGE_DAYS = 30
 EMPLOYER_EVIDENCE_MAX_AGE_DAYS = 90
 
 
@@ -418,6 +419,9 @@ def classify_job(job, now: Optional[datetime] = None) -> FilterDecision:
         return FilterDecision(job, "rejected", ("Employer is based in India",), timezone_note)
     if _is_too_old(job, now=now):
         return FilterDecision(job, "rejected", (f"Posting is older than {MAX_AGE_DAYS} days",), timezone_note)
+    posted = _parse_posted_date(getattr(job, "posted", ""), now=now)
+    if posted is not None and now - timedelta(days=MIN_AGE_DAYS) < posted <= now:
+        return FilterDecision(job, "rejected", (f"Posting is younger than {MIN_AGE_DAYS} days",), timezone_note)
 
     reasons = _role_review_reasons(title, description)
     reasons.extend(_location_review_reasons(location, description))
@@ -432,10 +436,9 @@ def classify_job(job, now: Optional[datetime] = None) -> FilterDecision:
         reasons.append("Worldwide remote eligibility is unconfirmed; empty locations and bare Remote are insufficient")
     if not getattr(job, "url", ""):
         reasons.append("Application URL is missing")
-    posted = _parse_posted_date(getattr(job, "posted", ""), now=now)
     if posted is None:
         reasons.append("Posting date is missing or unparseable; recency needs verification")
-    if posted and posted > now + timedelta(days=1):
+    if posted and posted > now:
         reasons.append("Posting date is in the future and needs verification")
     if reasons:
         return FilterDecision(job, "review", tuple(reasons), timezone_note)

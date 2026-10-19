@@ -13,8 +13,8 @@ from datetime import datetime, timezone, timedelta
 
 from boards import fetch_all, Job
 from employers import enrich_employers
-from filters import filter_jobs
-from storage import DB_PATH, filter_unseen, initialize_state, mark_seen, mark_unconfirmed, clear_unconfirmed, are_unconfirmed
+from filters import filter_jobs, classify_job
+from storage import DB_PATH, filter_unseen, initialize_state, mark_seen, mark_unconfirmed, clear_unconfirmed, are_unconfirmed, reconcile_job_history
 
 _DATA_DIR = Path(os.environ.get("DATA_DIR", Path(__file__).parent))
 COMPANIES_CACHE = _DATA_DIR / "current_companies.json"
@@ -39,15 +39,20 @@ def _record(job, reason: str = "", timezone_note: str = "") -> dict:
 
 def main(dry_run: bool = True, *, initialize: bool = False,
          require_state: bool = True, report_path: str | None = None,
-         max_alerts: int = 10, prepare_path: str | None = None) -> dict:
+         max_alerts: int = 10, prepare_path: str | None = None,
+         refresh_history: bool = False) -> dict:
     if max_alerts < 1 or max_alerts > 50:
         raise ValueError("max_alerts must be between 1 and 50")
+    if refresh_history and (initialize or prepare_path or not dry_run):
+        raise ValueError("History refresh cannot initialize, prepare, or send")
     if prepare_path and (initialize or not dry_run):
         raise ValueError("Preparation cannot also send or initialize")
     if prepare_path and not DB_PATH.exists():
         raise SetupError("Delivery state is missing. Preview and initialize a no-send baseline first.")
     if initialize and not dry_run:
         raise ValueError("Initialization cannot send notifications")
+    if refresh_history and not DB_PATH.exists():
+        raise SetupError("Delivery state is missing. History refresh requires the existing state database.")
     if not dry_run:
         from config import validate_telegram_config
         try:
@@ -58,23 +63,30 @@ def main(dry_run: bool = True, *, initialize: bool = False,
             raise SetupError("Delivery state is missing. Preview, then run --initialize-state to establish a no-send baseline before delivery.")
 
     print("=== Web3 Growth / GTM / Product Marketing jobs ===")
-    print("[mode] " + ("PREPARE (fence jobs, no Telegram)" if prepare_path else "INITIALIZE (no Telegram)" if initialize else
+    print("[mode] " + ("REFRESH HISTORY (no delivery changes or Telegram)" if refresh_history else
+                       "PREPARE (fence jobs, no Telegram)" if prepare_path else "INITIALIZE (no Telegram)" if initialize else
                        "PREVIEW (no state changes or Telegram)" if dry_run else "SEND"))
     raw_jobs = fetch_all()
     if not raw_jobs:
         raise RuntimeError("No jobs were returned by any source; check source errors before retrying.")
-    results = filter_jobs(enrich_employers(raw_jobs))
+    jobs = reconcile_job_history(raw_jobs, persist=bool(refresh_history or prepare_path or initialize or not dry_run))
+    results = filter_jobs(enrich_employers(jobs))
     new_jobs = filter_unseen(results.qualified)
     # Dates are already checked by filters; newest first, without importing delivery code.
     from filters import _parse_posted_date
     new_jobs.sort(key=lambda j: _parse_posted_date(j.posted) or datetime.min.replace(tzinfo=timezone.utc), reverse=True)
     selected = new_jobs[:max_alerts]
+    report_qualified = []
+    for job in results.qualified if refresh_history else selected:
+        decision = classify_job(job) if refresh_history else None
+        report_qualified.append(_record(job, decision.reason if decision else "",
+                                        decision.timezone_note if decision else ""))
     report = {
-        "mode": "prepare" if prepare_path else "initialize" if initialize else "preview" if dry_run else "send",
+        "mode": "refresh-history" if refresh_history else "prepare" if prepare_path else "initialize" if initialize else "preview" if dry_run else "send",
         "counts": {"raw": len(raw_jobs), "qualified": len(results.qualified),
                    "review": len(results.review), "rejected": len(results.rejected),
                    "new": len(new_jobs), "selected": len(selected)},
-        "qualified": [_record(j) for j in selected],
+        "qualified": report_qualified,
         "review": [_record(d.job, d.reason, d.timezone_note) for d in results.review],
         "rejected": [_record(d.job, d.reason) for d in results.rejected],
     }
@@ -88,7 +100,9 @@ def main(dry_run: bool = True, *, initialize: bool = False,
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
 
-    if prepare_path:
+    if refresh_history:
+        print("[history] Refreshed age and expiry history. Nothing marked as sent or pending; no Telegram Bot API requests or messages.")
+    elif prepare_path:
         path = Path(prepare_path)
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps({"created_at": datetime.now(timezone.utc).isoformat(),
@@ -129,6 +143,7 @@ def deliver_prepared(path: str) -> None:
         raise SetupError("Prepared plan contains too many or duplicate jobs")
     if not are_unconfirmed(jobs):
         raise SetupError("Prepared delivery fence is missing or mismatched; refusing to send")
+    jobs = reconcile_job_history(jobs)
     if any(classify_job(j).status != "qualified" for j in jobs):
         raise SetupError("Prepared job no longer qualifies; refusing to send")
     send_jobs(jobs, on_sent=mark_seen, on_attempt=mark_unconfirmed, on_rejected=clear_unconfirmed)
@@ -141,6 +156,7 @@ def cli() -> None:
     modes.add_argument("--dry-run", action="store_true", help="Preview without sending or changing delivery state (default)")
     modes.add_argument("--send", action="store_true", help="Send qualified jobs to the configured Telegram chat")
     modes.add_argument("--initialize-state", action="store_true", help="Baseline current matches without sending")
+    modes.add_argument("--refresh-history", action="store_true", help="Persist age/expiry history only; requires existing state and never sends")
     modes.add_argument("--prepare-send", metavar="PLAN", help="Fence selected jobs and write a no-send plan")
     modes.add_argument("--deliver-prepared", metavar="PLAN", help="Send a fresh plan after its state fence is durably saved")
     parser.add_argument("--require-state", action="store_true", help="Refuse delivery if dedup state is missing")
@@ -152,7 +168,8 @@ def cli() -> None:
             deliver_prepared(args.deliver_prepared)
             return
         main(dry_run=not args.send, initialize=args.initialize_state,
-             require_state=True, report_path=args.report, max_alerts=args.max_alerts, prepare_path=args.prepare_send)
+             require_state=True, report_path=args.report, max_alerts=args.max_alerts,
+             prepare_path=args.prepare_send, refresh_history=args.refresh_history)
     except SetupError as exc:
         print(f"[scraper] Setup required: {exc}", file=sys.stderr)
         sys.exit(1)
