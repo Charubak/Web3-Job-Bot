@@ -18,7 +18,7 @@ import time
 import threading
 import schedule
 import httpx
-from config import TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, SCRAPE_INTERVAL_HOURS
+from config import TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, SCRAPE_INTERVAL_HOURS, validate_telegram_config
 
 API = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}"
 POLL_TIMEOUT = 30  # long-poll seconds
@@ -42,10 +42,13 @@ def get_updates(offset: int) -> list:
             params={"timeout": POLL_TIMEOUT, "offset": offset},
             timeout=POLL_TIMEOUT + 10,
         )
+        resp.raise_for_status()
         data = resp.json()
+        if not data.get("ok"):
+            raise RuntimeError("Telegram polling rejected")
         return data.get("result", [])
     except Exception as e:
-        print(f"[bot] getUpdates error: {e}")
+        print(f"[bot] getUpdates failed ({type(e).__name__})")
         time.sleep(5)
         return []
 
@@ -66,7 +69,7 @@ def send(text: str) -> None:
         if data.get("ok"):
             _sent_msg_ids.append(data["result"]["message_id"])
     except Exception as e:
-        print(f"[bot] send error: {e}")
+        print(f"[bot] send failed ({type(e).__name__})")
 
 
 # ---------------------------------------------------------------------------
@@ -102,15 +105,20 @@ def _do_fetch_jobs(new_only: bool = False) -> None:
         send("⏳ Already fetching — please wait.")
         return
     try:
+        from storage import DB_PATH
+        if new_only and not DB_PATH.exists():
+            send("Delivery history is missing. Preview and initialize a no-send baseline before using /new. /jobs explicitly replays current matches.")
+            return
         send("🔍 Fetching jobs... give me a sec.")
         from boards import fetch_all
         from filters import apply_filters
+        from employers import enrich_employers
         from notifier import send_jobs
 
         raw = fetch_all()
-        jobs = apply_filters(raw)
+        jobs = apply_filters(enrich_employers(raw))
 
-        from storage import filter_unseen, mark_seen
+        from storage import filter_unseen, mark_seen, mark_unconfirmed, clear_unconfirmed
         if new_only:
             jobs = filter_unseen(jobs)
 
@@ -120,11 +128,10 @@ def _do_fetch_jobs(new_only: bool = False) -> None:
 
         label = "new (unseen)" if new_only else "latest"
         send(f"*🚀 {len(jobs)} {label} Web3 marketing job{'s' if len(jobs) != 1 else ''}:*")
-        send_jobs(jobs)
-        mark_seen(jobs)  # always mark seen so scheduler won't re-send these
+        send_jobs(jobs, on_sent=mark_seen, on_attempt=mark_unconfirmed, on_rejected=clear_unconfirmed)
     except Exception as e:
-        send(f"❌ Error fetching jobs: {e}")
-        print(f"[bot] handle_jobs error: {e}")
+        send("❌ Fetch or delivery failed. Check service logs.")
+        print(f"[bot] handle_jobs failed ({type(e).__name__})")
     finally:
         _fetch_lock.release()
 
@@ -224,11 +231,11 @@ def _scheduled_scrape() -> None:
     print("[scheduler] Starting scheduled scrape...")
     try:
         import scraper
-        scraper.main()
+        scraper.main(dry_run=False, require_state=True)
         print("[scheduler] Scrape complete.")
     except Exception as e:
-        print(f"[scheduler] ERROR: {e}")
-        send(f"⚠️ Scheduled scrape failed: {e}")
+        print(f"[scheduler] FAILED ({type(e).__name__})")
+        send("⚠️ Scheduled scrape failed. Check service logs.")
     finally:
         _fetch_lock.release()
 
@@ -264,6 +271,7 @@ def _check_board_health(raw_count: int) -> None:
 # ---------------------------------------------------------------------------
 
 def main() -> None:
+    validate_telegram_config()
     print("[bot] Starting — listening for commands...")
 
     # Start the scheduler in a background thread
@@ -298,3 +306,4 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("\n[bot] Stopped.")
         sys.exit(0)
+

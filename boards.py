@@ -6,6 +6,8 @@ Failures in individual boards are caught and logged so others still run.
 import hashlib
 import html
 import re
+import time
+from threading import BoundedSemaphore
 from dataclasses import dataclass
 
 import feedparser
@@ -13,6 +15,58 @@ import httpx
 from bs4 import BeautifulSoup
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; JobScraper/1.0)"}
+
+# Keep peak parsing/response memory small even on a 256 MiB machine. ATS
+# companies are fetched sequentially inside their board, without nested pools.
+MAX_BOARD_WORKERS = 2
+MAX_RESPONSE_BYTES = 8 * 1024 * 1024
+MAX_REQUEST_SECONDS = 30
+_HTTP_SLOTS = BoundedSemaphore(MAX_BOARD_WORKERS)
+
+
+def _get(url: str, **kwargs) -> httpx.Response:
+    """Fetch a bounded, decoded body; RSS must use this too, never URL parsing."""
+    kwargs.setdefault("headers", HEADERS)
+    kwargs["headers"] = {"Accept-Encoding": "identity", **kwargs["headers"]}
+    kwargs.setdefault("timeout", 15)
+    with _HTTP_SLOTS:
+        started = time.monotonic()
+        with httpx.Client(max_redirects=5) as client:
+            with client.stream("GET", url, **kwargs) as response:
+                # A decoded-byte cap also protects against compressed bodies.
+                body = bytearray()
+                size = 0
+                for chunk in response.iter_bytes():
+                    if time.monotonic() - started > MAX_REQUEST_SECONDS:
+                        raise TimeoutError(f"Response exceeded {MAX_REQUEST_SECONDS}s: {url}")
+                    size += len(chunk)
+                    if size > MAX_RESPONSE_BYTES:
+                        raise ValueError(f"Response exceeded {MAX_RESPONSE_BYTES} bytes: {url}")
+                    body.extend(chunk)
+                if time.monotonic() - started > MAX_REQUEST_SECONDS:
+                    raise TimeoutError(f"Response exceeded {MAX_REQUEST_SECONDS}s: {url}")
+                # iter_bytes has already decoded Content-Encoding. Do not decode
+                # a second time when constructing the buffered response.
+                headers = {k: v for k, v in response.headers.items()
+                           if k.lower() not in {"content-encoding", "content-length", "transfer-encoding"}}
+                return httpx.Response(response.status_code, headers=headers,
+                                      content=bytes(body), request=response.request)
+
+
+def _plain_text(value: str) -> str:
+    return BeautifulSoup(html.unescape(value or ""), "html.parser").get_text(" ", strip=True)
+
+
+def _fetch_feed(url: str):
+    response = _get(url, follow_redirects=True, timeout=15)
+    response.raise_for_status()
+    return feedparser.parse(response.content)
+
+
+def _rss_description(entry) -> str:
+    parts = [entry.get("summary", "")]
+    parts.extend(item.get("value", "") for item in entry.get("content", []))
+    return "\n".join(dict.fromkeys(_plain_text(part) for part in parts if part))
 
 
 @dataclass
@@ -26,6 +80,9 @@ class Job:
     salary: str = ""
     posted: str = ""
     description: str = ""
+    employer_country: str = ""
+    employer_country_source: str = ""
+    employer_country_verified_at: str = ""
 
 
 def _make_id(url: str) -> str:
@@ -39,7 +96,9 @@ def _resolve_url(url: str) -> str:
     if not any(s in url for s in _URL_SHORTENERS):
         return url
     try:
-        resp = httpx.head(url, follow_redirects=True, timeout=8, headers=HEADERS)
+        with _HTTP_SLOTS:
+            with httpx.Client(max_redirects=5) as client:
+                resp = client.head(url, follow_redirects=True, timeout=8, headers=HEADERS)
         final = str(resp.url)
         if not final.startswith("http"):
             return url
@@ -68,29 +127,19 @@ def _split_title_company(raw: str) -> tuple[str, str]:
 
 
 def _extract_location_from_summary(summary: str) -> str:
+    """Preserve explicit location fields; marketing language is not eligibility.
+
+    A company describing its global/distributed team says nothing about the
+    countries where it can hire. Unstructured evidence stays in description.
     """
-    Pull location hints out of an RSS summary string.
-    Returns the location string so filters.py can decide if it's allowed.
-    Checks for remote/global keywords first, then geo-restricted patterns.
-    """
-    text = BeautifulSoup(summary, "html.parser").get_text(" ", strip=True).lower()
-
-    # Remote/global = good
-    for keyword in ["worldwide", "global", "anywhere", "distributed"]:
-        if keyword in text:
-            return keyword.title()
-    if "remote" in text and not any(
-        p in text for p in ["remote - ", "remote, ", "remote (", "based in", "located in"]
-    ):
-        return "Remote"
-
-    # "based in X" or "located in X" — extract the city/country as location
-    import re as _re
-    m = _re.search(r"(?:based|located)\s+in\s+([\w\s,]+?)(?:\.|,|$)", text)
-    if m:
-        return m.group(1).strip().title()
-
-    return ""
+    soup = BeautifulSoup(html.unescape(summary or ""), "html.parser")
+    # Keep inline tags on the same line so "Remote <b>US only</b>" cannot
+    # accidentally become an unqualified Remote field.
+    for tag in soup.find_all(["br", "p", "div", "li"]):
+        tag.insert_after("\n")
+    text = soup.get_text(" ", strip=False)
+    match = re.search(r"(?:^|\n)\s*(?:job\s+)?location\s*:\s*([^\n]+)", text, re.I)
+    return match.group(1).strip() if match else ""
 
 
 # ---------------------------------------------------------------------------
@@ -99,7 +148,7 @@ def _extract_location_from_summary(summary: str) -> str:
 
 def fetch_cryptocurrencyjobs() -> list[Job]:
     try:
-        feed = feedparser.parse("https://cryptocurrencyjobs.co/index.xml")
+        feed = _fetch_feed("https://cryptocurrencyjobs.co/index.xml")
         jobs = []
         for entry in feed.entries:
             url = entry.get("link", "")
@@ -109,7 +158,7 @@ def fetch_cryptocurrencyjobs() -> list[Job]:
             title, company = _split_title_company(raw_title)
             summary = entry.get("summary", "")
             location = _extract_location_from_summary(summary)
-            description = BeautifulSoup(summary, "html.parser").get_text(" ", strip=True)
+            description = _rss_description(entry)
             jobs.append(
                 Job(
                     id=_make_id(url),
@@ -136,7 +185,7 @@ def fetch_cryptocurrencyjobs() -> list[Job]:
 def _scrape_web3career_page(path: str) -> list[Job]:
     base = "https://web3.career"
     url = base + path
-    resp = httpx.get(url, headers=HEADERS, follow_redirects=True, timeout=20)
+    resp = _get(url, headers=HEADERS, follow_redirects=True, timeout=20)
     resp.raise_for_status()
     soup = BeautifulSoup(resp.text, "html.parser")
     jobs = []
@@ -162,12 +211,11 @@ def _scrape_web3career_page(path: str) -> list[Job]:
         company = h3.get_text(strip=True) if h3 else tds[1].get_text(strip=True)
 
         # Location: td containing a link to /web3-jobs-<location>
-        location = ""
+        locations = []
         for td in tds[2:]:
-            loc_link = td.find("a", href=lambda h: h and "/web3-jobs-" in h)
-            if loc_link:
-                location = loc_link.get_text(strip=True)
-                break
+            for loc_link in td.find_all("a", href=lambda h: h and "/web3-jobs-" in h):
+                locations.append(loc_link.get_text(" ", strip=True))
+        location = "; ".join(dict.fromkeys(locations))
 
         # Posted: time element
         time_el = row.find("time")
@@ -185,6 +233,7 @@ def _scrape_web3career_page(path: str) -> list[Job]:
                 url=job_url,
                 source="web3.career",
                 posted=posted,
+                description=row.get_text(" ", strip=True),
             )
         )
     return jobs
@@ -219,7 +268,7 @@ def fetch_web3career() -> list[Job]:
 def fetch_cryptojobslist() -> list[Job]:
     base = "https://cryptojobslist.com"
     try:
-        resp = httpx.get(
+        resp = _get(
             f"{base}/marketing",
             headers=HEADERS,
             follow_redirects=True,
@@ -261,6 +310,7 @@ def fetch_cryptojobslist() -> list[Job]:
                     source="cryptojobslist.com",
                     salary=salary,
                     posted=posted,
+                    description=row.get_text(" ", strip=True),
                 )
             )
         print(f"[cryptojobslist.com] {len(jobs)} jobs fetched")
@@ -276,8 +326,8 @@ def fetch_cryptojobslist() -> list[Job]:
 
 def fetch_remote3() -> list[Job]:
     try:
-        # Must use www subdomain — bare domain redirects to www which feedparser doesn't follow
-        feed = feedparser.parse("https://www.remote3.co/api/rss")
+        # Fetch bytes ourselves so redirects, timeouts and size limits apply.
+        feed = _fetch_feed("https://www.remote3.co/api/rss")
         jobs = []
         for entry in feed.entries:
             url = entry.get("link", "")
@@ -287,20 +337,21 @@ def fetch_remote3() -> list[Job]:
             raw_title = entry.get("title", "").strip()
             title, company = _split_title_company(raw_title)
 
-            # Summary format: "at Company - Type - Location - $salary"
-            summary = entry.get("summary", "")
+            # Keep the actual location slot, including country-only values.
+            summary = _plain_text(entry.get("summary", ""))
             parts = [p.strip() for p in summary.split(" - ")]
-            location = ""
+            location = parts[2] if len(parts) >= 3 else _extract_location_from_summary(summary)
             salary = ""
-            for part in parts:
-                lower = part.lower()
-                if any(w in lower for w in ["remote", "worldwide", "global", "anywhere"]):
-                    location = part
-                elif "$" in part or "/yr" in part or "/mo" in part:
-                    salary = part
-
-            if not location:
-                location = "Remote"  # remote3.co is remote-only
+            if len(parts) > 3:
+                # "Remote - US" must not be reduced to just "Remote".
+                tail = []
+                for part in parts[3:]:
+                    if "$" in part or "/yr" in part or "/mo" in part:
+                        salary = part
+                    else:
+                        tail.append(part)
+                if tail:
+                    location = " - ".join([location] + tail)
 
             jobs.append(
                 Job(
@@ -312,6 +363,7 @@ def fetch_remote3() -> list[Job]:
                     source="remote3.co",
                     salary=salary,
                     posted=entry.get("published", ""),
+                    description=_rss_description(entry),
                 )
             )
         print(f"[remote3.co] {len(jobs)} jobs fetched")
@@ -330,7 +382,7 @@ def fetch_cryptojobslist_web3() -> list[Job]:
     """Additional cryptojobslist scrape targeting broader web3 tag page."""
     base = "https://cryptojobslist.com"
     try:
-        resp = httpx.get(
+        resp = _get(
             f"{base}/web3",
             headers=HEADERS,
             follow_redirects=True,
@@ -366,6 +418,7 @@ def fetch_cryptojobslist_web3() -> list[Job]:
                     source="cryptojobslist.com",
                     salary=salary,
                     posted=posted,
+                    description=row.get_text(" ", strip=True),
                 )
             )
         print(f"[cryptojobslist.com/web3] {len(jobs)} jobs fetched")
@@ -403,8 +456,9 @@ GREENHOUSE_COMPANIES = [
 
 def _fetch_greenhouse_one(slug: str, company_name: str) -> list[Job]:
     try:
-        resp = httpx.get(
+        resp = _get(
             f"https://boards-api.greenhouse.io/v1/boards/{slug}/jobs",
+            params={"content": "true"},
             headers=HEADERS,
             timeout=12,
         )
@@ -421,6 +475,7 @@ def _fetch_greenhouse_one(slug: str, company_name: str) -> list[Job]:
             jobs.append(Job(
                 id=_make_id(url), title=title, company=company_name,
                 location=location, url=url, source=f"greenhouse/{slug}", posted=posted,
+                description=_plain_text(j.get("content", "")),
             ))
         return jobs
     except Exception as e:
@@ -429,14 +484,10 @@ def _fetch_greenhouse_one(slug: str, company_name: str) -> list[Job]:
 
 
 def fetch_greenhouse() -> list[Job]:
-    """Query Greenhouse public job board API — all companies in parallel."""
-    from concurrent.futures import ThreadPoolExecutor, as_completed
+    """Query Greenhouse companies without creating a nested thread pool."""
     all_jobs: list[Job] = []
-    with ThreadPoolExecutor(max_workers=4) as ex:
-        futures = {ex.submit(_fetch_greenhouse_one, slug, name): slug
-                   for slug, name in GREENHOUSE_COMPANIES}
-        for f in as_completed(futures):
-            all_jobs.extend(f.result())
+    for slug, name in GREENHOUSE_COMPANIES:
+        all_jobs.extend(_fetch_greenhouse_one(slug, name))
     print(f"[greenhouse] {len(all_jobs)} jobs fetched across {len(GREENHOUSE_COMPANIES)} companies")
     return all_jobs
 
@@ -459,9 +510,28 @@ LEVER_COMPANIES = [
 ]
 
 
+def _lever_location(posting: dict) -> str:
+    categories = posting.get("categories") or {}
+    locations = [categories.get("location", "")]
+    locations.extend(categories.get("allLocations") or [])
+    workplace = posting.get("workplaceType", "")
+    if workplace in {"remote", "hybrid", "on-site"}:
+        locations.append(workplace)
+    return "; ".join(dict.fromkeys(str(value).strip() for value in locations if value))
+
+
+def _lever_description(posting: dict) -> str:
+    parts = [posting.get("openingPlain") or posting.get("opening", ""),
+             posting.get("descriptionPlain") or posting.get("description", "")]
+    for section in posting.get("lists") or []:
+        parts.extend([section.get("text", ""), section.get("content", "")])
+    parts.append(posting.get("additionalPlain") or posting.get("additional", ""))
+    return "\n".join(_plain_text(part) for part in parts if part)
+
+
 def _fetch_lever_one(slug: str, company_name: str) -> list[Job]:
     try:
-        resp = httpx.get(
+        resp = _get(
             f"https://api.lever.co/v0/postings/{slug}?mode=json",
             headers=HEADERS,
             timeout=12,
@@ -474,16 +544,9 @@ def _fetch_lever_one(slug: str, company_name: str) -> list[Job]:
             if not url:
                 continue
             title = html.unescape(j.get("text", "").strip())
-            cats = j.get("categories", {})
-            location = cats.get("location", "")
-            workplace = j.get("workplaceType", "")
-            if workplace == "remote" and not location:
-                location = "Remote"
+            location = _lever_location(j)
             posted = str(j.get("createdAt", ""))
-            description = " ".join(filter(None, [
-                j.get("descriptionPlain", ""),
-                j.get("additionalPlain", ""),
-            ]))
+            description = _lever_description(j)
             jobs.append(Job(
                 id=_make_id(url), title=title, company=company_name,
                 location=location, url=url, source=f"lever/{slug}", posted=posted,
@@ -496,14 +559,10 @@ def _fetch_lever_one(slug: str, company_name: str) -> list[Job]:
 
 
 def fetch_lever() -> list[Job]:
-    """Query Lever public posting API — all companies in parallel."""
-    from concurrent.futures import ThreadPoolExecutor, as_completed
+    """Query Lever companies without creating a nested thread pool."""
     all_jobs: list[Job] = []
-    with ThreadPoolExecutor(max_workers=4) as ex:
-        futures = {ex.submit(_fetch_lever_one, slug, name): slug
-                   for slug, name in LEVER_COMPANIES}
-        for f in as_completed(futures):
-            all_jobs.extend(f.result())
+    for slug, name in LEVER_COMPANIES:
+        all_jobs.extend(_fetch_lever_one(slug, name))
     print(f"[lever] {len(all_jobs)} jobs fetched across {len(LEVER_COMPANIES)} companies")
     return all_jobs
 
@@ -516,7 +575,7 @@ def fetch_blockace() -> list[Job]:
     """Scrape blockace.io job listings."""
     base = "https://blockace.io"
     try:
-        resp = httpx.get(base, headers=HEADERS, follow_redirects=True, timeout=20)
+        resp = _get(base, headers=HEADERS, follow_redirects=True, timeout=20)
         resp.raise_for_status()
         soup = BeautifulSoup(resp.text, "html.parser")
         jobs = []
@@ -532,7 +591,7 @@ def fetch_blockace() -> list[Job]:
             company = html.unescape(company_el.get_text(strip=True)) if company_el else ""
 
             loc_el = card.select_one("p[class*='Location']")
-            location = loc_el.get_text(strip=True) if loc_el else "Remote"
+            location = loc_el.get_text(strip=True) if loc_el else ""
 
             salary_parts = [
                 p.get_text(strip=True)
@@ -553,6 +612,7 @@ def fetch_blockace() -> list[Job]:
                     url=url,
                     source="blockace.io",
                     salary=salary,
+                    description=card.get_text(" ", strip=True),
                 )
             )
         print(f"[blockace.io] {len(jobs)} jobs fetched")
@@ -573,7 +633,7 @@ def fetch_blockace() -> list[Job]:
 def fetch_remoteok() -> list[Job]:
     """RemoteOK public JSON endpoint for crypto+web3 jobs."""
     try:
-        resp = httpx.get(
+        resp = _get(
             "https://remoteok.com/remote-crypto+web3-jobs.json",
             headers=HEADERS,
             timeout=15,
@@ -588,7 +648,7 @@ def fetch_remoteok() -> list[Job]:
                 continue
             title = html.unescape(j.get("position", "").strip())
             company = html.unescape(j.get("company", "").strip())
-            location = j.get("location", "Remote") or "Remote"
+            location = j.get("location", "") or ""
             s_min = j.get("salary_min", 0) or 0
             s_max = j.get("salary_max", 0) or 0
             salary = f"${s_min:,}–${s_max:,}" if s_min and s_max else ""
@@ -602,6 +662,7 @@ def fetch_remoteok() -> list[Job]:
                     source="remoteok.com",
                     salary=salary,
                     posted=j.get("date", ""),
+                    description=_plain_text(j.get("description", "")),
                 )
             )
         print(f"[remoteok.com] {len(jobs)} jobs fetched")
@@ -619,7 +680,7 @@ def fetch_cryptojobs() -> list[Job]:
     """Scrape crypto.jobs job listing page."""
     base = "https://crypto.jobs"
     try:
-        resp = httpx.get(
+        resp = _get(
             f"{base}/jobs",
             headers=HEADERS,
             follow_redirects=True,
@@ -676,6 +737,7 @@ def fetch_cryptojobs() -> list[Job]:
                     url=url,
                     source="crypto.jobs",
                     posted=posted,
+                    description=row.get_text(" ", strip=True),
                 )
             )
         print(f"[crypto.jobs] {len(jobs)} jobs fetched")
@@ -694,7 +756,7 @@ def fetch_cryptojobs() -> list[Job]:
 def fetch_web3hiring_telegram() -> list[Job]:
     """Scrape the @web3hiring public Telegram channel preview."""
     try:
-        resp = httpx.get(
+        resp = _get(
             "https://t.me/s/web3hiring",
             headers=HEADERS,
             follow_redirects=True,
@@ -740,10 +802,11 @@ def fetch_web3hiring_telegram() -> list[Job]:
                     id=_make_id(url),
                     title=html.unescape(title),
                     company=html.unescape(company),
-                    location="",  # not in post; filters will pass unknowns through
+                    location="",  # unverified; never infer global eligibility
                     url=url,
                     source="@web3hiring",
                     posted=_tg_posted(msg),
+                    description=full_text,
                 )
             )
 
@@ -761,7 +824,7 @@ def fetch_web3hiring_telegram() -> list[Job]:
 def fetch_lever_aave() -> list[Job]:
     """Aave Labs uses the EU Lever endpoint."""
     try:
-        resp = httpx.get(
+        resp = _get(
             "https://api.eu.lever.co/v0/postings/aavelabs?mode=json",
             headers=HEADERS,
             timeout=15,
@@ -775,11 +838,7 @@ def fetch_lever_aave() -> list[Job]:
             if not url:
                 continue
             title = html.unescape(j.get("text", "").strip())
-            cats = j.get("categories", {})
-            location = cats.get("location", "")
-            workplace = j.get("workplaceType", "")
-            if workplace == "remote" and not location:
-                location = "Remote"
+            location = _lever_location(j)
             jobs.append(
                 Job(
                     id=_make_id(url),
@@ -789,6 +848,7 @@ def fetch_lever_aave() -> list[Job]:
                     url=url,
                     source="lever/aave",
                     posted=str(j.get("createdAt", "")),
+                    description=_lever_description(j),
                 )
             )
         print(f"[lever/aave] {len(jobs)} jobs fetched")
@@ -806,7 +866,7 @@ def fetch_lever_aave() -> list[Job]:
 def fetch_cryptojobsdaily_telegram() -> list[Job]:
     """Scrape the @cryptojobsdaily public Telegram channel (structured job posts)."""
     try:
-        resp = httpx.get(
+        resp = _get(
             "https://t.me/s/cryptojobsdaily",
             headers=HEADERS,
             follow_redirects=True,
@@ -853,6 +913,7 @@ def fetch_cryptojobsdaily_telegram() -> list[Job]:
                     url=url,
                     source="@cryptojobsdaily",
                     posted=_tg_posted(msg),
+                    description=full_text,
                 )
             )
 
@@ -871,7 +932,7 @@ def fetch_cryptojobsdaily_telegram() -> list[Job]:
 def fetch_cryptojobslist_telegram() -> list[Job]:
     """Scrape the @cryptojobslist public Telegram channel (emoji-structured posts)."""
     try:
-        resp = httpx.get(
+        resp = _get(
             "https://t.me/s/cryptojobslist",
             headers=HEADERS,
             follow_redirects=True,
@@ -940,6 +1001,7 @@ def fetch_cryptojobslist_telegram() -> list[Job]:
                     source="@cryptojobslist",
                     salary=salary,
                     posted=_tg_posted(msg),
+                    description=full_text,
                 )
             )
 
@@ -959,7 +1021,7 @@ def fetch_cryptojobslist_telegram() -> list[Job]:
 def fetch_remotive() -> list[Job]:
     """Remotive public API — Marketing category, filtered for web3/crypto titles."""
     try:
-        resp = httpx.get(
+        resp = _get(
             "https://remotive.com/api/remote-jobs",
             params={"category": "Marketing"},
             headers=HEADERS,
@@ -979,7 +1041,7 @@ def fetch_remotive() -> list[Job]:
                 continue
             title = html.unescape(j.get("title", "").strip())
             company = html.unescape(j.get("company_name", "").strip())
-            location = j.get("candidate_required_location", "") or "Remote"
+            location = j.get("candidate_required_location", "") or ""
             posted = j.get("publication_date", "")
             salary = j.get("salary", "") or ""
             jobs.append(
@@ -992,6 +1054,7 @@ def fetch_remotive() -> list[Job]:
                     source="remotive.com",
                     salary=salary,
                     posted=posted,
+                    description=_plain_text(j.get("description", "")),
                 )
             )
         print(f"[remotive.com] {len(jobs)} web3 marketing jobs fetched")
@@ -1034,7 +1097,7 @@ def fetch_twitter_bing() -> list[Job]:
 
     for query in _TWITTER_QUERIES:
         try:
-            resp = httpx.get(
+            resp = _get(
                 "https://www.bing.com/search",
                 params={"q": query, "freshness": "Week"},
                 headers=_BING_HEADERS,
@@ -1079,9 +1142,10 @@ def fetch_twitter_bing() -> list[Job]:
                         id=_make_id(url),
                         title=title,
                         company=company,
-                        location="Remote",
+                        location="",
                         url=url,
                         source="x.com",
+                        description=result.get_text(" ", strip=True),
                     )
                 )
         except Exception as e:
@@ -1099,7 +1163,7 @@ def fetch_twitter_bing() -> list[Job]:
 def fetch_web3marketingjobs_telegram() -> list[Job]:
     """Scrape @web3marketingjobs — 100% web3 marketing job posts."""
     try:
-        resp = httpx.get(
+        resp = _get(
             "https://t.me/s/web3marketingjobs",
             headers=HEADERS,
             follow_redirects=True,
@@ -1143,6 +1207,7 @@ def fetch_web3marketingjobs_telegram() -> list[Job]:
                 url=url,
                 source="@web3marketingjobs",
                 posted=_tg_posted(msg),
+                description=text_el.get_text("\n", strip=True),
             ))
 
         print(f"[@web3marketingjobs] {len(jobs)} jobs fetched")
@@ -1160,7 +1225,7 @@ def fetch_web3marketingjobs_telegram() -> list[Job]:
 def fetch_web3_marketing_jobs_telegram() -> list[Job]:
     """Scrape @web3_marketing_jobs — web3 marketing job posts."""
     try:
-        resp = httpx.get(
+        resp = _get(
             "https://t.me/s/web3_marketing_jobs",
             headers=HEADERS,
             follow_redirects=True,
@@ -1205,6 +1270,7 @@ def fetch_web3_marketing_jobs_telegram() -> list[Job]:
                 url=url,
                 source="@web3_marketing_jobs",
                 posted=_tg_posted(msg),
+                description=full_text,
             ))
 
         print(f"[@web3_marketing_jobs] {len(jobs)} jobs fetched")
@@ -1253,7 +1319,7 @@ def fetch_all() -> list[Job]:
 
     results: dict[int, list[Job]] = {}
 
-    with ThreadPoolExecutor(max_workers=4) as executor:
+    with ThreadPoolExecutor(max_workers=MAX_BOARD_WORKERS) as executor:
         futures = {executor.submit(fn): i for i, fn in enumerate(BOARDS)}
         for future in as_completed(futures):
             idx = futures[future]
@@ -1267,13 +1333,24 @@ def fetch_all() -> list[Job]:
     seen_ids: set[str] = set()
     seen_title_company: set[str] = set()
 
-    for idx in range(len(BOARDS)):
-        for job in results.get(idx, []):
-            tc_key = _title_company_key(job)
-            if job.id in seen_ids or tc_key in seen_title_company:
-                continue
-            all_jobs.append(job)
-            seen_ids.add(job.id)
+    candidates = [job for idx in range(len(BOARDS)) for job in results.get(idx, [])]
+    candidates.sort(key=lambda job: (
+        not job.source.startswith(("greenhouse/", "lever/")),
+        not bool(job.description),
+        not bool(job.location),
+    ))
+    for job in candidates:
+        tc_key = _title_company_key(job)
+        # Unknown companies cannot safely identify cross-board duplicates.
+        is_primary = job.source.startswith(("greenhouse/", "lever/"))
+        # Separate ATS requisitions can have the same title but different
+        # eligibility. Keep both; suppress lower-information reposts instead.
+        if job.id in seen_ids or (not is_primary and job.company.strip() and tc_key in seen_title_company):
+            continue
+        all_jobs.append(job)
+        seen_ids.add(job.id)
+        if job.company.strip():
             seen_title_company.add(tc_key)
 
     return all_jobs
+

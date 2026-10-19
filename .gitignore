@@ -8,3 +8,8 @@ bot.log
 scraper.log
 nohup.out
 .DS_Store
+.venv/
+data/
+review_jobs.json
+run_report.json
+
