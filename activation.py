@@ -20,7 +20,7 @@ from pair_telegram import api_call
 EXPECTED_BOT = "charubak_web3jobs_bot"
 CONFIRMATION_TEXT = (
     "Your updated Web3 job bot is connected to this private chat. "
-    "Final activation is being verified. It will check four times daily and only send "
+    "Final activation is being verified. It will check once daily and only send "
     "strong, fully remote Growth/GTM/PMM matches that allow India, "
     "from non-India-based employers."
 )

@@ -208,7 +208,7 @@ class ActivationTests(unittest.TestCase):
         self.assertEqual(self.methods(), ["getMe", "getChat", "sendMessage"])
         payload = self.call.call_args.args[2]
         self.assertEqual(payload["chat_id"], CHAT)
-        self.assertIn("four times daily", payload["text"])
+        self.assertIn("once daily", payload["text"])
         self.assertIn("Growth/GTM/PMM", payload["text"])
         self.assertIn("strong, fully remote", payload["text"])
         self.assertIn("allow India", payload["text"])

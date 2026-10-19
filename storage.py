@@ -1,7 +1,12 @@
 import os
 import sqlite3
-from datetime import datetime, timezone
+import hashlib
+from copy import copy
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
+
+from boards import canonical_job_url
+from filters import MAX_AGE_DAYS, _parse_posted_date
 
 # On Fly.io the /data volume is mounted here; locally use the project dir
 _data_dir = Path(os.environ.get("DATA_DIR", Path(__file__).parent))
@@ -22,8 +27,107 @@ def _connect() -> sqlite3.Connection:
         """
     )
     conn.execute("CREATE TABLE IF NOT EXISTS unconfirmed_jobs (id TEXT PRIMARY KEY, title TEXT, url TEXT, attempted_at TIMESTAMP)")
+    # History is append-only in identity/expiry: never prune expired or sent jobs.
+    # Keep delivery and activation tables unchanged, including pending fences.
+    conn.execute("""CREATE TABLE IF NOT EXISTS job_history (
+        id TEXT PRIMARY KEY, title TEXT, url TEXT,
+        first_seen_at TEXT NOT NULL, first_posted_at TEXT, expired_at TEXT
+    )""")
     conn.commit()
     return conn
+
+
+def _history_id(job) -> str:
+    url = canonical_job_url(job.url)
+    return hashlib.sha256(url.encode()).hexdigest()[:16] if url else job.id
+
+
+def reconcile_job_history(jobs: list, *, persist: bool = False,
+                          now: datetime | None = None) -> list:
+    """Keep the earliest posting date and permanent expiry across repeated runs.
+
+    First observation is only an upper bound on publication, never proof of a
+    posting date. Unknown/future dates still cannot qualify. Preview only reads;
+    explicit prepare/send/initialize calls may persist history in the same DB
+    already saved alongside delivery fences and activation state.
+    """
+    if not jobs:
+        return []
+    now = now or datetime.now(timezone.utc)
+    if now.tzinfo is None:
+        now = now.replace(tzinfo=timezone.utc)
+    now = now.astimezone(timezone.utc)
+    cutoff = now - timedelta(days=MAX_AGE_DAYS)
+    history = {}
+    if DB_PATH.exists():
+        conn = sqlite3.connect(DB_PATH.resolve().as_uri() + "?mode=ro", uri=True)
+        try:
+            if conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='job_history'").fetchone():
+                history = {row[0]: row[1:] for row in conn.execute(
+                    "SELECT id, first_seen_at, first_posted_at, expired_at FROM job_history")}
+            # Legacy delivery records also prove the job existed by that date.
+            # They provide an age ceiling only, never a fabricated posting date.
+            for table, date_column in (("seen_jobs", "seen_at"), ("unconfirmed_jobs", "attempted_at")):
+                if conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (table,)).fetchone():
+                    for job_id, url, recorded_at in conn.execute(f"SELECT id, url, {date_column} FROM {table}"):
+                        recorded = _parse_posted_date(recorded_at, now=now)
+                        if recorded is None or recorded > now:
+                            continue
+                        canonical = canonical_job_url(url)
+                        key = hashlib.sha256(canonical.encode()).hexdigest()[:16] if canonical else job_id
+                        first_seen, first_posted, expired = history.get(key, (recorded.isoformat(), None, None))
+                        oldest_seen = min(recorded, _parse_posted_date(first_seen, now=now))
+                        history[key] = (oldest_seen.isoformat(), first_posted, expired)
+        finally:
+            conn.close()
+    # Reconcile all aliases before returning so listing order cannot rejuvenate
+    # an older copy of the same canonical job within one scrape.
+    updates = {}
+    for job in jobs:
+        key = _history_id(job)
+        first_seen, first_posted, expired = history.get(key, (now.isoformat(), None, None))
+        observed = _parse_posted_date(job.posted, now=now)
+        known = _parse_posted_date(first_posted, now=now)
+        if observed is not None and observed <= now:
+            known = min(known, observed) if known else observed
+        first_seen_date = _parse_posted_date(first_seen, now=now)
+        oldest = min(d for d in (known, first_seen_date) if d is not None)
+        if oldest < cutoff and not expired:
+            expired = now.isoformat()
+        first_posted = known.isoformat() if known else None
+        history[key] = (first_seen, first_posted, expired)
+        updates[key] = (key, job.title, job.url, first_seen, first_posted, expired)
+    reconciled = []
+    for job in jobs:
+        first_seen, first_posted, expired = history[_history_id(job)]
+        original = _parse_posted_date(job.posted, now=now)
+        listing = copy(job)
+        if expired:
+            # Expiry wins even if an upstream source refreshes or removes its date.
+            oldest = min(d for d in (_parse_posted_date(first_seen, now=now),
+                                    _parse_posted_date(first_posted, now=now)) if d is not None)
+            listing.posted = oldest.isoformat()
+        elif original is not None and original <= now and first_posted:
+            listing.posted = first_posted
+        reconciled.append(listing)
+    if persist:
+        conn = _connect()
+        try:
+            conn.executemany("""INSERT INTO job_history
+                (id, title, url, first_seen_at, first_posted_at, expired_at)
+                VALUES (?, ?, ?, ?, ?, ?)
+                ON CONFLICT(id) DO UPDATE SET
+                    first_seen_at = MIN(job_history.first_seen_at, excluded.first_seen_at),
+                    first_posted_at = CASE
+                        WHEN job_history.first_posted_at IS NULL THEN excluded.first_posted_at
+                        WHEN excluded.first_posted_at IS NULL THEN job_history.first_posted_at
+                        ELSE MIN(job_history.first_posted_at, excluded.first_posted_at) END,
+                    expired_at = COALESCE(job_history.expired_at, excluded.expired_at)
+                """, updates.values())
+            conn.commit()
+        finally:
+            conn.close()
+    return reconciled
 
 
 def filter_unseen(jobs: list) -> list:
@@ -34,21 +138,22 @@ def filter_unseen(jobs: list) -> list:
     if not DB_PATH.exists():
         return list(jobs)
     conn = sqlite3.connect(DB_PATH.resolve().as_uri() + "?mode=ro", uri=True)
-    ids = [j.id for j in jobs]
     seen = set()
+    seen_urls = set()
     try:
-        for start in range(0, len(ids), 900):
-            batch = ids[start:start + 900]
-            placeholders = ",".join("?" * len(batch))
-            seen.update(row[0] for row in conn.execute(
-                f"SELECT id FROM seen_jobs WHERE id IN ({placeholders})", batch
-            ))
-        has_unconfirmed = conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='unconfirmed_jobs'").fetchone()
-        if has_unconfirmed:
-            seen.update(row[0] for row in conn.execute("SELECT id FROM unconfirmed_jobs"))
+        # Compare legacy URLs as well as IDs: older DBs hashed tracking parameters.
+        for table in ("seen_jobs", "unconfirmed_jobs"):
+            if conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (table,)).fetchone():
+                for job_id, url in conn.execute(f"SELECT id, url FROM {table}"):
+                    seen.add(job_id)
+                    if url:
+                        seen_urls.add(canonical_job_url(url))
+        if conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='job_history'").fetchone():
+            seen.update(row[0] for row in conn.execute("SELECT id FROM job_history WHERE expired_at IS NOT NULL"))
     finally:
         conn.close()
-    return [j for j in jobs if j.id not in seen]
+    return [j for j in jobs if j.id not in seen and _history_id(j) not in seen
+            and (not j.url or canonical_job_url(j.url) not in seen_urls)]
 
 
 def mark_seen(jobs: list) -> None:
