@@ -16,6 +16,16 @@ Business development, community, events-focused, junior, technical, sales and co
 
 Missing or ambiguous evidence goes to **review**, never to a qualified alert. Expect fewer results, including zero matches on some runs. The conservative rules are auditable heuristics, not a substitute for reading the employer's current posting.
 
+## Source coverage and limits
+
+Alongside the existing Greenhouse, Lever, public job boards and public-channel sources, the bot now checks seven officially linked Ashby boards: Trust Wallet, Allium, Keyrock, Ether.fi, Lido, Injective and Morpho. The company-to-board evidence links are in `direct_sources.py`. Jito’s verified Lever board is also checked directly so its North America restriction is retained instead of relying on a vague aggregator label. Direct Gains careers checks require the current index listing, exact role page and active application form; they do not submit applications. A narrowly scoped Hacken page adapter also retains verified older-listing evidence, so that known-old role is excluded rather than resurfaced.
+
+Ashby `publishedAt` means **last publication**, not original posting. It is stored only as an existence-date upper bound. A last-publication date over 30 days old proves exclusion and persists the same-identity expiry; a recent republication cannot establish eligibility or reset old history. Original dates remain unknown unless separately supported.
+
+X/Twitter discovery uses four bounded, role-specific public search-index queries with a past-month hint. Search snippets never establish employer identity, location, headquarters or original posting date. Blocked/CAPTCHA responses stop the source; there is no login, paid API, scraping bypass or promise of complete X coverage. Newly found first-party links still need verification. No scraper can guarantee that every internet opening is covered.
+
+The owner-requested one-time job review is separate from routine qualified alerts. It may label a specifically requested open role as needing verification, with the missing evidence stated. Known-old, closed or explicitly restricted jobs are not presented as candidate matches.
+
 ## Employer evidence coverage
 
 `employers.json` stores exact company aliases, official source URLs, source excerpts, and verification dates. Initial coverage: 11 verified non-India employers and 9 explicitly unknown employers, checked 19 October 2026. Other employers remain unknown. Filters require evidence no older than 90 days; refresh the cited source and verification date after actually rechecking it. Do not update a date without verification, infer HQ from a role location, or extend a parent-company record to an unidentified subsidiary.
@@ -45,6 +55,7 @@ The repository includes:
 - `tests.yml`: offline tests on pull requests and relevant pushes. No Telegram secrets are provided.
 - `setup.yml`: deployment readiness on a `main` push that changes this setup workflow, or manual dispatch. Reports only whether the two existing Telegram secrets are present, never their values. It confirms the public cache inventory, restores the exact newest state for preview or initializes only a confirmed missing baseline, verifies the new cache, and never sends messages. Inventory/restore errors stop initialization. Existing seen/pending history is not reset.
 - `activate.yml`: one owner-authorized activation confirmation to the configured private chat after verifying the exact bot. Its durable acknowledgment enables delivery. A pending/uncertain confirmation blocks reactivation and alerts until reviewed.
+- `job-review-status.yml`: one owner-requested, separately fenced job review message after its first merge; no recurring review messages or extra search schedule.
 - `review-current.yml`: one no-message review after its initial merge (or explicit manual dispatch), refreshing public posting-age/expiry history without changing delivery or activation records.
 - `jobs.yml`: checks once daily at 03:30 UTC (09:00 India Standard Time). Alerts stay disabled until an activation acknowledgment exists for the current bot token and private recipient. Set repository variable `JOB_ALERTS_ENABLED=false` to stop scheduled checks. The first successful activation also triggers one immediate search. Manual mode defaults to `preview`.
 

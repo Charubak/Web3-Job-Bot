@@ -91,6 +91,11 @@ def reconcile_job_history(jobs: list, *, persist: bool = False,
         if observed is not None and observed <= now:
             known = min(known, observed) if known else observed
         first_seen_date = _parse_posted_date(first_seen, now=now)
+        upper = _parse_posted_date(getattr(job, "published_at_upper_bound", ""), now=now)
+        if upper is not None and upper <= now:
+            # This is an existence bound, not a claimed original posting date.
+            first_seen_date = min(first_seen_date, upper)
+            first_seen = first_seen_date.isoformat()
         oldest = min(d for d in (known, first_seen_date) if d is not None)
         if oldest < cutoff and not expired:
             expired = now.isoformat()

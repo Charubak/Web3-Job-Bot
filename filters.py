@@ -304,7 +304,22 @@ def _is_primary_source(job) -> bool:
     # These prefixes are assigned only by the direct public-ATS adapters. An
     # aggregator merely linking to an ATS does not authenticate its own text.
     source = str(getattr(job, "source", "") or "").lower().strip()
-    return any(source.startswith(prefix) and source[len(prefix):].strip() for prefix in ("greenhouse/", "lever/", "ashby/"))
+    if any(source.startswith(prefix) and source[len(prefix):].strip() for prefix in ("greenhouse/", "lever/", "ashby/")):
+        return True
+    # These exact official company pages are fetched directly by the bounded
+    # company-careers adapter, never inferred from an aggregator's outbound link.
+    company_pages = {
+        "company/gains.trade": ("hiring.gains.trade", "/roles/"),
+        "company/hacken.io": ("hacken.io", "/careers/"),
+    }
+    if source in company_pages:
+        try:
+            parsed = urlparse(str(getattr(job, "url", "") or ""))
+            host, prefix = company_pages[source]
+            return parsed.scheme == "https" and parsed.hostname == host and parsed.path.startswith(prefix)
+        except ValueError:
+            return False
+    return False
 
 
 def _employer_review_reason(job, now: datetime) -> Optional[str]:
@@ -396,7 +411,11 @@ def _parse_posted_date(posted: str, now: Optional[datetime] = None) -> Optional[
 def _is_too_old(job, now: Optional[datetime] = None) -> bool:
     now = now or datetime.now(timezone.utc)
     posted = _parse_posted_date(getattr(job, "posted", ""), now=now)
-    return posted is not None and posted < now - timedelta(days=MAX_AGE_DAYS)
+    upper = _parse_posted_date(getattr(job, "published_at_upper_bound", ""), now=now)
+    # A recent republication cannot qualify an undated role; an old one proves
+    # the role already existed more than MAX_AGE_DAYS ago.
+    return any(value is not None and value < now - timedelta(days=MAX_AGE_DAYS)
+               for value in (posted, upper))
 
 
 def classify_job(job, now: Optional[datetime] = None) -> FilterDecision:
