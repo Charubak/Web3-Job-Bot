@@ -137,9 +137,16 @@ def pair(token: str, expected_bot: str, digest: str, issued: str, expires: str, 
     deadline = monotonic() + wait_seconds
     if wait_seconds:
         print("Listening for the owner handshake for at most 180 seconds; no updates will be acknowledged.", flush=True)
+    def check_deadline():
+        if wait_seconds and monotonic() >= deadline:
+            raise NoHandshake("Bounded listening window ended; no setup reply was attempted")
+
     while True:
+        check_deadline()
+        verify_window(digest, issued, expires, clock())
         # No offset: do not acknowledge/discard updates. No allowed_updates: preserve settings.
         updates = call(token, "getUpdates", {"limit": 100, "timeout": 0})
+        check_deadline()
         checked_at = clock()
         verify_window(digest, issued, expires, checked_at)
         if diagnostic:
@@ -161,7 +168,8 @@ def pair(token: str, expected_bot: str, digest: str, issued: str, expires: str, 
         "Then tell dot it is saved. Job alerts are not enabled yet. "
         "Never post your bot API token in a message."
     )
-    # Reads may have taken time; never start a send after the approved window.
+    # Reads may have taken time; never start a send after the approved windows.
+    check_deadline()
     verify_window(digest, issued, expires, clock())
     result = call(token, "sendMessage", {"chat_id": chat_id, "text": text,
                   "reply_parameters": {"message_id": message_id}, "disable_web_page_preview": True})
