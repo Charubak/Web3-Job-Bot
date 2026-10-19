@@ -86,6 +86,8 @@ class Job:
     employer_country: str = ""
     employer_country_source: str = ""
     employer_country_verified_at: str = ""
+    # Proven existence by this date (e.g. ATS last-publication), never original date.
+    published_at_upper_bound: str = ""
 
 
 _TRACKING_QUERY_KEYS = {
@@ -562,6 +564,8 @@ LEVER_COMPANIES = [
     ("animocabrands",  "Animoca Brands"),
     ("aurora-dev",     "Aurora (NEAR)"),
     ("offchainlabs",   "Arbitrum (Offchain Labs)"),
+    # Verified official board: https://jobs.lever.co/jito (2026-10-19).
+    ("jito",           "Jito Foundation"),
 ]
 
 
@@ -1121,10 +1125,10 @@ def fetch_remotive() -> list[Job]:
 
 
 
-# X.com hiring posts via Bing search
-# Note: X/Twitter blocked all search engine crawlers in 2023, so this
-# returns 0 results in practice. Kept as a canary — if X ever re-enables
-# indexing it will start working automatically.
+# X.com hiring leads via a public search index, not complete X/Twitter access.
+# Index coverage and freshness are best effort; zero results are possible.
+# A post/repost/index timestamp is not the original job posting date. These
+# leads stay unverified until a first-party job listing supplies the evidence.
 # The /twitter bot command provides manual search links as fallback.
 # ---------------------------------------------------------------------------
 
@@ -1139,74 +1143,130 @@ _BING_HEADERS = {
 }
 
 _TWITTER_QUERIES = [
-    "site:x.com \"we're hiring\" web3 marketing",
-    "site:x.com \"we're hiring\" crypto community manager OR growth OR content",
-    "site:x.com \"hiring\" web3 \"head of marketing\" OR \"marketing lead\" OR \"brand\"",
+    '(site:x.com OR site:twitter.com) (web3 OR crypto) hiring (growth OR GTM)',
+    '(site:x.com OR site:twitter.com) (web3 OR crypto) hiring ("product marketing" OR PMM)',
+    '(site:x.com OR site:twitter.com) crypto hiring ("head of growth" OR "growth lead")',
+    '(site:x.com OR site:twitter.com) web3 hiring senior "go-to-market"',
 ]
+_TWITTER_MAX_QUERIES = 4
+_TWITTER_RESULTS_PER_QUERY = 20
+
+
+def _twitter_post_url(raw_url: str) -> str:
+    """Validate an exact public post host/path; decode Bing links locally only.
+
+    Search result links can use Bing's encoded click wrapper. Only that exact
+    wrapper is decoded, once, without following redirects or visiting X.
+    """
+    import base64
+    from urllib.parse import parse_qs
+
+    if not isinstance(raw_url, str) or len(raw_url) > 4096:
+        return ""
+    url = html.unescape(raw_url).strip()
+    if re.search(r"[\x00-\x20\x7f\\]", url):
+        return ""
+    try:
+        parts = urlsplit(url)
+        if (parts.scheme not in {"http", "https"} or parts.username is not None
+                or parts.password is not None or parts.port not in {None, 80, 443}):
+            return ""
+        if parts.hostname in {"bing.com", "www.bing.com"} and parts.path == "/ck/a":
+            values = parse_qs(parts.query, max_num_fields=100).get("u", [])
+            if len(values) != 1 or not values[0].startswith("a1"):
+                return ""
+            encoded = values[0][2:]
+            url = base64.b64decode(encoded + "=" * (-len(encoded) % 4),
+                                   altchars=b"-_", validate=True).decode("utf-8")
+            if re.search(r"[\x00-\x20\x7f\\]", url):
+                return ""
+            parts = urlsplit(url)
+        if (parts.scheme not in {"http", "https"}
+                or parts.hostname not in {"x.com", "twitter.com"}
+                or parts.username is not None or parts.password is not None
+                or parts.port not in {None, 80, 443}):
+            return ""
+        match = re.fullmatch(
+            r"/([A-Za-z0-9_]{1,15}|i/web)/status/([0-9]+)"
+            r"(?:/(?:photo|video)/[1-9][0-9]*)?/?", parts.path,
+        )
+        if not match:
+            return ""
+        # X and legacy Twitter URLs identify the same post. Tracking parameters
+        # and media suffixes cannot turn it into another discovery candidate.
+        return f"https://x.com/{match.group(1).lower()}/status/{match.group(2)}"
+    except (ValueError, UnicodeError):
+        return ""
 
 
 def fetch_twitter_bing() -> list[Job]:
-    """Search Bing for recent X.com posts about web3 marketing hiring (last week)."""
+    """Bounded free discovery for Growth/GTM/PMM hiring, not verified jobs.
+
+    Request a past-month index window so 14–30-day-old jobs can be discovered.
+    Search freshness is only a hint and never supplies the strict original-job
+    age check. No login, paid API, X requests, pagination, or challenge bypass.
+    """
     jobs = []
     seen_urls: set[str] = set()
 
-    for query in _TWITTER_QUERIES:
+    for query in _TWITTER_QUERIES[:_TWITTER_MAX_QUERIES]:
         try:
             resp = _get(
                 "https://www.bing.com/search",
-                params={"q": query, "freshness": "Week"},
+                params={"q": query, "freshness": "Month", "filters": 'ex1:"ez3"',
+                        "count": _TWITTER_RESULTS_PER_QUERY},
                 headers=_BING_HEADERS,
                 timeout=15,
                 follow_redirects=True,
             )
+            if resp.status_code in {403, 429}:
+                print(f"[twitter/bing] Search unavailable ({resp.status_code}); stopping discovery")
+                break
             resp.raise_for_status()
             soup = BeautifulSoup(resp.text, "html.parser")
+            if soup.select_one("#b_captcha, .b_captcha, form[action*='captcha'], iframe[src*='captcha']"):
+                print("[twitter/bing] Search challenge; stopping discovery")
+                break
 
-            for result in soup.select("li.b_algo"):
+            for result in soup.select("li.b_algo")[:_TWITTER_RESULTS_PER_QUERY]:
                 link = result.select_one("h2 a")
                 if not link:
                     continue
-                url = link.get("href", "")
+                url = _twitter_post_url(link.get("href", ""))
                 if not url or url in seen_urls:
                     continue
-                if "x.com" not in url and "twitter.com" not in url:
-                    continue
-                # Only tweet URLs (contain /status/)
-                if "/status/" not in url:
-                    continue
-                seen_urls.add(url)
 
                 # Bing h2 for tweets: 'Handle on X: "tweet text..."'
-                h2_text = link.get_text(strip=True)
+                h2_text = link.get_text(" ", strip=True)
                 tweet_match = re.search(r' on X: [\u201c"](.*)', h2_text, re.DOTALL)
                 if tweet_match:
                     title = tweet_match.group(1).rstrip('\u201d"').strip()
                 else:
                     snippet_el = result.select_one(".b_caption p")
-                    title = snippet_el.get_text(strip=True) if snippet_el else h2_text
+                    title = snippet_el.get_text(" ", strip=True) if snippet_el else h2_text
                 title = title[:200]  # cap length
-
-                # Extract @handle from URL path
-                handle_match = re.search(
-                    r"(?:x\.com|twitter\.com)/([^/?#]+)/status", url
-                )
-                company = f"@{handle_match.group(1)}" if handle_match else "X/Twitter"
+                if not title:
+                    continue
+                seen_urls.add(url)
 
                 jobs.append(
                     Job(
                         id=_make_id(url),
                         title=title,
-                        company=company,
+                        # The poster may be a recruiter or a reposting account;
+                        # neither its handle nor the snippet proves an employer.
+                        company="",
                         location="",
                         url=url,
                         source="x.com",
-                        description=result.get_text(" ", strip=True),
+                        posted="",
+                        description=result.get_text(" ", strip=True)[:8000],
                     )
                 )
         except Exception as e:
             print(f"[twitter/bing] ERROR ({query[:40]}): {e}")
 
-    print(f"[twitter/bing] {len(jobs)} posts found")
+    print(f"[twitter/bing] {len(jobs)} unverified indexed posts found (best-effort coverage)")
     return jobs
 
 
@@ -1339,6 +1399,21 @@ def fetch_web3_marketing_jobs_telegram() -> list[Job]:
 # Main entry point
 # ---------------------------------------------------------------------------
 
+def fetch_direct_ashby() -> list[Job]:
+    from direct_sources import fetch_ashby
+    return fetch_ashby()
+
+
+def fetch_direct_gains() -> list[Job]:
+    from direct_sources import fetch_gains
+    return fetch_gains()
+
+
+def fetch_direct_hacken() -> list[Job]:
+    from direct_sources import fetch_hacken
+    return fetch_hacken()
+
+
 BOARDS = [
     fetch_cryptocurrencyjobs,
     fetch_web3career,
@@ -1356,6 +1431,9 @@ BOARDS = [
     fetch_cryptojobslist_telegram,
     fetch_remotive,
     fetch_twitter_bing,
+    fetch_direct_ashby,
+    fetch_direct_gains,
+    fetch_direct_hacken,
 ]
 
 
@@ -1381,6 +1459,7 @@ def _preserve_duplicate_posting_dates(jobs: list[Job], now: datetime) -> list[Jo
     primary_urls = {canonical_job_url(job.url) for job in jobs
                     if job.url and _is_primary_source(job)}
     earliest = {}
+    upper_bounds = {}
     for job in jobs:
         if not job.url:
             continue
@@ -1390,6 +1469,9 @@ def _preserve_duplicate_posting_dates(jobs: list[Job], now: datetime) -> list[Jo
         posted = _parse_posted_date(job.posted, now=now)
         if posted is not None and posted <= now:
             earliest[key] = min(earliest.get(key, posted), posted)
+        upper = _parse_posted_date(getattr(job, "published_at_upper_bound", ""), now=now)
+        if upper is not None and upper <= now:
+            upper_bounds[key] = min(upper_bounds.get(key, upper), upper)
 
     reconciled = []
     cutoff = now - timedelta(days=MAX_AGE_DAYS)
@@ -1400,6 +1482,10 @@ def _preserve_duplicate_posting_dates(jobs: list[Job], now: datetime) -> list[Jo
                                    ((posted is None or posted > now) and oldest < cutoff)):
             job = copy(job)
             job.posted = oldest.isoformat()
+        upper = upper_bounds.get(canonical_job_url(job.url)) if job.url else None
+        if upper is not None:
+            job = copy(job)
+            job.published_at_upper_bound = upper.isoformat()
         reconciled.append(job)
     return reconciled
 
