@@ -42,6 +42,7 @@ jobs:
           PAIRING_SHA256: f2e05fdea1d105b17b319b9d226ab253e66cef01a6736c06823807fbd1d007bf
           PAIRING_ISSUED: '2026-10-19T15:05:00Z'
           PAIRING_EXPIRES: '2026-10-19T16:05:00Z'
+        shell: bash
         run: python recover_recipient.py | tee -a "$GITHUB_OUTPUT"
       - name: Save only the encrypted verified recipient alongside existing state
         if: steps.recover.outputs.recovered == 'true'
