@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-19T13:28:00Z",
-  "purpose": "Official-source employer headquarters evidence. Unknown entries are not eligible for automatic alerts.",
+  "generated_at": "2026-10-19T17:49:00Z",
+  "purpose": "Sourced employer headquarters or stated company-base evidence. Unknown entries are not eligible for automatic alerts.",
   "rules": [
     "Country classification concerns the employer's explicit headquarters or stated company base, not the role location, remote eligibility, applicant nationality or office presence.",
     "Unknown is not verified non-India; do not auto-allow an unknown employer under a verified-non-India policy.",
@@ -10,8 +10,8 @@
     "Refresh sources when evidence materially changes; verified_at is the research date, not a guarantee of permanent location."
   ],
   "summary": {
-    "total": 20,
-    "verified_non_india": 11,
+    "total": 26,
+    "verified_non_india": 17,
     "unknown": 9,
     "verified_india": 0
   },
@@ -47,7 +47,7 @@
       "base_city": "San Francisco",
       "is_india_based": false,
       "official_source_url": "https://ripple.com/insights/ripple-and-uc-berkeley-launch-the-university-digital-asset-xcelerator-udax-to-supercharge-the-xrp-ecosystem/",
-      "evidence": "The company describes the cohort closing summit at Ripple’s San Francisco headquarters.",
+      "evidence": "The company describes the cohort closing summit at Ripple\u2019s San Francisco headquarters.",
       "source_publication_date": null,
       "checked_at": "2026-10-19",
       "evidence_type": "explicit_headquarters",
@@ -101,7 +101,7 @@
       "base_city": "New York City",
       "is_india_based": false,
       "official_source_url": "https://www.gemini.com/early-careers",
-      "evidence": "All interns are required to relocate to Gemini’s New York City headquarters.",
+      "evidence": "All interns are required to relocate to Gemini\u2019s New York City headquarters.",
       "source_publication_date": null,
       "checked_at": "2026-10-19",
       "evidence_type": "explicit_headquarters",
@@ -395,6 +395,114 @@
         "https://www.offchain.io/"
       ],
       "notes": "Official website reviewed, but no explicit current HQ/base statement established. Third-party directories disagree on city and were not used."
+    },
+    {
+      "employer_name": "Hylo",
+      "aliases": [
+        "Hylo",
+        "Hylo (hylo.so)",
+        "hylo.so"
+      ],
+      "verification_status": "verified",
+      "base_country_code": "US",
+      "base_country": "United States",
+      "base_city": null,
+      "is_india_based": false,
+      "official_source_url": "https://colosseum.com/companies/hylo",
+      "evidence": "Colosseum\u2019s portfolio identifies Hylo as United States and links to hylo.so; the investor\u2019s cohort announcement independently lists Hylo\u2019s location as United States of America.",
+      "source_publication_date": null,
+      "checked_at": "2026-10-19",
+      "evidence_type": "investor_stated_company_base",
+      "consulted_official_urls": [
+        "https://colosseum.com/companies/hylo",
+        "https://blog.colosseum.com/introducing-colosseum-accelerator-cohort-2/",
+        "https://jobs.solana.com/companies/hylo-2"
+      ],
+      "notes": "The Solana DeFi protocol at hylo.so, not the unrelated hylo.com. Sources support stated company base, not a verified legal headquarters or incorporation address. This does not establish applicant nationality, country eligibility or worldwide remote hiring."
+    },
+    {
+      "employer_name": "Defuse Labs",
+      "aliases": [
+        "Defuse Labs",
+        "Defuse Labs Limited"
+      ],
+      "verification_status": "verified",
+      "base_country_code": "GI",
+      "base_country": "Gibraltar",
+      "is_india_based": false,
+      "official_source_url": "https://defuse.org/privacy",
+      "evidence": "Defuse Labs Limited states its principal place of business is in Gibraltar.",
+      "source_publication_date": null,
+      "checked_at": "2026-10-19",
+      "evidence_type": "principal_place_of_business",
+      "notes": "Company principal business base, not a job-location or registered-office inference."
+    },
+    {
+      "employer_name": "Intercepta",
+      "aliases": [
+        "Intercepta"
+      ],
+      "verification_status": "verified",
+      "base_country_code": "US",
+      "base_country": "United States",
+      "base_city": "Delaware",
+      "is_india_based": false,
+      "official_source_url": "https://www.linkedin.com/company/web3-antivirus",
+      "evidence": "The official Web3 Antivirus company profile identifies Delaware headquarters.",
+      "source_publication_date": null,
+      "checked_at": "2026-10-19",
+      "evidence_type": "official_company_profile_with_rebrand",
+      "notes": "Intercepta explicitly identifies itself as formerly Web3 Antivirus: https://intercepta.io/about-us . The employer-owned profile is corroborated by this direct rebrand statement."
+    },
+    {
+      "employer_name": "The Group Three",
+      "aliases": [
+        "The Group Three",
+        "Group Three"
+      ],
+      "verification_status": "verified",
+      "base_country_code": "AE",
+      "base_country": "United Arab Emirates",
+      "base_city": "Dubai",
+      "is_india_based": false,
+      "official_source_url": "https://www.thegroupthree.com/about/",
+      "evidence": "The company about page identifies its Dubai base.",
+      "source_publication_date": null,
+      "checked_at": "2026-10-19",
+      "evidence_type": "official_company_base",
+      "notes": "Remote hiring and work-from-anywhere language are separate from the company base."
+    },
+    {
+      "employer_name": "TYB",
+      "aliases": [
+        "TYB",
+        "Try Your Best"
+      ],
+      "verification_status": "verified",
+      "base_country_code": "US",
+      "base_country": "United States",
+      "base_city": "San Francisco",
+      "is_india_based": false,
+      "official_source_url": "https://www.linkedin.com/company/tryyourbest",
+      "evidence": "The employer company profile identifies San Francisco as headquarters.",
+      "checked_at": "2026-10-19",
+      "evidence_type": "official_company_profile",
+      "notes": "Corroborated by investor portfolio company profile https://jobs.sogalventures.com/companies/tyb . Do not infer employee residence from company base."
+    },
+    {
+      "employer_name": "GetBlock",
+      "aliases": [
+        "GetBlock"
+      ],
+      "verification_status": "verified",
+      "base_country_code": "SG",
+      "base_country": "Singapore",
+      "is_india_based": false,
+      "official_source_url": "https://getblock.factorialhr.com/job_posting/product-marketing-manager-298460",
+      "evidence": "GetBlock describes itself as a Singapore-based blockchain infrastructure company in its own company introduction.",
+      "checked_at": "2026-10-19",
+      "evidence_type": "official_company_intro",
+      "notes": "Company-base evidence is separate from requisition age. Old role298460 does not establish the age or identity of newer327722."
     }
   ]
 }

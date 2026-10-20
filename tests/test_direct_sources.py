@@ -84,7 +84,7 @@ class AshbySourceTests(unittest.TestCase):
                     self.assertIn(date, posting.description)
                     self.assertIn("Original posting date unverified", posting.description)
 
-    def test_old_last_publication_excludes_but_recent_never_qualifies(self):
+    def test_old_last_publication_excludes_but_current_open_unknown_age_is_allowed(self):
         old = self.fetch(ashby_posting(location="Remote - Global", publishedAt="2026-08-27T12:59:24Z"))[0]
         self.assertEqual(old.posted, "")
         self.assertEqual(classify_job(old, now=NOW).status, "rejected")
@@ -93,7 +93,8 @@ class AshbySourceTests(unittest.TestCase):
         recent.employer_country_source = "https://example.test/about"
         recent.employer_country_verified_at = "2026-10-19"
         decision = classify_job(recent, now=NOW)
-        self.assertEqual(decision.status, "review")
+        self.assertEqual(decision.status, "qualified")
+        self.assertEqual(recent.posted, "")
         self.assertTrue(any("date" in reason.lower() for reason in decision.reasons))
 
     def test_all_primary_secondary_addresses_and_workplace_survive(self):

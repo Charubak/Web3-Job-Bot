@@ -1,4 +1,4 @@
-"""Offline checks for the 14–30 day window and durable anti-repost history."""
+"""Offline checks for the maximum 30-day age and durable anti-repost history."""
 import json
 import sqlite3
 import tempfile
@@ -124,13 +124,47 @@ class HistoryTests(unittest.TestCase):
         self.assertEqual('rejected', classify_job(result, now=NOW + timedelta(microseconds=1)).status)
         self.assertTrue(self.tables()['job_history'][0][-1])
 
-    def test_young_job_can_age_into_window_without_becoming_seen(self):
-        initial = job(days=13)
+    def test_new_jobs_qualify_immediately_without_becoming_seen(self):
+        for days in (0, 1, 3, 13, 14, 30):
+            with self.subTest(days=days):
+                initial = job(days=days, url=f'https://jobs.lever.co/example/age-{days}')
+                result = storage.reconcile_job_history([initial], persist=True, now=NOW)[0]
+                self.assertEqual('qualified', classify_job(result, now=NOW).status)
+                self.assertEqual([result], storage.filter_unseen([result]))
+                self.assertEqual([], self.tables()['seen_jobs'])
+                self.assertEqual([], self.tables()['unconfirmed_jobs'])
+                self.assertTrue(all(row[-1] is None for row in self.tables()['job_history']))
+
+    def test_new_post_expires_only_after_thirty_days_and_cannot_be_rejuvenated(self):
+        initial = job(days=0)
         storage.reconcile_job_history([initial], persist=True, now=NOW)
-        later = NOW + timedelta(days=1)
-        result = storage.reconcile_job_history([initial], now=later)[0]
-        self.assertEqual('qualified', classify_job(result, now=later).status)
-        self.assertEqual([result], storage.filter_unseen([result]))
+        for elapsed, expected in ((0, 'qualified'), (1, 'qualified'), (13, 'qualified'),
+                                  (14, 'qualified'), (30, 'qualified'), (31, 'rejected')):
+            with self.subTest(elapsed=elapsed):
+                later = NOW + timedelta(days=elapsed)
+                refreshed = replace(initial, posted=later.isoformat())
+                result = storage.reconcile_job_history([refreshed], persist=True, now=later)[0]
+                self.assertEqual(initial.posted, result.posted)
+                self.assertEqual(expected, classify_job(result, now=later).status)
+        self.assertTrue(self.tables()['job_history'][0][-1])
+        self.assertEqual([], storage.filter_unseen([initial]))
+
+    def test_preview_selects_newest_qualifying_jobs_first(self):
+        ages = (30, 14, 1, 31, 13, 3, 0)
+        listings = [job(days=days, url=f'https://jobs.lever.co/example/age-{days}') for days in ages]
+        with patch('scraper.fetch_all', return_value=listings), \
+             patch('scraper.enrich_employers', side_effect=lambda jobs: jobs), \
+             patch('notifier.send_jobs') as send:
+            report = scraper.main(max_alerts=3)
+        send.assert_not_called()
+        self.assertEqual(6, report['counts']['qualified'])
+        self.assertEqual(1, report['counts']['rejected'])
+        self.assertEqual(3, report['counts']['selected'])
+        self.assertEqual(['https://jobs.lever.co/example/age-0',
+                          'https://jobs.lever.co/example/age-1',
+                          'https://jobs.lever.co/example/age-3'],
+                         [row['url'] for row in report['qualified']])
+        self.assertFalse(self.db.exists())
 
     def test_tracking_alias_cannot_reset_expiry_and_separate_requisition_survives(self):
         old = job(days=31, url='https://jobs.lever.co/example/stable-job?utm_source=old#apply')

@@ -78,9 +78,8 @@ def main(dry_run: bool = True, *, initialize: bool = False,
     selected = new_jobs[:max_alerts]
     report_qualified = []
     for job in results.qualified if refresh_history else selected:
-        decision = classify_job(job) if refresh_history else None
-        report_qualified.append(_record(job, decision.reason if decision else "",
-                                        decision.timezone_note if decision else ""))
+        decision = classify_job(job)
+        report_qualified.append(_record(job, decision.reason, decision.timezone_note))
     report = {
         "mode": "refresh-history" if refresh_history else "prepare" if prepare_path else "initialize" if initialize else "preview" if dry_run else "send",
         "counts": {"raw": len(raw_jobs), "qualified": len(results.qualified),

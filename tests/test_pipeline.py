@@ -40,6 +40,14 @@ class PipelineTests(unittest.TestCase):
         send.assert_not_called()
         self.assertEqual(list(self.path.iterdir()), [])
 
+    def test_normal_preview_keeps_qualified_age_and_remote_uncertainty_in_report(self):
+        decision=SimpleNamespace(reason='Current opening; original date and country eligibility unconfirmed', timezone_note='US overlap')
+        with patch('scraper.fetch_all',return_value=[job()]), patch('scraper.filter_jobs',return_value=results([job()])), patch('scraper.classify_job',return_value=decision):
+            report=scraper.main()
+        self.assertEqual(report['qualified'][0]['reason'],decision.reason)
+        self.assertEqual(report['qualified'][0]['timezone_note'],decision.timezone_note)
+        self.assertEqual(list(self.path.iterdir()),[])
+
     def test_preview_preserves_existing_dedup_state(self):
         storage.mark_seen([job()])
         before = self.db.read_bytes()
@@ -166,7 +174,7 @@ class NotifierTests(unittest.TestCase):
             text = notifier._format_job(sample)
         self.assertIn('&lt;b&gt;', text)
         self.assertNotIn('javascript:', text)
-        self.assertIn('US overlap', text)
+        self.assertNotIn('US overlap', text)  # Detailed eligibility stays in the audit report.
 
     def test_ambiguous_send_quarantines_batch_without_marking_sent(self):
         ack, ambiguous = [], []

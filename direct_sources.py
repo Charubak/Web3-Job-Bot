@@ -172,7 +172,7 @@ def _fetch_ashby_one(slug: str, company_name: str) -> list[boards.Job]:
                 id=boards._make_id(url), title=title, company=company_name,
                 location=_ashby_location(posting), url=url, source=f"ashby/{slug}",
                 salary=salary, posted="", description=description,
-                published_at_upper_bound=_text(posting.get("publishedAt")),
+                published_at_upper_bound=_text(posting.get("publishedAt")), current_open_verified=True,
             ))
         return jobs
     except Exception as exc:
@@ -265,7 +265,7 @@ def fetch_gains() -> list[boards.Job]:
         job = boards.Job(
             id=boards._make_id(GAINS_JOB_URL), title=title, company="Gains",
             location=location, url=GAINS_JOB_URL, source="company/gains.trade",
-            posted="", description=description,
+            posted="", description=description, current_open_verified=True,
         )
         print("[company/gains.trade] 1 open role fetched; original posting date unknown")
         return [job]
