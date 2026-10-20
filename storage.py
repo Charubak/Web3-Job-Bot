@@ -47,7 +47,7 @@ def reconcile_job_history(jobs: list, *, persist: bool = False,
     """Keep the earliest posting date and permanent expiry across repeated runs.
 
     First observation is only an upper bound on publication, never proof of a
-    posting date. Unknown/future dates still cannot qualify. Preview only reads;
+    posting date. Unknown original dates require a verified current opening; future dates cannot qualify. Preview only reads;
     explicit prepare/send/initialize calls may persist history in the same DB
     already saved alongside delivery fences and activation state.
     """
@@ -145,6 +145,7 @@ def filter_unseen(jobs: list) -> list:
     conn = sqlite3.connect(DB_PATH.resolve().as_uri() + "?mode=ro", uri=True)
     seen = set()
     seen_urls = set()
+    seen_cards = set()
     try:
         # Compare legacy URLs as well as IDs: older DBs hashed tracking parameters.
         for table in ("seen_jobs", "unconfirmed_jobs"):
@@ -153,12 +154,20 @@ def filter_unseen(jobs: list) -> list:
                     seen.add(job_id)
                     if url:
                         seen_urls.add(canonical_job_url(url))
+        if conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='telegram_latest_review_jobs'").fetchone():
+            for job_id, url, title in conn.execute("SELECT id, url, title FROM telegram_latest_review_jobs"):
+                seen.add(job_id)
+                if title:
+                    seen_cards.add((canonical_job_url(url), title.strip().casefold()))
+                elif url:
+                    seen_urls.add(canonical_job_url(url))
         if conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='job_history'").fetchone():
             seen.update(row[0] for row in conn.execute("SELECT id FROM job_history WHERE expired_at IS NOT NULL"))
     finally:
         conn.close()
     return [j for j in jobs if j.id not in seen and _history_id(j) not in seen
-            and (not j.url or canonical_job_url(j.url) not in seen_urls)]
+            and (not j.url or canonical_job_url(j.url) not in seen_urls)
+            and (canonical_job_url(j.url), j.title.strip().casefold()) not in seen_cards]
 
 
 def mark_seen(jobs: list) -> None:

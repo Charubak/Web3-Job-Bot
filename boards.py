@@ -88,6 +88,8 @@ class Job:
     employer_country_verified_at: str = ""
     # Proven existence by this date (e.g. ATS last-publication), never original date.
     published_at_upper_bound: str = ""
+    # Set only by a live, trusted source that lists this requisition as open.
+    current_open_verified: bool = False
 
 
 _TRACKING_QUERY_KEYS = {
@@ -532,7 +534,7 @@ def _fetch_greenhouse_one(slug: str, company_name: str) -> list[Job]:
             jobs.append(Job(
                 id=_make_id(url), title=title, company=company_name,
                 location=location, url=url, source=f"greenhouse/{slug}", posted=posted,
-                description=_plain_text(j.get("content", "")),
+                description=_plain_text(j.get("content", "")), current_open_verified=True,
             ))
         return jobs
     except Exception as e:
@@ -609,7 +611,7 @@ def _fetch_lever_one(slug: str, company_name: str) -> list[Job]:
             jobs.append(Job(
                 id=_make_id(url), title=title, company=company_name,
                 location=location, url=url, source=f"lever/{slug}", posted=posted,
-                description=description,
+                description=description, current_open_verified=True,
             ))
         return jobs
     except Exception as e:
@@ -907,7 +909,7 @@ def fetch_lever_aave() -> list[Job]:
                     url=url,
                     source="lever/aave",
                     posted=str(j.get("createdAt") or ""),
-                    description=_lever_description(j),
+                    description=_lever_description(j), current_open_verified=True,
                 )
             )
         print(f"[lever/aave] {len(jobs)} jobs fetched")
@@ -1202,7 +1204,7 @@ def _twitter_post_url(raw_url: str) -> str:
 def fetch_twitter_bing() -> list[Job]:
     """Bounded free discovery for Growth/GTM/PMM hiring, not verified jobs.
 
-    Request a past-month index window so 14–30-day-old jobs can be discovered.
+    Request a past-month index window so the newest jobs through 30 days can be discovered.
     Search freshness is only a hint and never supplies the strict original-job
     age check. No login, paid API, X requests, pagination, or challenge bypass.
     """
@@ -1399,6 +1401,21 @@ def fetch_web3_marketing_jobs_telegram() -> list[Job]:
 # Main entry point
 # ---------------------------------------------------------------------------
 
+def fetch_hylo_verified() -> list[Job]:
+    from hylo_source import fetch_hylo
+    return fetch_hylo()
+
+
+def fetch_linkedin_hiring_posts() -> list[Job]:
+    from linkedin_discovery import fetch_linkedin_posts
+    return fetch_linkedin_posts()
+
+
+def fetch_curated_companies() -> list[Job]:
+    from company_roles import fetch_company_roles
+    return fetch_company_roles()
+
+
 def fetch_direct_ashby() -> list[Job]:
     from direct_sources import fetch_ashby
     return fetch_ashby()
@@ -1434,6 +1451,9 @@ BOARDS = [
     fetch_direct_ashby,
     fetch_direct_gains,
     fetch_direct_hacken,
+    fetch_hylo_verified,
+    fetch_curated_companies,
+    fetch_linkedin_hiring_posts,
 ]
 
 

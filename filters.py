@@ -1,7 +1,8 @@
-"""Conservative, explainable matching for senior growth / GTM / PMM roles.
+"""Conservative, explainable matching for mid/senior growth / GTM / PMM roles.
 
-A job-board tag saying "Remote" is not evidence of worldwide eligibility.
-Only first-party ATS evidence can qualify a listing. Incomplete or ambiguous
+A first-party role marked "Remote" can qualify without a stated location
+restriction, but does not establish guaranteed worldwide eligibility. Only
+first-party role evidence can qualify a listing. Incomplete or ambiguous
 listings are retained for review, while definite mismatches are rejected.
 This is a text-based screening aid, not a guarantee of an employer's eligibility.
 """
@@ -14,7 +15,6 @@ from email.utils import parsedate_to_datetime
 from typing import Literal, Optional
 from urllib.parse import urlparse
 
-MIN_AGE_DAYS = 14
 MAX_AGE_DAYS = 30
 EMPLOYER_EVIDENCE_MAX_AGE_DAYS = 90
 
@@ -119,8 +119,12 @@ def _timezone_note(location: str, description: str) -> str:
 
 def _location_rejection(title: str, location: str, description: str) -> Optional[str]:
     loc = _without_timezones(location)
-    if _has(r"\b(?:on[ -]?site|in[ -]?office|hybrid|office[ -]based)\b", loc):
+    if _has(r"\b(?:on[ -]?site|in[ -]?office|hybrid|office[ -]based)\b", f"{title} {loc}"):
         return "Location requires office or hybrid attendance"
+    if _has(r"\b(?:partial(?:ly)?|partly|part|semi|mostly|occasionally)[ -]+remote\b", f"{title} {loc}"):
+        return "Title or location permits only partially remote work"
+    if _has(r"\b(?:not|non)[ -](?:fully[ -])?remote\b", f"{title} {loc}"):
+        return "Title or location explicitly rules out remote work"
     if _has(_GEO, loc):
         return "Location is restricted to a country, city, or region"
     if _has(r"\b(?:except|excluding|excludes|restricted to|limited to|residents? only)\b", loc):
@@ -136,11 +140,15 @@ def _location_rejection(title: str, location: str, description: str) -> Optional
         # Negated requirements must not become restrictions themselves.
         if _has(r"\b(?:no|without)\s+(?:geographic(?:al)?|country|location|residency)\s+(?:restrictions?|requirements?)\b", sentence):
             sentence = re.sub(r"\b(?:no|without)\s+(?:geographic(?:al)?|country|location|residency)\s+(?:restrictions?|requirements?)\b", "", sentence)
-        sentence = re.sub(r"\b(?:no|not)\s+(?:on[ -]?site|in[ -]?office|hybrid)\s+(?:work|attendance|requirement)s?\b", "", sentence)
+        sentence = re.sub(r"\b(?:no|not)\s+(?:(?:mandatory|required|compulsory)\s+)?(?:office|on[ -]?site|in[ -]?office|hybrid)\s+(?:work|attendance|visits?|requirements?)\b", "", sentence)
+        sentence = re.sub(r"\bno\s+(?:(?:us|usa|eu|uk)[ -]only\s*(?:,\s*(?:or\s+)?|or\s+)?)+restrictions?\b", "", sentence)
+        sentence = re.sub(r"\bno\s+hybrid\s+schedule\b", "", sentence)
         sentence = re.sub(r"\b(?:not required|no requirement)\s+to\s+(?:be based|reside|live|be located)\s+in\b[^,;]*", "", sentence)
 
         if _has(r"\b(?:(?:not|isn't) (?:(?:a|an|fully|completely) )?remote|no remote work|remote work (?:is )?(?:unavailable|not (?:available|allowed|supported))|(?:do not|don't|cannot|can't) (?:offer|support|allow) remote work)\b", sentence):
             return "Description explicitly rules out remote work"
+        if _has(r"\b(?:partial(?:ly)?|partly|part|semi|mostly|occasionally)[ -]+remote\b", sentence):
+            return "Description permits only partially remote work"
         if _has(r"\b(?:must|required to|need to|expected to|have to|needs to|should)\s+(?:currently\s+)?(?:be\s+)?(?:based|located|resid(?:e|ing)|liv(?:e|ing))\s+(?:in|within)\s+(?!anywhere\b|any country\b|any location\b|(?:(?:a|an|the|any|compatible) )?timezone\b)", sentence):
             return "Description requires residence in a particular location"
         if _has(r"\b(?:residen(?:ce|cy)|relocation)\s+(?:is\s+)?(?:required|mandatory)\b|\bmust relocate\b|\b(?:residen(?:ce|cy)|citizenship)\s+(?:in|of)\b.{0,60}\b(?:required|mandatory)\b|\bmust be (?:a )?(?:resident|citizen) of\b", sentence):
@@ -176,14 +184,18 @@ def _location_rejection(title: str, location: str, description: str) -> Optional
                 return "Description explicitly excludes or restricts hiring locations"
         if _has(r"\b(?:specific|selected|supported|eligible|certain)\s+countries\b|\bcountries where we (?:have|can|are)\b|\bonly (?:able to )?hire (?:in|from)\b", sentence):
             return "Description limits hiring to a subset of countries"
+        if _has(r"\b(?:approved|specific|selected|supported|eligible|certain)\s+(?:jurisdictions?|regions?|locations?)\b|\b(?:limited|restricted)\s+to\b.{0,50}\b(?:jurisdictions?|regions?|locations?|countries)\b", sentence) and _has(r"\b(?:remote|hire|hiring|employment|role|position|work)\b", sentence):
+            return "Description limits hiring to approved locations or jurisdictions"
         if _has(r"\bfollowing\s+(?:countries|locations)\b", sentence) and _has(r"\b(?:hire|hiring|work|remote|eligible|available|role)\b", sentence):
             return "Description enumerates eligible hiring locations"
         if _has(rf"\b(?:open|available)\s+(?:only\s+)?to\s+(?:candidates?|applicants?|residents?)\s+(?:based\s+|located\s+)?(?:in|from|of)\s+(?:the\s+)?(?:{_GEOGRAPHIES})\b", sentence):
             return "Description specifies a restricted applicant location"
-        if _has(r"\b(?:must|required to|need to|expected to)\s+(?:work|attend|come|be|visit|travel)\b.{0,45}\b(?:office|on[ -]?site|in[ -]?person)\b|\b(?:hybrid|on[ -]?site|in[ -]?office)\s+(?:role|position|work|schedule)\b|\b\d+\s+days?\s+(?:per |a |each )?week\s+(?:in|at)\s+(?:the |our )?office\b", sentence):
+        if _has(r"\b(?:must|required to|need to|expected to)\s+(?:(?:be able|be willing|be available)\s+to\s+)?(?:work|attend|come|be|visit|travel)\b.{0,45}\b(?:offices?|on[ -]?site|in[ -]?person)\b|\b(?:hybrid|on[ -]?site|in[ -]?office)\s+(?:role|position|work|schedule)\b|\b\d+\s+days?\s+(?:per |a |each )?week\s+(?:in|at)\s+(?:the |our )?office\b", sentence):
             return "Description requires regular office attendance"
         if _has(r"\bwork(?:ing)?\b.{0,40}\boffice\b.{0,40}\b(?:days?|weekly|per week)\b", sentence):
             return "Description specifies recurring office attendance"
+        if _has(r"\b(?:mandatory|compulsory)\s+(?:\w+\s+){0,3}(?:office|on[ -]?site|in[ -]?person)\b|\b(?:office|on[ -]?site|in[ -]?person)\s+(?:attendance|visits?|work)\s+(?:(?:is|are)\s+)?(?:required|mandatory|compulsory)\b", sentence):
+            return "Description mandates office or on-site attendance"
     return None
 
 
@@ -208,20 +220,77 @@ def _global_remote_evidence(location: str, description: str) -> bool:
     return False
 
 
-def _location_review_reasons(location: str, description: str) -> list[str]:
+def _remote_role_evidence(title: str, location: str, description: str) -> bool:
+    """Find actual role-level remote evidence without inferring global hiring.
+
+    Structured metadata and an explicit role/title are sufficient under the
+    user's screening preference. Generic distributed-company prose is not.
+    Restrictions and unexplained location qualifiers are checked separately.
+    """
+    if _has(_REMOTE, location) or _has(r"\bremote\b", title):
+        return True
+    for sentence in re.split(r"[.!?;\n]+", description):
+        if _has(r"\b(?:not|isn't|is not|cannot|can't|don't)\b.{0,35}\b(?:remote|remotely|work from home)\b", sentence):
+            continue
+        if _has(
+            r"\b(?:this |the |our |a |an )?(?:role|position|job|opportunity)\s+"
+            r"(?:(?:is|will be|can be|offers|supports|allows)\s+)?"
+            r"(?:(?:fully|completely|entirely|100%|permanently)\s+)?remote\b|"
+            r"\b(?:(?:fully|completely|entirely|100%|permanently)\s+)?remote\s+"
+            r"(?:role|position|job|opportunity)\b|"
+            r"\byou\s+(?:(?:will|can|may)\s+)?(?:work remotely|work from home)\b|"
+            r"^\s*(?:work remotely|work from home)\b|"
+            r"\b(?:workplace type|work arrangement|work location|location)\s*:\s*"
+            r"(?:fully\s+)?remote\b",
+            sentence,
+        ):
+            return True
+    return False
+
+
+def _location_review_reasons(location: str, description: str, title: str = "") -> list[str]:
     reasons = []
     if location:
         # Unknown city names / country codes cannot be hidden by a conflicting
         # worldwide claim in the description. Preserve uncertainty for review.
         remainder = _without_timezones(location)
         remainder = re.sub(_GLOBAL, " ", remainder)
+        remainder = re.sub(r"\bremote[ -]first\b", "remote", remainder)
         remainder = re.sub(_REMOTE, " ", remainder)
         remainder = re.sub(r"\b(?:fully|only|full[ -]time|any|timezones?|to|and|or|hours?|hrs?|flexible|work|home)\b", " ", remainder)
         remainder = re.sub(r"[\W\d_]+", "", remainder)
         if remainder:
             reasons.append("Location contains an unexplained qualifier; eligibility needs verification")
-    if _has(r"\bwork (?:authorization|authorisation|permit)\b", description) and not _has(_GEO, description):
+    # Apply the same unknown-location check to remote title qualifiers. A city
+    # absent from the geography dictionary is still not an unrestricted role.
+    title_qualifiers = re.findall(r"[\[(]([^\])]*\bremote\b[^\])]*)[\])]", title)
+    suffix = re.search(r"\bremote\s*[-,:/(\[]\s*(.+)$", title)
+    if suffix:
+        title_qualifiers.append("remote " + suffix.group(1))
+    if any(_location_review_reasons(qualifier, "") for qualifier in title_qualifiers):
+        reasons.append("Remote title contains an unexplained location qualifier; eligibility needs verification")
+    if _has(r"\bwork (?:authorization|authorisation|permit)\b|\b(?:authorized|authorised|eligible|right|permit)\s+(?:to\s+)?work\s+in\b", description):
         reasons.append("Work-authorization requirements need country-specific verification")
+    # A bare Remote tag must not override an explicit denial of open hiring,
+    # even when the employer does not name its permitted countries.
+    if _has(
+        r"\b(?:not|isn't|is not|cannot|can't|don't|do not)\b.{0,45}"
+        r"\b(?:hire worldwide|hiring worldwide|work from anywhere|globally remote|"
+        r"worldwide remote|remote worldwide|remote globally)\b|"
+        r"\b(?:worldwide|global)\s+(?:hiring|remote work)\s+(?:is\s+)?"
+        r"(?:not (?:available|supported|allowed)|unavailable)\b",
+        description,
+    ):
+        reasons.append("Worldwide hiring is explicitly limited; eligible locations are unconfirmed")
+    for sentence in re.split(r"[.!?;\n]+", description):
+        if _has(r"\bvisa\b", sentence) and _has(
+            r"\b(?:required|require|requires|must|need|needs|no sponsorship|"
+            r"no visa sponsorship|(?:cannot|can't|do not|don't) sponsor|"
+            r"sponsorship (?:is )?(?:unavailable|not available|not provided|not offered))\b",
+            sentence,
+        ) and not _has(r"\b(?:no visa (?:is )?required|visa (?:is )?not required)\b", sentence):
+            reasons.append("Visa requirements or sponsorship limits need eligibility verification")
+            break
     return reasons
 
 
@@ -239,10 +308,22 @@ _ADJACENT_TITLE = r"\b(?:marketing|community|content|brand|partnerships?|ecosyst
 _SENIOR_TITLE = r"\b(?:senior|sr\.?|lead|principal|staff|head|director)\b"
 _OWNERSHIP = r"\b(?:own|ownership|lead|leading|drive|driving|define|defining|build|building|develop|developing|set|setting|shape|shaping)\b"
 _GROWTH_MANDATE = r"\b(?:go[ -]to[ -]market|gtm|positioning|messaging|product launches?|product marketing|growth strateg(?:y|ies)|growth marketing|acquisition|activation|retention|conversion|growth experiments?|growth loops?|demand generation)\b"
-_HANDS_ON = r"\b(?:hands[ -]on|player[ -]coach|individual contributor|first (?:growth|marketing)|founding (?:growth|marketer|marketing)|build from (?:scratch|zero)|zero[ -]to[ -]one|0[ -]to[ -]1)\b"
-_EARLY_STAGE = r"\b(?:early[ -]stage|seed[ -]stage|pre[ -]seed|series a|small team|lean team|founding team|first (?:growth|marketing)|founding (?:growth|marketer|marketing))\b"
-_SENIOR_EXPERIENCE = r"\b(?:[4-9]|1[0-9]|four|five|six|seven|eight|nine|ten)\s*(?:\+|(?:-|to)\s*\d+)?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:(?:relevant|professional|marketing|work|overall|total)\s+)*experience\b"
-_LOW_EXPERIENCE = r"\b(?:0\s*(?:-|to)\s*[123]|[12]\s*(?:-|to)\s*[23]|[012]|one|two)\s*\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:(?:relevant|professional|growth|marketing|work|overall|total)\s+)*experience\b"
+_HANDS_ON = r"\b(?:hands[ -]on|player[ -]coach|individual contributor|first (?:growth|marketing)|founding (?:growth|marketer|marketing)|own (?:end[ -]to[ -]end )?product marketing|build from (?:scratch|zero)|zero[ -]to[ -]one|0[ -]to[ -]1)\b"
+_EARLY_STAGE = r"\b(?:startup mode|resource[ -]lean|small,? (?:globally )?distributed team|early[ -]stage|seed[ -]stage|pre[ -]seed|series a|small team|lean team|founding team|first (?:growth|marketing)|founding (?:growth|marketer|marketing))\b"
+_EXPERIENCED_REQUIREMENT = r"\b(?:[3-9]|1[0-9]|three|four|five|six|seven|eight|nine|ten)\s*(?:\+|(?:-|to)\s*(?:\d+|zero|one|two|three|four|five|six|seven|eight|nine|ten))?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:(?:relevant|professional|growth|product|marketing|gtm|go[ -]to[ -]market|work|overall|total)\s+)*experience\b"
+_LOW_EXPERIENCE = r"\b(?:[012]|zero|one|two)\s*(?:\+|(?:-|to)\s*(?:\d+|zero|one|two|three|four|five|six|seven|eight|nine|ten))?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:(?:relevant|professional|growth|product|marketing|gtm|go[ -]to[ -]market|work|overall|total)\s+)*experience\b"
+
+
+_RELEVANT_TENURE = r"\b(?:[3-9]|1[0-9]|three|four|five|six|seven|eight|nine|ten)\s*(?:\+|(?:-|to)\s*(?:\d+|three|four|five|six|seven|eight|nine|ten))?\s*(?:years?|yrs?)\s+in\s+(?:product marketing|growth marketing|marketing|gtm|go[ -]to[ -]market)\b"
+_LOW_RELEVANT_TENURE = r"\b(?:[012]|zero|one|two)\s*(?:\+|(?:-|to)\s*(?:\d+|zero|one|two|three|four|five|six|seven|eight|nine|ten))?\s*(?:years?|yrs?)\s+in\s+(?:product marketing|growth marketing|marketing|gtm|go[ -]to[ -]market)\b"
+
+
+def _has_experienced_requirement(description: str) -> bool:
+    # A low-tenure range's upper endpoint is not a separate overall minimum.
+    # This also covers spelled-out and mixed ranges such as "one to five".
+    low_spans = [match.span() for match in re.finditer(rf"(?:{_LOW_EXPERIENCE}|{_LOW_RELEVANT_TENURE})", description, re.I)]
+    return any(not any(start <= match.start() < end for start, end in low_spans)
+               for match in re.finditer(rf"(?:{_EXPERIENCED_REQUIREMENT}|{_RELEVANT_TENURE})", description, re.I))
 
 
 def _role_rejection(title: str, description: str) -> Optional[str]:
@@ -259,13 +340,13 @@ def _role_rejection(title: str, description: str) -> Optional[str]:
     if _has(r"\b(?:entry[ -]level (?:role|position|opportunity)|(?:role|position) is (?:an? )?entry[ -]level|(?:ideal|suitable|perfect) for (?:fresh |recent )?graduates|no (?:prior |previous |professional )?experience (?:is )?required)\b", description):
         return "Description explicitly targets early-career candidates"
     for sentence in re.split(r"[.!?;\n]+", description):
-        for match in re.finditer(_LOW_EXPERIENCE, sentence):
+        for match in re.finditer(rf"(?:{_LOW_EXPERIENCE}|{_LOW_RELEVANT_TENURE})", sentence):
             if _has(r"\b(?:mentor|mentoring|coach|coaching|junior colleagues|junior team)\b", sentence):
                 continue
-            # A senior marketer may need only 1-2 years in a specific domain.
+            # An experienced marketer may need only 1-2 years in a specific domain.
             # Do not confuse that with their overall experience requirement.
             domain_tenure = _has(r"^\s+(?:working\s+)?(?:in|with|using)\s+(?:the\s+)?(?:crypto|defi|web3|blockchain|saas|b2b|b2c|fintech|gaming)\b", sentence[match.end():])
-            if not (domain_tenure and _has(_SENIOR_EXPERIENCE, description)):
+            if not (domain_tenure and _has_experienced_requirement(description)):
                 return "Description targets early-career experience"
     if _has(r"\b(?:primary focus|primarily|main responsibility|role focuses on|role is focused on)\b.{0,55}\b(?:community|moderation|events?|conferences?|business[ -]development)\b", description):
         return "Description is primarily community, events, or business development"
@@ -280,13 +361,20 @@ def _role_rejection(title: str, description: str) -> Optional[str]:
 
 def _role_review_reasons(title: str, description: str) -> list[str]:
     reasons = []
-    if not _has(_CORE_TITLE, title):
+    relevant_content = (
+        _has(r"\b(?:content|copywriter|writer)\b", title)
+        and not _has(r"\b(?:technical writer|documentation)\b", title)
+        and _has(r"\b(?:web3|crypto|defi|blockchain)\b", f"{title} {description}")
+        and _has(r"\b(?:marketing|audience|brand|storytelling|editorial|social|campaigns?)\b", description)
+    )
+    if not _has(_CORE_TITLE, title) and not relevant_content:
         if not _has(r"\bmarketing\b", title) or not _has(_GROWTH_MANDATE, description) or _has(r"\b(?:content|brand|social media|communications?|public relations|influencer|kol|seo)\b", title):
             reasons.append("Adjacent marketing specialty; growth / GTM / PMM ownership is not established")
-    if not _has(_SENIOR_TITLE, title):
-        if not (_has(r"\bmanager\b", title) and _has(_SENIOR_EXPERIENCE, description)):
-            reasons.append("Senior individual-contributor or player-coach scope needs verification")
-    if not _has(_OWNERSHIP, description) or not _has(_GROWTH_MANDATE, description):
+    # Relevant ownership is checked separately below. Experienced ICs and
+    # specialists need not have a leadership word or manager title.
+    if not _has(_SENIOR_TITLE, title) and not _has_experienced_requirement(description):
+        reasons.append("Mid/senior individual-contributor or manager experience needs verification")
+    if not _has(_OWNERSHIP, description) or not (_has(_GROWTH_MANDATE, description) or relevant_content):
         reasons.append("Description does not establish ownership of growth, GTM, or product marketing")
     if _has(r"\b(?:chief|cmo|vp|vice president|svp|evp)\b", title):
         reasons.append("Executive-level scope needs review against a senior IC / player-coach target")
@@ -306,6 +394,22 @@ def _is_primary_source(job) -> bool:
     source = str(getattr(job, "source", "") or "").lower().strip()
     if any(source.startswith(prefix) and source[len(prefix):].strip() for prefix in ("greenhouse/", "lever/", "ashby/")):
         return True
+    exact_sources = {
+        "ecosystem/solana/hylo": {
+            "https://jobs.solana.com/companies/hylo-2/jobs/97132369-marketing-growth-lead",
+        },
+        "company/curated": {
+            "https://job-boards.eu.greenhouse.io/defuselabs/jobs/4997160101",
+            "https://talent.yzilabs.com/jobs/c2ce0aad-fee1-49a3-9abc-b6ad32480795",
+            "https://intercepta.io/careers/marketing-marketing-lead-remote",
+            "https://www.thegroupthree.com/careers",
+            "https://jobs.sogalventures.com/companies/tyb/jobs/95076705-lifecycle-marketing-lead",
+            "https://cosign.co/jobs/0jw5ou60xx",
+            "https://getblock.factorial.com/job_posting/full-stack-marketing-manager-marketing-pmm-327722",
+        },
+    }
+    if source in exact_sources:
+        return str(getattr(job, "url", "") or "").rstrip("/") in exact_sources[source]
     # These exact official company pages are fetched directly by the bounded
     # company-careers adapter, never inferred from an aggregator's outbound link.
     company_pages = {
@@ -421,8 +525,9 @@ def _is_too_old(job, now: Optional[datetime] = None) -> bool:
 def classify_job(job, now: Optional[datetime] = None) -> FilterDecision:
     """Return one explainable decision without mutating the original job.
 
-    Explicit disqualifiers win over unknowns. Missing evidence never becomes
-    positive evidence. A timezone note is an availability check, not residency.
+    Explicit disqualifiers win over unknowns. Unrestricted Remote evidence can
+    qualify, with country eligibility left unconfirmed. Other missing evidence
+    still needs review. A timezone note is an availability check, not residency.
     """
     now = now or datetime.now(timezone.utc)
     if now.tzinfo is None:
@@ -439,11 +544,9 @@ def classify_job(job, now: Optional[datetime] = None) -> FilterDecision:
     if _is_too_old(job, now=now):
         return FilterDecision(job, "rejected", (f"Posting is older than {MAX_AGE_DAYS} days",), timezone_note)
     posted = _parse_posted_date(getattr(job, "posted", ""), now=now)
-    if posted is not None and now - timedelta(days=MIN_AGE_DAYS) < posted <= now:
-        return FilterDecision(job, "rejected", (f"Posting is younger than {MIN_AGE_DAYS} days",), timezone_note)
 
     reasons = _role_review_reasons(title, description)
-    reasons.extend(_location_review_reasons(location, description))
+    reasons.extend(_location_review_reasons(location, description, title))
     employer_reason = _employer_review_reason(job, now)
     if employer_reason:
         reasons.append(employer_reason)
@@ -451,21 +554,28 @@ def classify_job(job, now: Optional[datetime] = None) -> FilterDecision:
         reasons.append("Full role description is missing or too thin to verify requirements")
     if not _is_primary_source(job):
         reasons.append("First-party employer / ATS evidence is missing; aggregator claims need verification")
-    if not _global_remote_evidence(location, description):
-        reasons.append("Worldwide remote eligibility is unconfirmed; empty locations and bare Remote are insufficient")
+    global_remote = _global_remote_evidence(location, description)
+    if not (global_remote or _remote_role_evidence(title, location, description)):
+        reasons.append("Role-level remote work is unconfirmed; empty locations and distributed-company prose are insufficient")
     if not getattr(job, "url", ""):
         reasons.append("Application URL is missing")
-    if posted is None:
+    current_open_verified = getattr(job, "current_open_verified", False) is True
+    if posted is None and not current_open_verified:
         reasons.append("Posting date is missing or unparseable; recency needs verification")
     if posted and posted > now:
         reasons.append("Posting date is in the future and needs verification")
     if reasons:
         return FilterDecision(job, "review", tuple(reasons), timezone_note)
-    return FilterDecision(job, "qualified", (
-        "Senior growth / GTM / product-marketing ownership fits the target scope",
-        "First-party ATS explicitly supports worldwide remote work with no detected residence restriction",
+    qualified_reasons = (
+        "Mid/senior marketing ownership fits the target scope",
+        ("First-party role explicitly advertises worldwide remote work; no residence restriction detected"
+         if global_remote else
+         "First-party role is Remote with no stated location restriction; country eligibility is unconfirmed"),
         "Employer country has recent sourced verification outside India",
-    ), timezone_note)
+    )
+    if posted is None:
+        qualified_reasons += ("Current opening verified; original posting date is unconfirmed",)
+    return FilterDecision(job, "qualified", qualified_reasons, timezone_note)
 
 
 def filter_jobs(jobs: list, now: Optional[datetime] = None) -> FilterResults:
@@ -479,6 +589,9 @@ def filter_jobs(jobs: list, now: Optional[datetime] = None) -> FilterResults:
             results.review.append(decision)
         else:
             results.rejected.append(decision)
+    # Keep source order within each group; dated openings precede verified-open
+    # undated ones without inventing an original date from a recent republication.
+    results.qualified.sort(key=lambda job: _parse_posted_date(getattr(job, "posted", ""), now=now) is None)
     return results
 
 

@@ -23,19 +23,27 @@ def job(days, posted=''):
 
 class PublicationBoundsTests(unittest.TestCase):
     def test_recent_last_publication_does_not_establish_original_date(self):
-        for days in (1, 20, 30, -1):
+        for days in (0, 1, 3, 13, 14, 20, 30, -1):
             with self.subTest(days=days):
                 result = classify_job(job(days), now=NOW)
                 self.assertEqual('review', result.status)
                 self.assertIn('Posting date is missing', result.reason)
 
     def test_old_last_publication_rejects_even_new_claimed_original_date(self):
-        for posted in ('', (NOW-timedelta(days=20)).isoformat()):
+        for posted in ('', NOW.isoformat(), (NOW-timedelta(days=20)).isoformat()):
             self.assertEqual('rejected', classify_job(job(31, posted), now=NOW).status)
 
     def test_recent_or_future_bound_never_rejects_valid_original(self):
-        for days in (1, -1):
-            self.assertEqual('qualified', classify_job(job(days, (NOW-timedelta(days=20)).isoformat()), now=NOW).status)
+        for days in (0, 1, -1):
+            for original_days in (0, 1, 3, 13, 14, 20, 30):
+                with self.subTest(bound_days=days, original_days=original_days):
+                    original = (NOW-timedelta(days=original_days)).isoformat()
+                    self.assertEqual('qualified', classify_job(job(days, original), now=NOW).status)
+
+    def test_recent_bound_does_not_qualify_future_original_date(self):
+        result = classify_job(job(0, (NOW+timedelta(microseconds=1)).isoformat()), now=NOW)
+        self.assertEqual('review', result.status)
+        self.assertIn('Posting date is in the future', result.reason)
 
     def test_old_existence_bound_persists_expiry_without_fabricating_original(self):
         with tempfile.TemporaryDirectory() as tmp, patch('storage.DB_PATH', Path(tmp)/'state.db'):

@@ -47,24 +47,19 @@ def _age_label(posted: str) -> str:
 
 
 def _format_job(job) -> str:
+    """Concise recommendations; detailed evidence stays in the audit report."""
     def esc(value, limit):
         return html_lib.escape(str(value or "")[:limit])
-    salary_part = f" | 💰 {esc(job.salary, 120)}" if job.salary else ""
-    location_part = esc(job.location or "See verified eligibility", 200)
-    title, company, source = esc(job.title, 220), esc(job.company, 100), esc(job.source, 70)
+    title, company = esc(job.title, 220), esc(job.company, 100)
     raw_url = str(job.url or "")
     safe_url = raw_url if len(raw_url) <= 1500 and urlsplit(raw_url).scheme in ("http", "https") else ""
     link = f'<a href="{html_lib.escape(safe_url, quote=True)}">Apply</a>' if safe_url else "Listing URL unavailable"
-    age = _age_label(job.posted)
-    decision = classify_job(job)
-    timezone_part = f"\n🕒 {esc(decision.timezone_note, 300)}" if decision.timezone_note else ""
-    evidence = esc(decision.reason, 360)
-    return (
-        f"🟢 <b>{title}</b> - {company}\n"
-        f"📍 {location_part}{salary_part}{age}\n"
-        f"✓ {evidence}{timezone_part}\n"
-        f"🔗 {link} · <i>{source}</i>"
-    )
+    role = str(job.title or "").casefold()
+    fit = ("Product marketing and GTM ownership." if "product marketing" in role or "pmm" in role else
+           "Web3 content and product storytelling." if "content" in role or "writer" in role else
+           "Growth and GTM ownership.")
+    # Salary fields lack reliable employer-versus-estimate provenance. Omit them.
+    return f"<b>{title}</b> — {company}\n{fit}\n{link}"
 
 
 def _split_messages(lines: list[str]) -> list[str]:
@@ -120,7 +115,7 @@ def send_jobs(jobs: list, on_sent=None, on_unconfirmed=None, on_attempt=None, on
             _send("No new qualified Web3 Growth / GTM / Product Marketing jobs.")
         return
     jobs = _sort_by_recency(jobs)
-    header = f"<b>🚀 {len(jobs)} qualified Web3 job(s)</b>\n\n"
+    header = f"<b>{len(jobs)} new role(s) to apply for</b>\n\n"
     chunks = []
     current_jobs, current_lines = [], []
     for job in jobs:

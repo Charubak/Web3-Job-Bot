@@ -47,6 +47,8 @@ class DecisionTests(unittest.TestCase):
             "Senior Growth Marketing Manager", "Growth Lead", "GTM Lead",
             "Go-to-Market Lead", "Senior Product Marketing Manager", "Senior PMM",
             "Principal Product Marketing Manager", "Marketing Lead", "Growth Manager",
+            "Product Marketing Manager", "Growth Marketer", "Growth Specialist",
+            "Marketing Specialist",
         ):
             with self.subTest(title=title):
                 self.assert_status("qualified", title=title)
@@ -67,7 +69,7 @@ class DecisionTests(unittest.TestCase):
                 self.assert_status("review", description=desc)
 
     def test_unclear_scope_is_review(self):
-        for title in ("Growth Marketer", "Marketing Specialist", "Senior Content Marketer", "Senior Brand Manager", "Ecosystem Lead"):
+        for title in ("Senior Content Marketer", "Senior Brand Manager", "Ecosystem Lead"):
             with self.subTest(title=title):
                 self.assert_status("review", title=title)
 
@@ -146,10 +148,17 @@ class DecisionTests(unittest.TestCase):
     def test_boundaries_do_not_match_international_or_business(self):
         self.assert_status("qualified", title="International Growth Lead", description=DESCRIPTION + " Partner with business stakeholders and support international product launches.")
 
-    def test_unknown_and_bare_remote_locations_are_review(self):
-        for location in ("", None, "Remote", "Remote only", "Fully remote", "Distributed", "Global", "Remote-first", "Remote (flexible)"):
+    def test_unknown_locations_without_remote_evidence_are_review(self):
+        for location in ("", None, "Distributed", "Global"):
             with self.subTest(location=location):
                 self.assert_status("review", location=location)
+
+    def test_unrestricted_primary_remote_locations_qualify_with_uncertainty(self):
+        for location in ("Remote", "Remote only", "Fully remote", "Remote-first", "Remote (flexible)"):
+            with self.subTest(location=location):
+                result = self.assert_status("qualified", location=location)
+                self.assertIn("country eligibility is unconfirmed", result.reason)
+                self.assertNotIn("explicitly advertises worldwide", result.reason)
 
     def test_primary_description_can_supply_missing_global_location(self):
         for location in ("", "Remote"):
@@ -165,7 +174,9 @@ class DecisionTests(unittest.TestCase):
             "Join our globally remote company.",
         ):
             with self.subTest(description=desc):
-                self.assert_status("review", location="Remote", description=DESCRIPTION + " " + desc)
+                self.assert_status("review", location="", description=DESCRIPTION + " " + desc)
+                result = self.assert_status("qualified", location="Remote", description=DESCRIPTION + " " + desc)
+                self.assertIn("country eligibility is unconfirmed", result.reason)
 
     def test_aggregator_global_claim_never_qualifies(self):
         for source in ("web3.career", "remoteok.com", "@web3marketingjobs", "x.com", "", "lever/"):
@@ -289,8 +300,10 @@ class DecisionTests(unittest.TestCase):
                 result = self.assert_status("qualified", description=DESCRIPTION + " " + desc)
                 self.assertIn("availability check", result.timezone_note)
 
-    def test_timezone_location_needs_global_proof_separately(self):
-        self.assert_status("review", location="Remote - UTC+2 to UTC+8")
+    def test_timezone_location_keeps_availability_separate(self):
+        result = self.assert_status("qualified", location="Remote - UTC+2 to UTC+8")
+        self.assertIn("country eligibility is unconfirmed", result.reason)
+        self.assertTrue(result.timezone_note)
         result = self.assert_status("qualified", location="Remote - US timezone", description=DESCRIPTION + " Work from anywhere in the world.")
         self.assertTrue(result.timezone_note)
 
@@ -351,19 +364,41 @@ class DecisionTests(unittest.TestCase):
         self.assert_status("rejected", posted="31d")
         self.assert_status("qualified", posted="30d")
 
-    def test_age_window_is_inclusive_at_fourteen_and_thirty_days(self):
+    def test_age_window_includes_new_posts_through_thirty_days(self):
         for delta, expected in (
-            (timedelta(days=14) - timedelta(microseconds=1), "rejected"),
+            (timedelta(), "qualified"),
+            (timedelta(microseconds=1), "qualified"),
+            (timedelta(days=1), "qualified"),
+            (timedelta(days=3), "qualified"),
+            (timedelta(days=13), "qualified"),
+            (timedelta(days=14) - timedelta(microseconds=1), "qualified"),
             (timedelta(days=14), "qualified"),
             (timedelta(days=21), "qualified"),
             (timedelta(days=30), "qualified"),
             (timedelta(days=30) + timedelta(microseconds=1), "rejected"),
+            (timedelta(days=31), "rejected"),
         ):
             with self.subTest(delta=delta):
                 self.assert_status(expected, posted=(NOW - delta).isoformat())
-        self.assert_status("rejected", posted="today")
-        self.assert_status("rejected", posted="13d")
-        self.assert_status("review", posted=(NOW + timedelta(seconds=1)).isoformat())
+        self.assert_status("review", posted=(NOW + timedelta(microseconds=1)).isoformat())
+
+    def test_recent_relative_dates_can_qualify_immediately(self):
+        for posted in ("now", "today", "just now", "yesterday", "1h", "1d", "3d", "13d", "14d", "30d"):
+            with self.subTest(posted=posted):
+                self.assert_status("qualified", posted=posted)
+
+    def test_recent_date_does_not_bypass_other_evidence_checks(self):
+        for changes, expected in (
+            ({"title": "Community Lead"}, "rejected"),
+            ({"location": "Remote - United States"}, "rejected"),
+            ({"employer_country": "India"}, "rejected"),
+            ({"location": ""}, "review"),
+            ({"employer_country": ""}, "review"),
+            ({"source": "aggregator"}, "review"),
+            ({"description": ""}, "review"),
+        ):
+            with self.subTest(changes=changes):
+                self.assert_status(expected, posted=NOW.isoformat(), **changes)
 
     def test_no_application_url_is_review(self):
         self.assert_status("review", url="")
@@ -379,7 +414,7 @@ class DecisionTests(unittest.TestCase):
 
     def test_partition_and_legacy_wrapper(self):
         good = job(id="good")
-        review = job(id="review", location="Remote")
+        review = job(id="review", location="")
         bad = job(id="bad", title="Community Lead")
         result = filter_jobs([good, review, bad], now=NOW)
         self.assertEqual([good], result.qualified)

@@ -6,29 +6,33 @@ A conservative job search for experienced growth and product-marketing roles. Pr
 
 All checks must pass:
 
-- Senior Growth, GTM, or Product Marketing scope matching an experienced individual contributor or player-coach. Early-stage Head of Growth roles need appropriate hands-on scope.
-- Explicit worldwide/anywhere remote hiring evidence in a first-party employer ATS listing and a usable full description. Bare “Remote,” a distributed company, or a third-party repost alone is insufficient.
+- Mid/senior Growth, GTM, Product Marketing or relevant Web3 content-marketing scope matching an experienced individual contributor, specialist, manager or player-coach. A lead/head title is not required. Early-stage Head of Growth roles need appropriate hands-on scope.
+- A genuine remote role with a usable full description from the employer, its ATS, or an independently verified investor/ecosystem hiring page. Bare “Remote” can qualify when no geographic restriction is stated; this is not a guarantee of India eligibility. A distributed company alone does not establish that the role is remote.
 - No required city/country/region of residence, relocation, office/hybrid attendance, or conflicting eligibility restriction. Time-zone overlap is recorded separately for review.
 - Employer has recently verified headquarters/base outside India. An Indian office or a job's location does not establish the employer's headquarters.
-- A verified posting age of 14–30 days inclusive. Unknown or unparseable dates stay in review; younger and older listings do not qualify.
+- No minimum posting age. Known dates from now through 30 days ago qualify; known older listings are excluded permanently for the same identity. A currently open, verified role can qualify when its original date is unknown, without inventing a date. Future dates stay in review. Dated alerts are selected newest first, followed by undated openings.
 
-Business development, community, events-focused, junior, technical, sales and content-only roles are excluded. A relevant marketing role mentioning incidental events is not automatically an events role.
+Business development, community, events-focused, junior/intern, technical engineering and sales roles are excluded. Experienced Web3 content-marketing and storytelling roles can qualify when their marketing scope is clear; unrelated writing or technical documentation does not. A relevant marketing role mentioning incidental events is not automatically an events role.
 
-Missing or ambiguous evidence goes to **review**, never to a qualified alert. Expect fewer results, including zero matches on some runs. The conservative rules are auditable heuristics, not a substitute for reading the employer's current posting.
+Missing role content, employer-base evidence or unresolved restrictions go to **review**. Unknown original age alone does not block a verified current opening, and a genuine Remote role needs no affirmative worldwide claim. Expect fewer results, including zero matches on some runs. The conservative rules are auditable heuristics, not a substitute for reading the employer's current posting.
 
 ## Source coverage and limits
 
 Alongside the existing Greenhouse, Lever, public job boards and public-channel sources, the bot now checks seven officially linked Ashby boards: Trust Wallet, Allium, Keyrock, Ether.fi, Lido, Injective and Morpho. The company-to-board evidence links are in `direct_sources.py`. Jito’s verified Lever board is also checked directly so its North America restriction is retained instead of relying on a vague aggregator label. Direct Gains careers checks require the current index listing, exact role page and active application form; they do not submit applications. A narrowly scoped Hacken page adapter also retains verified older-listing evidence, so that known-old role is excluded rather than resurfaced.
 
-Ashby `publishedAt` means **last publication**, not original posting. It is stored only as an existence-date upper bound. A last-publication date over 30 days old proves exclusion and persists the same-identity expiry; a recent republication cannot establish eligibility or reset old history. Original dates remain unknown unless separately supported.
+Ashby `publishedAt` means **last publication**, not original posting. It is stored only as an existence-date upper bound. A last-publication date over 30 days old proves exclusion and persists the same-identity expiry; a recent republication cannot establish an original date or reset old history. Original dates remain unknown unless separately supported.
 
-X/Twitter discovery uses four bounded, role-specific public search-index queries with a past-month hint. Search snippets never establish employer identity, location, headquarters or original posting date. Blocked/CAPTCHA responses stop the source; there is no login, paid API, scraping bypass or promise of complete X coverage. Newly found first-party links still need verification. No scraper can guarantee that every internet opening is covered.
+X/Twitter discovery uses four bounded, role-specific public search-index queries with a past-month hint. Two additional LinkedIn queries target actual public posts/feed updates from hiring teams, rather than LinkedIn Jobs pages. Search snippets never establish employer identity, location, headquarters or original posting date. Blocked/CAPTCHA responses stop the source; there is no login, paid API, scraping bypass or promise of complete X coverage. Newly found first-party links still need verification. Neither index guarantees access to complete profiles, pinned posts or every founder announcement. Employer links discovered during research can be added only after verification; snippets are never promoted to eligibility evidence. No scraper can guarantee that every internet opening is covered.
 
-The owner-requested one-time job review is separate from routine qualified alerts. It may label a specifically requested open role as needing verification, with the missing evidence stated. Known-old, closed or explicitly restricted jobs are not presented as candidate matches.
+Requested one-time recommendations use independently researched current roles and concise fit lines. Routine alerts use the same newest-first, remote and role preferences, while retaining their evidence and uncertainty in audit reports. Known-old, closed or explicitly restricted jobs are not presented as candidate matches.
+
+The daily loop also rechecks exact verified company or investor listings for Defuse Labs, PancakeSwap, Intercepta, TYB and GetBlock, plus Hylo’s Solana ecosystem listing. These bounded adapters require live role content and application evidence; changed, closed or incomplete pages are omitted rather than reused from cached text. The Group Three’s thin careers cards can be manually researched, but the automatic full-description adapter omits them. PancakeSwap’s precise employer base is not promoted to verified from a job-location label.
+
+Routine Telegram messages contain a title, company, short fit line and application link. Salary estimates and lengthy verification notes are omitted. Source-level failures remain visible in logs and audit reports.
 
 ## Employer evidence coverage
 
-`employers.json` stores exact company aliases, official source URLs, source excerpts, and verification dates. Initial coverage: 11 verified non-India employers and 9 explicitly unknown employers, checked 19 October 2026. Other employers remain unknown. Filters require evidence no older than 90 days; refresh the cited source and verification date after actually rechecking it. Do not update a date without verification, infer HQ from a role location, or extend a parent-company record to an unidentified subsidiary.
+`employers.json` stores exact company aliases, official source URLs, source excerpts, and verification dates. Current coverage: 17 verified non-India employers and 9 explicitly unknown employers, checked 19 October 2026. Other employers remain unknown. Filters require evidence no older than 90 days; refresh the cited source and verification date after actually rechecking it. Do not update a date without verification, infer HQ from a role location, or extend a parent-company record to an unidentified subsidiary.
 
 `filter_jobs()` returns qualified jobs plus review/rejected decisions with reasons. `apply_filters()` is the compatibility wrapper returning qualified jobs only. A JSON report includes reasons for all decisions; no credentials or full descriptions are included.
 
@@ -55,9 +59,14 @@ The repository includes:
 - `tests.yml`: offline tests on pull requests and relevant pushes. No Telegram secrets are provided.
 - `setup.yml`: deployment readiness on a `main` push that changes this setup workflow, or manual dispatch. Reports only whether the two existing Telegram secrets are present, never their values. It confirms the public cache inventory, restores the exact newest state for preview or initializes only a confirmed missing baseline, verifies the new cache, and never sends messages. Inventory/restore errors stop initialization. Existing seen/pending history is not reset.
 - `activate.yml`: one owner-authorized activation confirmation to the configured private chat after verifying the exact bot. Its durable acknowledgment enables delivery. A pending/uncertain confirmation blocks reactivation and alerts until reviewed.
+- `latest-job-review.yml`: one requested updated review after updating the age and remote rules and expanding direct discovery; separately fenced and unable to replay earlier status messages.
 - `job-review-status.yml`: one owner-requested, separately fenced job review message after its first merge; no recurring review messages or extra search schedule.
 - `review-current.yml`: one no-message review after its initial merge (or explicit manual dispatch), refreshing public posting-age/expiry history without changing delivery or activation records.
 - `jobs.yml`: checks once daily at 03:30 UTC (09:00 India Standard Time). Alerts stay disabled until an activation acknowledgment exists for the current bot token and private recipient. Set repository variable `JOB_ALERTS_ENABLED=false` to stop scheduled checks. The first successful activation also triggers one immediate search. Manual mode defaults to `preview`.
+
+The latest requested recommendation also fences its public listing identities and exact shared-page role titles before sending, so the normal daily loop cannot blindly repeat a confirmed or uncertain manual delivery.
+
+Already-sent one-shot message payloads retain their original text for receipt integrity; they are historical records, not the active age policy above.
 
 The scheduled workflow uses standard `ubuntu-latest` runners, 12-minute timeouts, read-only repository permissions, pinned actions, and no paid AI APIs. Both workflows refuse automatic execution in a private repository; the job-search workflow also refuses forks and non-default branches.
 
