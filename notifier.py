@@ -41,7 +41,7 @@ def _age_label(posted: str) -> str:
         return " · today"
     if days == 1:
         return " · 1d ago"
-    if days < 30:
+    if days <= 30:
         return f" · {days}d ago"
     return ""
 
@@ -59,7 +59,8 @@ def _format_job(job) -> str:
            "Web3 content and product storytelling." if "content" in role or "writer" in role else
            "Growth and GTM ownership.")
     # Salary fields lack reliable employer-versus-estimate provenance. Omit them.
-    return f"<b>{title}</b> — {company}\n{fit}\n{link}"
+    age = _age_label(getattr(job, "posted", "")) or " · original posting date unknown"
+    return f"<b>{title}</b> — {company}{age}\n{fit}\n{link}"
 
 
 def _split_messages(lines: list[str]) -> list[str]:

@@ -40,7 +40,7 @@ def _record(job, reason: str = "", timezone_note: str = "") -> dict:
 def main(dry_run: bool = True, *, initialize: bool = False,
          require_state: bool = True, report_path: str | None = None,
          max_alerts: int = 10, prepare_path: str | None = None,
-         refresh_history: bool = False) -> dict:
+         refresh_history: bool = False, allow_empty: bool = False) -> dict:
     if max_alerts < 1 or max_alerts > 50:
         raise ValueError("max_alerts must be between 1 and 50")
     if refresh_history and (initialize or prepare_path or not dry_run):
@@ -67,7 +67,7 @@ def main(dry_run: bool = True, *, initialize: bool = False,
                        "PREPARE (fence jobs, no Telegram)" if prepare_path else "INITIALIZE (no Telegram)" if initialize else
                        "PREVIEW (no state changes or Telegram)" if dry_run else "SEND"))
     raw_jobs = fetch_all()
-    if not raw_jobs:
+    if not raw_jobs and not allow_empty:
         raise RuntimeError("No jobs were returned by any source; check source errors before retrying.")
     jobs = reconcile_job_history(raw_jobs, persist=bool(refresh_history or prepare_path or initialize or not dry_run))
     results = filter_jobs(enrich_employers(jobs))
@@ -80,7 +80,9 @@ def main(dry_run: bool = True, *, initialize: bool = False,
     for job in results.qualified if refresh_history else selected:
         decision = classify_job(job)
         report_qualified.append(_record(job, decision.reason, decision.timezone_note))
+    from source_health import snapshot
     report = {
+        "sources": snapshot(),
         "mode": "refresh-history" if refresh_history else "prepare" if prepare_path else "initialize" if initialize else "preview" if dry_run else "send",
         "counts": {"raw": len(raw_jobs), "qualified": len(results.qualified),
                    "review": len(results.review), "rejected": len(results.rejected),
@@ -90,6 +92,7 @@ def main(dry_run: bool = True, *, initialize: bool = False,
         "rejected": [_record(d.job, d.reason) for d in results.rejected],
     }
     print("[counts] " + json.dumps(report["counts"]))
+    print("[coverage] " + json.dumps(report["sources"]))
     for job in selected:
         print(f"[qualified] {job.title} | {job.company} | {job.location} | {job.url}")
     for decision in results.review[:20]:

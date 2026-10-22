@@ -1,7 +1,7 @@
 name: Scheduled job search
 on:
   schedule:
-    - cron: '30 3 * * *' # 09:00 India Standard Time
+    - cron: '30 7-12 * * *' # 13:00 IST target + hourly recovery; GitHub cron may be late
   workflow_run:
     workflows: ['Activate verified private-chat job alerts']
     types: [completed]
@@ -9,11 +9,11 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: 'Preview first. Initialize baselines existing matches without sending; send delivers new matches.'
+        description: 'Preview first. Initialize baselines existing matches without sending; send delivers one daily status plus new matches; test sends one labeled status only.'
         type: choice
         required: true
         default: preview
-        options: [preview, initialize, send]
+        options: [preview, initialize, send, test]
 permissions:
   contents: read
 concurrency:
@@ -54,46 +54,56 @@ jobs:
       - name: Initialize a baseline (no Telegram)
         if: github.event_name == 'workflow_dispatch' && inputs.mode == 'initialize'
         run: python scraper.py --initialize-state --report data/run_report.json
-      - name: Require acknowledged activation for this expected bot and private chat
-        id: activation
-        if: github.event_name == 'schedule' || github.event_name == 'workflow_run' || inputs.mode == 'send'
+      - name: Prepare daily status and selected jobs for the verified destination
+        id: digest
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_run' || inputs.mode == 'send' || inputs.mode == 'test'
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          EXPECTED_BOT: charubak_web3jobs_bot
-        run: python activation.py check >> "$GITHUB_OUTPUT"
-      - name: Prepare and fence selected jobs (no Telegram)
-        if: (github.event_name == 'schedule' || github.event_name == 'workflow_run' || inputs.mode == 'send') && steps.activation.outputs.active == 'true'
-        run: python scraper.py --prepare-send data/pending_plan.json --max-alerts 10 --report data/run_report.json
+          DIGEST_MODE: ${{ inputs.mode }}
+        run: |
+          if [ "$DIGEST_MODE" = test ]; then
+            python daily_digest.py prepare --test
+          else
+            python daily_digest.py prepare
+          fi
       - name: Persist fence before any Telegram request
-        if: (github.event_name == 'schedule' || github.event_name == 'workflow_run' || inputs.mode == 'send') && steps.activation.outputs.active == 'true'
+        if: steps.digest.outputs.prepared == 'true'
         uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: data/seen_jobs.db
           key: job-alert-state-v1-${{ github.run_id }}-${{ github.run_attempt }}-prepared
       - name: Verify durable fence exists (cache-save warnings are insufficient)
-        if: (github.event_name == 'schedule' || github.event_name == 'workflow_run' || inputs.mode == 'send') && steps.activation.outputs.active == 'true'
+        if: steps.digest.outputs.prepared == 'true'
         uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: data/seen_jobs.db
           key: job-alert-state-v1-${{ github.run_id }}-${{ github.run_attempt }}-prepared
           lookup-only: true
           fail-on-cache-miss: true
-      - name: Deliver newly qualified jobs
-        if: (github.event_name == 'schedule' || github.event_name == 'workflow_run' || inputs.mode == 'send') && steps.activation.outputs.active == 'true'
+      - name: Deliver daily status and newly qualified jobs
+        if: steps.digest.outputs.prepared == 'true'
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python scraper.py --deliver-prepared data/pending_plan.json
+        run: python daily_digest.py deliver
       - name: Save acknowledged deliveries, including before a later send failure
         if: >-
           always() && steps.state.outcome == 'success' &&
-          (inputs.mode == 'initialize' || steps.activation.outputs.active == 'true') &&
+          (inputs.mode == 'initialize' || steps.digest.outcome == 'success' || steps.digest.outcome == 'failure') &&
           hashFiles('data/seen_jobs.db') != ''
         uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: data/seen_jobs.db
           key: job-alert-state-v1-${{ github.run_id }}-${{ github.run_attempt }}-final
+      - name: Verify final delivery state persisted
+        if: always() && steps.digest.outputs.prepared == 'true'
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: data/seen_jobs.db
+          key: job-alert-state-v1-${{ github.run_id }}-${{ github.run_attempt }}-final
+          lookup-only: true
+          fail-on-cache-miss: true
       - name: Summarize assessments
         if: always()
         run: |
@@ -107,5 +117,7 @@ jobs:
                   f.write('### Job assessment\n')
                   for key, value in data['counts'].items():
                       f.write(f'- {key}: {value}\n')
+                  for source in data.get('sources', []):
+                      f.write(f"- Source {source['source']}: {source['status']}, {source['count']} listings\n")
                   f.write('\nReview listings were not alerted. See the run log for reasons.\n')
           PY

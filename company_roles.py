@@ -396,6 +396,8 @@ def _fetch_one(source: RoleSource) -> list[boards.Job]:
             return []
         return _parse_role(response.text, source)
     except Exception as exc:
+        from source_health import record_failure
+        record_failure()
         print(f"[company/curated/{source.company}] ERROR: {exc}")
         return []
 
@@ -488,6 +490,8 @@ def fetch_tyb() -> list[boards.Job]:
             pages.append(response.text)
         return _parse_tyb(*pages)
     except Exception as exc:
+        from source_health import record_failure
+        record_failure()
         print(f"[company/curated/TYB] ERROR: {exc}")
         return []
 

@@ -132,5 +132,7 @@ def fetch_hylo() -> list[boards.Job]:
             current_open_verified=True,
         )]
     except Exception as exc:
+        from source_health import record_failure
+        record_failure()
         print(f"[ecosystem/solana/hylo] ERROR: {exc}")
         return []
