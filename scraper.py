@@ -95,10 +95,15 @@ def main(dry_run: bool = True, *, initialize: bool = False,
     }
     if digest:
         from storage import delivery_labels
-        labels = delivery_labels(results.qualified)
-        active = [j for j in results.qualified if j.current_open_verified is True]
+        from reviewed_roles import reviewed_details
+        reviewed = {j.id: reviewed_details(j) for j in jobs}
+        candidates = list(results.qualified)
+        known = {j.id for j in candidates}
+        candidates.extend(j for j in jobs if reviewed.get(j.id) and j.id not in known)
+        labels = delivery_labels(candidates)
+        active = [j for j in candidates if j.current_open_verified is True]
         included = [j for j in active if labels[j.id] != 'unconfirmed']
-        report['digest_jobs'] = [{'job': asdict(j), 'label': labels[j.id]} for j in included]
+        report['digest_jobs'] = [{'job': asdict(j), 'label': labels[j.id], **(reviewed.get(j.id) or {})} for j in included]
         report['counts']['reminders'] = sum(labels[j.id] == 'previously_shared' for j in included)
         report['counts']['digest_new'] = sum(labels[j.id] == 'new' for j in included)
         report['counts']['active_unverified'] = len(results.qualified) - len(active)

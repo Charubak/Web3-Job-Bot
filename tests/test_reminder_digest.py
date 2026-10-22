@@ -59,10 +59,10 @@ class ReminderTests(unittest.TestCase):
         known,unknown=job('known'),job('unknown',posted='')
         r={'digest_jobs':[{'job':asdict(known),'label':'new'}, {'job':asdict(unknown),'label':'previously_shared'}]}
         rendered='\n'.join(c['text'] for c in messages(r,'Summary'))
-        self.assertIn('New — posted within 30 days',rendered)
+        self.assertIn('<b>New openings</b>',rendered)
         self.assertIn('not verified within 30 days',rendered)
-        self.assertIn('Previously shared reminder',rendered)
-        self.assertIn('original posting date unknown',rendered)
+        self.assertIn('Reminders | Date unknown',rendered)
+        self.assertIn('Posting date unknown',rendered)
 
     def test_all_roles_are_chunked_without_old_ten_job_limit(self):
         entries=[{'job':asdict(job(str(n))),'label':'new'} for n in range(65)]
@@ -93,3 +93,45 @@ class ReminderTests(unittest.TestCase):
         self.assertEqual(1,r['counts']['rejected'])
 
 if __name__=='__main__': unittest.main()
+
+class ReadableCardTests(unittest.TestCase):
+    def test_cards_show_source_salary_without_generic_blurb(self):
+        from digest_content import card
+        j=job();j.company='A & B';j.salary='$90,000–$120,000 USD / year';j.description='You will own product launches.'
+        text=card({'job':asdict(j),'label':'new'},1)
+        self.assertIn('📌 <b>A &amp; B |',text)
+        self.assertIn('NEW · Posted',text)
+        self.assertIn('💰 '+j.salary,text)
+        self.assertNotIn(j.description,text)
+        self.assertNotIn('—',text)
+        self.assertEqual(1,text.count('>Apply</a>'))
+
+    def test_no_salary_is_invented_when_missing(self):
+        from digest_content import card
+        text=card({'job':asdict(job()),'label':'previously_shared'},1)
+        self.assertIn('REMINDER',text)
+        self.assertNotIn('💰',text)
+
+    def test_long_digest_preserves_numbering_new_job_ack_and_bottom_note(self):
+        entries=[{'job':asdict(job(str(n))),'label':'new' if n%2 else 'previously_shared'} for n in range(65)]
+        r={'digest_jobs':entries,'sources':[{'status':'unavailable','count':0}], 'counts':{'raw':65}}
+        chunks=messages(r,'Jobs')
+        text=' '.join(c['text'] for c in chunks)
+        self.assertEqual(65,text.count('📌'))
+        self.assertEqual(32,sum(len(c['new_jobs']) for c in chunks))
+        self.assertTrue(all(len(c['text'])<=3800 for c in chunks))
+        self.assertTrue(text.endswith('this list may be incomplete.'))
+
+    def test_reminders_do_not_repeat_empty_new_section(self):
+        r={'digest_jobs':[{'job':asdict(job()),'label':'previously_shared'}]}
+        text=messages(r,'0 new · 1 previously shared')[0]['text']
+        self.assertNotIn('<b>New openings</b>',text)
+        self.assertIn('<b>Reminders</b>',text)
+
+    def test_broad_roles_precede_pmm_without_excluding_it(self):
+        pmm=job('pmm');pmm.title='Product Marketing Manager'
+        broad=job('broad');broad.title='Marketing Manager'
+        r={'digest_jobs':[{'job':asdict(j),'label':'new'} for j in (pmm,broad)]}
+        text=messages(r,'Jobs')[0]['text']
+        self.assertLess(text.index('Example | Marketing Manager'), text.index('Example | Product Marketing Manager'))
+        self.assertEqual(2,text.count('📌'))

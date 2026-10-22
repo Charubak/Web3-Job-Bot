@@ -43,34 +43,13 @@ def connect():
 
 def render(report, *, test=False, now=None):
     local = (now or datetime.now(timezone.utc)).astimezone(IST)
-    c = report['counts']
-    sources = report.get('sources', [])
-    failed = [s['source'] for s in sources if s['status'] != 'returned']
-    zero = [s['source'] for s in sources if not s['count'] and s['status'] == 'returned']
-    heading = 'TEST — Web3 daily digest' if test else 'Web3 daily digest'
-    lines = [f'<b>{heading}</b> · {local:%d %b %Y, %H:%M} IST',
-             f"{c['raw']} unique listings assessed; {c['qualified']} qualified; {c['review']} need review."]
-    if c.get('digest_new', c['new']):
-        lines.append(f"{c.get('digest_new', c['new'])} new verified match(es).")
-    else:
-        lines.append('No new verified matches in the sources checked.')
-    lines.append(f"{c.get('reminders', 0)} previously shared role(s) revalidated as open for reminders.")
-    if c.get('unknown_age'):
-        lines.append(f"{c['unknown_age']} active role(s) have unknown original posting dates; these are listed separately, not claimed to be within 30 days.")
-    if c.get('active_unverified') or c.get('unconfirmed_delivery'):
-        lines.append('Roles without current open-status verification or with an unresolved delivery are withheld.')
-    if not c['raw']:
-        lines.append('Search coverage is unavailable or empty; this does not establish that there are no opportunities.')
-    if failed:
-        lines.append('Partial coverage — unavailable or incomplete: ' + ', '.join(html.escape(s) for s in failed) + '.')
-    if not sources:
-        lines.append('Source health unavailable; coverage could not be confirmed.')
-    if zero:
-        lines.append('No listings returned by: ' + ', '.join(html.escape(s) for s in zero) + '. Search/index coverage is best effort.')
-    lines.append('Review candidates are withheld until eligibility is verified. Target: remote from India, foreign employers, suitable growth/GTM/PMM and marketing/content roles.')
-    if test:
-        lines.append('Requested preview — includes reminders; job delivery history is unchanged by this test.')
-    return '\n\n'.join(lines)
+    entries = report.get('digest_jobs', [])
+    new = sum(e['label'] == 'new' for e in entries)
+    shared = sum(e['label'] == 'previously_shared' for e in entries)
+    heading = 'PREVIEW | Jobs to consider' if test else 'Jobs to consider'
+    return (f'<b>{heading}</b> · {local:%d %b}\n'
+            f'{new} new · {shared} previously shared')
+
 
 
 def verify_activation():

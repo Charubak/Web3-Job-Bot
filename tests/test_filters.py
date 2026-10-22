@@ -42,6 +42,16 @@ class DecisionTests(unittest.TestCase):
         self.assertTrue(result.reasons)
         return result
 
+    def test_dedicated_social_media_managers_are_excluded(self):
+        for title in ('Social Media Manager', 'Senior Social Media Manager', 'Social-Media Marketing Manager', 'Manager, Social Media'):
+            with self.subTest(title=title):
+                self.assert_status('rejected', title=title)
+
+    def test_broad_marketing_can_include_social_partnerships_and_ai(self):
+        for title in ('Marketing Manager', 'Marketing Lead', 'Growth Lead', 'Growth Strategist'):
+            with self.subTest(title=title):
+                self.assert_status('qualified', title=title, description=DESCRIPTION + ' Own social media, outreach, partnership campaigns and AI workflows alongside strategy and execution.')
+
     def test_strong_primary_roles_qualify(self):
         for title in (
             "Senior Growth Marketing Manager", "Growth Lead", "GTM Lead",

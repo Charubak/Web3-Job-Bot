@@ -79,23 +79,27 @@ class DailyTests(unittest.TestCase):
         self.assertEqual('2026-10-23', daily.daily_key(datetime(2026, 10, 23, 12, 30, tzinfo=timezone.utc)))
 
     def test_empty_partial_status_truthfully_distinguishes_missing_coverage(self):
-        text = daily.render(REPORT)
-        self.assertIn('No new verified matches in the sources checked', text)
-        self.assertIn('Partial coverage', text)
-        self.assertIn('cryptojobslist', text)
-        self.assertIn('No listings returned by: twitter_bing', text)
-        self.assertNotIn('No opportunities', text)
+        from digest_content import messages
+        text = messages(REPORT, daily.render(REPORT))[0]['text']
+        self.assertIn('0 new', text)
+        self.assertNotIn('<b>New</b>', text)
+        self.assertIn('Some job sources could not be fully checked', text)
+        self.assertNotIn('cryptojobslist', text)
+        self.assertNotIn('twitter_bing', text)
+        self.assertTrue(text.endswith('this list may be incomplete.'))
 
     def test_all_sources_empty_is_not_claimed_complete(self):
+        from digest_content import messages
         report = {**REPORT, 'counts': {**REPORT['counts'], 'raw': 0}}
-        self.assertIn('does not establish', daily.render(report))
+        text = messages(report, daily.render(report))[0]['text']
+        self.assertIn('does not mean there are no suitable jobs', text)
 
     def test_test_delivery_is_once_and_does_not_deliver_jobs(self):
         self.prepare_test()
         with patch('notifier._send') as send, patch('scraper.deliver_prepared') as jobs:
             daily.deliver()
             send.assert_called_once()
-            self.assertIn('TEST', send.call_args.args[0])
+            self.assertIn('PREVIEW', send.call_args.args[0])
             jobs.assert_not_called()
             self.assertFalse(daily.prepare(test=True))
             with self.assertRaisesRegex(RuntimeError, 'refusing replay'):
