@@ -327,6 +327,8 @@ def _has_experienced_requirement(description: str) -> bool:
 
 
 def _role_rejection(title: str, description: str) -> Optional[str]:
+    if _has(r"\bsocial[ -]media\s+(?:marketing\s+)?manager\b|\bmanager\s*[,/|:-]?\s*social[ -]media\b", title):
+        return "Dedicated Social Media Manager roles are excluded"
     if _has(_TECHNICAL_OR_SALES, title):
         return "Technical, sales, support, or other non-target role"
     if _has(r"\b(?:community|events?|eventmarketing|field[ -]marketing|partnerships?)\b", title):

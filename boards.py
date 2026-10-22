@@ -503,6 +503,7 @@ def fetch_cryptojobslist_web3() -> list[Job]:
 # ---------------------------------------------------------------------------
 
 GREENHOUSE_COMPANIES = [
+    ("binance",         "Binance"), # Live EU board; shared Greenhouse API, verified 2026-10-22.
     ("coinbase",        "Coinbase"),
     ("consensys",       "Consensys"),
     ("alchemy",         "Alchemy"),
@@ -1481,7 +1482,13 @@ def fetch_direct_hacken() -> list[Job]:
     return fetch_hacken()
 
 
+def fetch_reviewed_public_roles():
+    from reviewed_roles import fetch_reviewed_roles
+    return fetch_reviewed_roles()
+
+
 BOARDS = [
+    fetch_reviewed_public_roles,
     fetch_cryptocurrencyjobs,
     fetch_web3career,
     fetch_cryptojobslist,

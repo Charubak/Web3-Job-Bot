@@ -143,14 +143,14 @@ class MidlevelRoleTests(unittest.TestCase):
         self.assertEqual("review", result.status, result.reason)
 
     def test_adjacent_content_specialties_do_not_qualify_from_growth_keywords(self):
-        for title in ("Content Marketing Specialist", "Social Media Marketing Manager", "Brand Marketing Manager"):
+        for title in ("Content Marketing Specialist", "Brand Marketing Manager"):
             with self.subTest(title=title):
                 result = self.decision(title=title)
                 self.assertEqual("review", result.status, result.reason)
 
     def test_bd_community_and_event_titles_still_rejected(self):
         for title in (
-            "Business Development Manager", "Community Growth Specialist",
+            "Business Development Manager", "Community Growth Specialist", "Social Media Marketing Manager",
             "Event Marketing Manager", "Growth and Partnerships Manager",
         ):
             with self.subTest(title=title):

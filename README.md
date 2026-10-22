@@ -145,3 +145,21 @@ The daily digest includes all qualifying active roles, split across Telegram-saf
 messages if necessary. Public Telegram discovery also checks @web3marketingjobs
 and @web3_marketing_jobs; source failures remain explicit and do not trigger any
 access-control bypass.
+
+### Readable digest and reviewed public roles
+
+Daily cards use pins, NEW/REMINDER labels, location, original posting date where
+known, published salary where supplied, and one Apply link. No salary estimates
+or generated responsibility blurbs are used. Dedicated Social Media Manager and
+BD titles are excluded; broad marketing roles may include social and partnership
+work. Narrow PMM roles rank below broad marketing/growth within their date groups.
+
+The Binance Greenhouse board supplements its older Lever feed. An exact public
+Zoniqx LinkedIn posting is re-fetched without login/cookies, not a general or
+authenticated daily LinkedIn search. Two individually reviewed roles are bounded
+to their original October dates and require live source checks. The Zoniqx
+independent marketing-owner role is a deliberate reviewed 2+ year exception;
+Binance is labeled adjacent and retains its remote/team and employing-entity
+caveats, rather than being declared automatically qualified. Reviewed inclusion
+expires by November 20 and respects older stored posting history. Source access
+failures are reported and never replaced with cached descriptions.
