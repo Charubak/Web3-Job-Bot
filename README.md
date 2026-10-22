@@ -102,3 +102,36 @@ GitHub schedules can be delayed or dropped under load, run only on the default b
 `bot.py` remains available for `/jobs`, `/new`, `/twitter`, `/stats`, `/clear` and `/help` when you explicitly run it in an existing environment. It uses the same strict filters and employer evidence. Set credentials in an untracked `.env` and start `python bot.py` only when delivery to the configured chat is intended. On startup it runs a scrape and then polls Telegram.
 
 `fly.toml` is retained for existing installations; this patch neither starts nor cancels a Fly service. Fly.io should not be assumed free. Migrating the search does not stop existing Fly machines/volumes or charges. Review the existing Fly account separately before making authorized changes: [Fly pricing](https://fly.io/docs/about/pricing/).
+
+## Daily morning status (October 2026)
+
+The daily workflow now sends a status even when there are no fresh verified
+matches. It distinguishes source failures, zero returned listings, withheld
+review candidates and previously delivered jobs. It never fills the digest with
+old or irrelevant jobs. Unknown original posting dates are labeled on job cards.
+
+The existing SQLite/cache history is preserved. A separate India-date ledger
+fences status delivery before Telegram and records its acknowledgment. An
+ambiguous Telegram outcome stops automatic retries pending reconciliation.
+Missing state fails closed: do not initialize or delete caches to fix delivery.
+The one-time `mode=test` uses an independent fixed test key and does not mark jobs
+sent, pending or expired. Preview and initialization remain explicitly separate.
+
+The target is **09:00 Asia/Kolkata (03:30 UTC)**. GitHub cron can run late or drop
+runs, so `30 3-8 * * *` provides hourly recovery checks with a daily send guard;
+it is not an exact-time guarantee. Standard GitHub runners for this public repo
+are free. All deliveries share the existing concurrency group.
+
+For the authorized Mac, `scripts/morning_dispatch.py` uses the existing `gh`
+login to dispatch `jobs.yml --ref main -f mode=send` after 09:00 IST, once per
+India date, starting October 23. A launchd agent invokes it every minute; it
+catches up after wake/network recovery. It needs the Mac logged in, online and
+awake at 09:00 for timely dispatch; no new credentials or paid service is used.
+GitHub's independent cron remains fallback. Even if two triggers arrive, the
+shared workflow ledger prevents a second daily status. Queue/startup/scrape time
+still adds latency. `--check` is read-only and does not dispatch.
+
+Verification: run `python -m unittest discover -s tests -v`. For a real daily
+check use `gh workflow run jobs.yml --repo Charubak/Web3-Job-Bot --ref main -f
+mode=send`; inspect acknowledgment and final-cache verification, not merely a
+green workflow. Do not automatically retry a pending/unconfirmed digest.

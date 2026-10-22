@@ -225,6 +225,8 @@ def fetch_cryptocurrencyjobs() -> list[Job]:
         print(f"[cryptocurrencyjobs.co] {len(jobs)} jobs fetched")
         return jobs
     except Exception as e:
+        from source_health import record_failure
+        record_failure()
         print(f"[cryptocurrencyjobs.co] ERROR: {e}")
         return []
 
@@ -314,6 +316,8 @@ def fetch_web3career() -> list[Job]:
                     all_jobs.append(j)
                     seen_ids.add(j.id)
         except Exception as e:
+            from source_health import record_failure
+            record_failure()
             print(f"[web3.career] ERROR ({path}): {e}")
     print(f"[web3.career] {len(all_jobs)} jobs fetched")
     return all_jobs
@@ -374,6 +378,8 @@ def fetch_cryptojobslist() -> list[Job]:
         print(f"[cryptojobslist.com] {len(jobs)} jobs fetched")
         return jobs
     except Exception as e:
+        from source_health import record_failure
+        record_failure()
         print(f"[cryptojobslist.com] ERROR: {e}")
         return []
 
@@ -427,6 +433,8 @@ def fetch_remote3() -> list[Job]:
         print(f"[remote3.co] {len(jobs)} jobs fetched")
         return jobs
     except Exception as e:
+        from source_health import record_failure
+        record_failure()
         print(f"[remote3.co] ERROR: {e}")
         return []
 
@@ -482,6 +490,8 @@ def fetch_cryptojobslist_web3() -> list[Job]:
         print(f"[cryptojobslist.com/web3] {len(jobs)} jobs fetched")
         return jobs
     except Exception as e:
+        from source_health import record_failure
+        record_failure()
         print(f"[cryptojobslist.com/web3] ERROR: {e}")
         return []
 
@@ -538,6 +548,8 @@ def _fetch_greenhouse_one(slug: str, company_name: str) -> list[Job]:
             ))
         return jobs
     except Exception as e:
+        from source_health import record_failure
+        record_failure()
         print(f"[greenhouse/{slug}] ERROR: {e}")
         return []
 
@@ -615,6 +627,8 @@ def _fetch_lever_one(slug: str, company_name: str) -> list[Job]:
             ))
         return jobs
     except Exception as e:
+        from source_health import record_failure
+        record_failure()
         print(f"[lever/{slug}] ERROR: {e}")
         return []
 
@@ -679,6 +693,8 @@ def fetch_blockace() -> list[Job]:
         print(f"[blockace.io] {len(jobs)} jobs fetched")
         return jobs
     except Exception as e:
+        from source_health import record_failure
+        record_failure()
         print(f"[blockace.io] ERROR: {e}")
         return []
 
@@ -729,6 +745,8 @@ def fetch_remoteok() -> list[Job]:
         print(f"[remoteok.com] {len(jobs)} jobs fetched")
         return jobs
     except Exception as e:
+        from source_health import record_failure
+        record_failure()
         print(f"[remoteok.com] ERROR: {e}")
         return []
 
@@ -804,6 +822,8 @@ def fetch_cryptojobs() -> list[Job]:
         print(f"[crypto.jobs] {len(jobs)} jobs fetched")
         return jobs
     except Exception as e:
+        from source_health import record_failure
+        record_failure()
         print(f"[crypto.jobs] ERROR: {e}")
         return []
 
@@ -874,6 +894,8 @@ def fetch_web3hiring_telegram() -> list[Job]:
         print(f"[@web3hiring] {len(jobs)} jobs fetched")
         return jobs
     except Exception as e:
+        from source_health import record_failure
+        record_failure()
         print(f"[@web3hiring] ERROR: {e}")
         return []
 
@@ -891,6 +913,8 @@ def fetch_lever_aave() -> list[Job]:
             timeout=15,
         )
         if resp.status_code != 200:
+            from source_health import record_failure
+            record_failure()
             print(f"[lever/aave] {resp.status_code}")
             return []
         jobs = []
@@ -915,6 +939,8 @@ def fetch_lever_aave() -> list[Job]:
         print(f"[lever/aave] {len(jobs)} jobs fetched")
         return jobs
     except Exception as e:
+        from source_health import record_failure
+        record_failure()
         print(f"[lever/aave] ERROR: {e}")
         return []
 
@@ -981,6 +1007,8 @@ def fetch_cryptojobsdaily_telegram() -> list[Job]:
         print(f"[@cryptojobsdaily] {len(jobs)} jobs fetched")
         return jobs
     except Exception as e:
+        from source_health import record_failure
+        record_failure()
         print(f"[@cryptojobsdaily] ERROR: {e}")
         return []
 
@@ -1069,6 +1097,8 @@ def fetch_cryptojobslist_telegram() -> list[Job]:
         print(f"[@cryptojobslist] {len(jobs)} jobs fetched")
         return jobs
     except Exception as e:
+        from source_health import record_failure
+        record_failure()
         print(f"[@cryptojobslist] ERROR: {e}")
         return []
 
@@ -1089,6 +1119,8 @@ def fetch_remotive() -> list[Job]:
             timeout=15,
         )
         if resp.status_code != 200:
+            from source_health import record_failure
+            record_failure()
             print(f"[remotive.com] HTTP {resp.status_code}")
             return []
         web3_kw = ["crypto", "blockchain", "web3", "defi", "nft", "token", "dao", "dex", "protocol", "layer"]
@@ -1121,6 +1153,8 @@ def fetch_remotive() -> list[Job]:
         print(f"[remotive.com] {len(jobs)} web3 marketing jobs fetched")
         return jobs
     except Exception as e:
+        from source_health import record_failure
+        record_failure()
         print(f"[remotive.com] ERROR: {e}")
         return []
 
@@ -1222,11 +1256,15 @@ def fetch_twitter_bing() -> list[Job]:
                 follow_redirects=True,
             )
             if resp.status_code in {403, 429}:
+                from source_health import record_failure
+                record_failure()
                 print(f"[twitter/bing] Search unavailable ({resp.status_code}); stopping discovery")
                 break
             resp.raise_for_status()
             soup = BeautifulSoup(resp.text, "html.parser")
             if soup.select_one("#b_captcha, .b_captcha, form[action*='captcha'], iframe[src*='captcha']"):
+                from source_health import record_failure
+                record_failure()
                 print("[twitter/bing] Search challenge; stopping discovery")
                 break
 
@@ -1266,6 +1304,8 @@ def fetch_twitter_bing() -> list[Job]:
                     )
                 )
         except Exception as e:
+            from source_health import record_failure
+            record_failure()
             print(f"[twitter/bing] ERROR ({query[:40]}): {e}")
 
     print(f"[twitter/bing] {len(jobs)} unverified indexed posts found (best-effort coverage)")
@@ -1330,6 +1370,8 @@ def fetch_web3marketingjobs_telegram() -> list[Job]:
         print(f"[@web3marketingjobs] {len(jobs)} jobs fetched")
         return jobs
     except Exception as e:
+        from source_health import record_failure
+        record_failure()
         print(f"[@web3marketingjobs] ERROR: {e}")
         return []
 
@@ -1393,6 +1435,8 @@ def fetch_web3_marketing_jobs_telegram() -> list[Job]:
         print(f"[@web3_marketing_jobs] {len(jobs)} jobs fetched")
         return jobs
     except Exception as e:
+        from source_health import record_failure
+        record_failure()
         print(f"[@web3_marketing_jobs] ERROR: {e}")
         return []
 
@@ -1520,13 +1564,17 @@ def fetch_all(*, now: datetime | None = None) -> list[Job]:
 
     results: dict[int, list[Job]] = {}
 
+    from source_health import reset, run_source
+    reset()
     with ThreadPoolExecutor(max_workers=MAX_BOARD_WORKERS) as executor:
-        futures = {executor.submit(fn): i for i, fn in enumerate(BOARDS)}
+        futures = {executor.submit(run_source, fn): i for i, fn in enumerate(BOARDS)}
         for future in as_completed(futures):
             idx = futures[future]
             try:
                 results[idx] = future.result()
             except Exception as e:
+                from source_health import record_failure
+                record_failure()
                 print(f"[fetch_all] Board {BOARDS[idx].__name__} ERROR: {e}")
                 results[idx] = []
 

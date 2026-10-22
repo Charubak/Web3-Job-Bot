@@ -50,11 +50,15 @@ def fetch_linkedin_posts():
         try:
             response=boards._get('https://www.bing.com/search',params={'q':query,'freshness':'Month','filters':'ex1:"ez3"','count':RESULTS_PER_QUERY},headers=boards._BING_HEADERS,timeout=15,follow_redirects=True)
             if response.status_code in {403,429}:
+                from source_health import record_failure
+                record_failure()
                 print(f'[linkedin/posts] Search unavailable ({response.status_code}); stopping discovery')
                 break
             response.raise_for_status()
             soup=BeautifulSoup(response.text,'html.parser')
             if soup.select_one("#b_captcha, .b_captcha, form[action*='captcha'], iframe[src*='captcha']"):
+                from source_health import record_failure
+                record_failure()
                 print('[linkedin/posts] Search challenge; stopping discovery')
                 break
             for result in soup.select('li.b_algo')[:RESULTS_PER_QUERY]:
@@ -65,6 +69,8 @@ def fetch_linkedin_posts():
                 seen.add(url)
                 jobs.append(boards.Job(boards._make_id(url),title,'','',url,'linkedin/posts',posted='',description=result.get_text(' ',strip=True)[:8000],published_at_upper_bound=KNOWN_EXISTENCE_BOUNDS.get(url,'')))
         except Exception as exc:
+            from source_health import record_failure
+            record_failure()
             print(f'[linkedin/posts] Discovery failed ({type(exc).__name__})')
     print(f'[linkedin/posts] {len(jobs)} unverified indexed hiring posts; best-effort coverage')
     return jobs

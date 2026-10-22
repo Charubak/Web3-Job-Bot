@@ -176,6 +176,8 @@ def _fetch_ashby_one(slug: str, company_name: str) -> list[boards.Job]:
             ))
         return jobs
     except Exception as exc:
+        from source_health import record_failure
+        record_failure()
         print(f"[ashby/{slug}] ERROR: {exc}")
         return []
 
@@ -270,6 +272,8 @@ def fetch_gains() -> list[boards.Job]:
         print("[company/gains.trade] 1 open role fetched; original posting date unknown")
         return [job]
     except Exception as exc:
+        from source_health import record_failure
+        record_failure()
         print(f"[company/gains.trade] ERROR: {exc}")
         return []
 
@@ -321,5 +325,7 @@ def fetch_hacken() -> list[boards.Job]:
         print("[company/hacken.io] 1 role with application CTA fetched; known-old age bound retained")
         return [job]
     except Exception as exc:
+        from source_health import record_failure
+        record_failure()
         print(f"[company/hacken.io] ERROR: {exc}")
         return []
