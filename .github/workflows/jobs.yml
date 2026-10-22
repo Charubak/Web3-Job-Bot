@@ -1,7 +1,7 @@
 name: Scheduled job search
 on:
   schedule:
-    - cron: '30 3-8 * * *' # 09:00 IST target + hourly recovery; GitHub cron may be late
+    - cron: '30 7-12 * * *' # 13:00 IST target + hourly recovery; GitHub cron may be late
   workflow_run:
     workflows: ['Activate verified private-chat job alerts']
     types: [completed]

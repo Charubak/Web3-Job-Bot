@@ -25,7 +25,7 @@ START_DATE = '2026-10-23'
 def due(now, state):
     local = now.astimezone(ZoneInfo('Asia/Kolkata'))
     today = local.date().isoformat()
-    return today if local.hour >= 9 and today >= START_DATE and state.get('dispatched') != today else None
+    return today if local.hour >= 13 and today >= START_DATE and state.get('dispatched') != today else None
 
 
 def main():
@@ -35,7 +35,7 @@ def main():
     now = datetime.now(timezone.utc)
     if args.check:
         state = json.loads(STATE.read_text()) if STATE.exists() else {}
-        print(json.dumps({'repository': REPO, 'target': '09:00 Asia/Kolkata',
+        print(json.dumps({'repository': REPO, 'target': '13:00 Asia/Kolkata',
                           'start_date': START_DATE, 'due': bool(due(now, state)),
                           'gh_available': Path(GH).is_file()}))
         return

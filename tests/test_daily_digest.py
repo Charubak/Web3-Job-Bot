@@ -32,9 +32,13 @@ class DailyTests(unittest.TestCase):
             self.assertTrue(daily.prepare(test=True))
 
     def test_india_time_boundary(self):
-        self.assertIsNone(daily.daily_key(datetime(2026, 10, 22, 3, 29, tzinfo=timezone.utc)))
-        self.assertEqual('2026-10-22', daily.daily_key(datetime(2026, 10, 22, 3, 30, tzinfo=timezone.utc)))
+        self.assertIsNone(daily.daily_key(datetime(2026, 10, 22, 7, 29, tzinfo=timezone.utc)))
+        self.assertEqual('2026-10-22', daily.daily_key(datetime(2026, 10, 22, 7, 30, tzinfo=timezone.utc)))
         self.assertIsNone(daily.daily_key(datetime(2026, 10, 22, 18, 30, tzinfo=timezone.utc)))
+
+    def test_old_morning_time_is_blocked_and_late_recovery_uses_same_key(self):
+        self.assertIsNone(daily.daily_key(datetime(2026, 10, 23, 3, 30, tzinfo=timezone.utc)))
+        self.assertEqual('2026-10-23', daily.daily_key(datetime(2026, 10, 23, 12, 30, tzinfo=timezone.utc)))
 
     def test_empty_partial_status_truthfully_distinguishes_missing_coverage(self):
         text = daily.render(REPORT)
@@ -153,8 +157,8 @@ if __name__ == '__main__': unittest.main()
 class MorningDispatchTests(unittest.TestCase):
     def test_due_uses_india_date_and_no_repeat_after_dispatch(self):
         from scripts.morning_dispatch import due
-        before = datetime(2026, 10, 23, 3, 29, tzinfo=timezone.utc)
-        at = datetime(2026, 10, 23, 3, 30, tzinfo=timezone.utc)
+        before = datetime(2026, 10, 23, 7, 29, tzinfo=timezone.utc)
+        at = datetime(2026, 10, 23, 7, 30, tzinfo=timezone.utc)
         self.assertIsNone(due(before, {}))
         self.assertEqual('2026-10-23', due(at, {}))
         self.assertIsNone(due(at, {'dispatched': '2026-10-23'}))

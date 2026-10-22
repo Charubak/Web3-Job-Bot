@@ -20,7 +20,7 @@ TEST_KEY = 'delivery-test-2026-10-22-v1'
 
 def daily_key(now=None):
     local = (now or datetime.now(timezone.utc)).astimezone(IST)
-    return local.date().isoformat() if local.hour >= 9 else None
+    return local.date().isoformat() if local.hour >= 13 else None
 
 
 @contextmanager
