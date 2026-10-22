@@ -107,15 +107,20 @@ GitHub schedules can be delayed or dropped under load, run only on the default b
 
 The daily workflow now sends a status even when there are no fresh verified
 matches. It distinguishes source failures, zero returned listings, withheld
-review candidates and previously delivered jobs. It never fills the digest with
-old or irrelevant jobs. Unknown original posting dates are labeled on job cards.
+review candidates and previously delivered jobs. It includes still-open qualifying jobs as explicitly labeled reminders,
+with new roles distinguished from previously shared roles. Known posting dates
+must remain within 30 days; active unknown-date roles appear in a separate
+section and are never claimed to fall within that window. Closed, expired and
+currently unverifiable openings are withheld. Every reminder comes from fresh
+source results, not cached role contents. Unknown original posting dates are labeled on job cards.
 
 The existing SQLite/cache history is preserved. A separate India-date ledger
 fences status delivery before Telegram and records its acknowledgment. An
 ambiguous Telegram outcome stops automatic retries pending reconciliation.
 Missing state fails closed: do not initialize or delete caches to fix delivery.
-The one-time `mode=test` uses an independent fixed test key and does not mark jobs
-sent, pending or expired. Preview and initialization remain explicitly separate.
+The `mode=test` uses an independent test key and does not mark jobs sent,
+pending or expired. An explicitly requested additional preview can supply a
+unique `test_id`; reusing it cannot send twice. Preview and initialization remain explicitly separate.
 
 The target is **13:00 Asia/Kolkata (07:30 UTC)**. GitHub cron can run late or drop
 runs, so `30 7-12 * * *` provides hourly recovery checks with a daily send guard;
@@ -135,3 +140,8 @@ Verification: run `python -m unittest discover -s tests -v`. For a real daily
 check use `gh workflow run jobs.yml --repo Charubak/Web3-Job-Bot --ref main -f
 mode=send`; inspect acknowledgment and final-cache verification, not merely a
 green workflow. Do not automatically retry a pending/unconfirmed digest.
+
+The daily digest includes all qualifying active roles, split across Telegram-safe
+messages if necessary. Public Telegram discovery also checks @web3marketingjobs
+and @web3_marketing_jobs; source failures remain explicit and do not trigger any
+access-control bypass.

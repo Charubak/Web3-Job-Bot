@@ -40,7 +40,9 @@ def _record(job, reason: str = "", timezone_note: str = "") -> dict:
 def main(dry_run: bool = True, *, initialize: bool = False,
          require_state: bool = True, report_path: str | None = None,
          max_alerts: int = 10, prepare_path: str | None = None,
-         refresh_history: bool = False, allow_empty: bool = False) -> dict:
+         refresh_history: bool = False, allow_empty: bool = False, digest: bool = False) -> dict:
+    if digest and not DB_PATH.exists():
+        raise SetupError("Existing delivery history is required to label new roles and reminders")
     if max_alerts < 1 or max_alerts > 50:
         raise ValueError("max_alerts must be between 1 and 50")
     if refresh_history and (initialize or prepare_path or not dry_run):
@@ -91,6 +93,17 @@ def main(dry_run: bool = True, *, initialize: bool = False,
         "review": [_record(d.job, d.reason, d.timezone_note) for d in results.review],
         "rejected": [_record(d.job, d.reason) for d in results.rejected],
     }
+    if digest:
+        from storage import delivery_labels
+        labels = delivery_labels(results.qualified)
+        active = [j for j in results.qualified if j.current_open_verified is True]
+        included = [j for j in active if labels[j.id] != 'unconfirmed']
+        report['digest_jobs'] = [{'job': asdict(j), 'label': labels[j.id]} for j in included]
+        report['counts']['reminders'] = sum(labels[j.id] == 'previously_shared' for j in included)
+        report['counts']['digest_new'] = sum(labels[j.id] == 'new' for j in included)
+        report['counts']['active_unverified'] = len(results.qualified) - len(active)
+        report['counts']['unconfirmed_delivery'] = len(active) - len(included)
+        report['counts']['unknown_age'] = sum(_parse_posted_date(j.posted) is None for j in included)
     print("[counts] " + json.dumps(report["counts"]))
     print("[coverage] " + json.dumps(report["sources"]))
     for job in selected:
@@ -164,6 +177,7 @@ def cli() -> None:
     parser.add_argument("--require-state", action="store_true", help="Refuse delivery if dedup state is missing")
     parser.add_argument("--report", help="Write a JSON assessment report to this explicit path")
     parser.add_argument("--max-alerts", type=int, default=10)
+    parser.add_argument("--digest", action="store_true", help="Include freshly verified reminder roles in the read-only report")
     args = parser.parse_args()
     try:
         if args.deliver_prepared:
@@ -171,7 +185,7 @@ def cli() -> None:
             return
         main(dry_run=not args.send, initialize=args.initialize_state,
              require_state=True, report_path=args.report, max_alerts=args.max_alerts,
-             prepare_path=args.prepare_send, refresh_history=args.refresh_history)
+             prepare_path=args.prepare_send, refresh_history=args.refresh_history, digest=args.digest)
     except SetupError as exc:
         print(f"[scraper] Setup required: {exc}", file=sys.stderr)
         sys.exit(1)

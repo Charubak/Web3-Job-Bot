@@ -4,6 +4,7 @@ import hashlib
 import html
 import json
 import os
+import re
 import sqlite3
 import sys
 from contextlib import contextmanager
@@ -49,10 +50,15 @@ def render(report, *, test=False, now=None):
     heading = 'TEST — Web3 daily digest' if test else 'Web3 daily digest'
     lines = [f'<b>{heading}</b> · {local:%d %b %Y, %H:%M} IST',
              f"{c['raw']} unique listings assessed; {c['qualified']} qualified; {c['review']} need review."]
-    if c['new']:
-        lines.append(f"{c['new']} new verified match(es); {c['selected']} selected" + (' (preview only).' if test else ' for delivery.'))
+    if c.get('digest_new', c['new']):
+        lines.append(f"{c.get('digest_new', c['new'])} new verified match(es).")
     else:
-        lines.append('No new verified matches in the sources checked. Previously delivered roles are not repeated.')
+        lines.append('No new verified matches in the sources checked.')
+    lines.append(f"{c.get('reminders', 0)} previously shared role(s) revalidated as open for reminders.")
+    if c.get('unknown_age'):
+        lines.append(f"{c['unknown_age']} active role(s) have unknown original posting dates; these are listed separately, not claimed to be within 30 days.")
+    if c.get('active_unverified') or c.get('unconfirmed_delivery'):
+        lines.append('Roles without current open-status verification or with an unresolved delivery are withheld.')
     if not c['raw']:
         lines.append('Search coverage is unavailable or empty; this does not establish that there are no opportunities.')
     if failed:
@@ -63,7 +69,7 @@ def render(report, *, test=False, now=None):
         lines.append('No listings returned by: ' + ', '.join(html.escape(s) for s in zero) + '. Search/index coverage is best effort.')
     lines.append('Review candidates are withheld until eligibility is verified. Target: remote from India, foreign employers, suitable growth/GTM/PMM and marketing/content roles.')
     if test:
-        lines.append('Delivery test only — no jobs are marked delivered or resent by this test.')
+        lines.append('Requested preview — includes reminders; job delivery history is unchanged by this test.')
     return '\n\n'.join(lines)
 
 
@@ -74,8 +80,10 @@ def verify_activation():
         raise RuntimeError('Verified activation required')
 
 
-def prepare(*, test=False, now=None):
-    key = TEST_KEY if test else daily_key(now)
+def prepare(*, test=False, test_id=None, now=None):
+    if test_id and (not test or not re.fullmatch(r'[A-Za-z0-9_-]{1,80}', test_id)):
+        raise ValueError('A bounded test identifier is allowed only for explicit test delivery')
+    key = ('requested-test-' + test_id if test_id else TEST_KEY) if test else daily_key(now)
     if key is None:
         return False
     with connect() as conn:
@@ -91,15 +99,20 @@ def prepare(*, test=False, now=None):
             if conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (table,)).fetchone():
                 print(f"[history] {table}: {conn.execute('SELECT count(*) FROM '+table).fetchone()[0]} retained rows")
     report = scraper.main(report_path=str(PLAN.with_name('run_report.json')),
-                          prepare_path=None if test else str(PLAN.with_name('pending_plan.json')),
-                          allow_empty=True)
-    data = {'key': key, 'created_at': datetime.now(timezone.utc).isoformat(),
+                          refresh_history=not test, digest=True, allow_empty=True)
+    from digest_content import messages
+    chunks = messages(report, render(report, test=test, now=now))
+    data = {'messages': chunks, 'key': key, 'created_at': datetime.now(timezone.utc).isoformat(),
             'text': render(report, test=test, now=now), 'test': test,
             'selected': report['counts']['selected']}
+    print('[daily-preview] ' + json.dumps([c['text'] for c in chunks], ensure_ascii=False))
     payload = json.dumps(data, sort_keys=True)
     digest = hashlib.sha256(payload.encode()).hexdigest()
     PLAN.parent.mkdir(parents=True, exist_ok=True)
     PLAN.write_text(payload)
+    if not test:
+        from boards import Job
+        storage.mark_unconfirmed([Job(**j) for chunk in chunks for j in chunk['new_jobs']])
     with connect() as conn:
         conn.execute('INSERT INTO daily_digests VALUES (?, ?, ?, NULL)', (key, 'pending', digest))
     return True
@@ -121,32 +134,37 @@ def deliver():
         result = conn.execute("UPDATE daily_digests SET status='attempted' WHERE day=? AND status='pending' AND plan_hash=?", (data['key'], digest))
         if result.rowcount != 1:
             raise RuntimeError('Daily fence mismatched or already attempted; refusing replay')
-    try:
-        _send(data['text'])
-    except DeliveryRejected:
-        # Only a definitive rejection can release the fence. Timeouts/5xx cannot.
-        with connect() as conn:
-            conn.execute('DELETE FROM daily_digests WHERE day=?', (data['key'],))
+    from boards import Job
+    chunks = data['messages']
+    acknowledged = 0
+    for index, chunk in enumerate(chunks):
+        try:
+            _send(chunk['text'])
+        except DeliveryRejected:
+            if not data['test']:
+                storage.clear_unconfirmed([Job(**j) for c in chunks[index:] for j in c['new_jobs']])
+            if not acknowledged:
+                with connect() as conn:
+                    conn.execute('DELETE FROM daily_digests WHERE day=?', (data['key'],))
+            # After any acknowledged chunk, retain the daily fence: no duplicate blast.
+            raise
         if not data['test']:
-            from boards import Job
-            jobs = json.loads(PLAN.with_name('pending_plan.json').read_text())['jobs']
-            storage.clear_unconfirmed([Job(**j) for j in jobs])
-        raise
+            storage.mark_seen([Job(**j) for j in chunk['new_jobs']])
+        acknowledged += 1
     with connect() as conn:
         conn.execute("UPDATE daily_digests SET status='confirmed', acknowledged_at=? WHERE day=?", (now.isoformat(), data['key']))
-    print('[daily] Telegram acknowledged ' + ('one labeled test digest.' if data['test'] else 'daily status.'))
-    if not data['test'] and data['selected']:
-        scraper.deliver_prepared(str(PLAN.with_name('pending_plan.json')))
+    print(f"[daily] Telegram acknowledged {'labeled test digest' if data['test'] else 'daily digest'} ({acknowledged} message(s)).")
 
 
 def cli():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('action', choices=['prepare', 'deliver'])
     parser.add_argument('--test', action='store_true')
+    parser.add_argument('--test-id', help='Unique identifier for one explicitly requested additional test')
     args = parser.parse_args()
     try:
         if args.action == 'prepare':
-            ready = prepare(test=args.test)
+            ready = prepare(test=args.test, test_id=args.test_id)
             with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
                 out.write(f'prepared={str(ready).lower()}\n')
         else:

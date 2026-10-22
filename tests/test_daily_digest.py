@@ -31,10 +31,48 @@ class DailyTests(unittest.TestCase):
         with patch('scraper.main', return_value=REPORT):
             self.assertTrue(daily.prepare(test=True))
 
+    def test_explicit_additional_test_has_separate_once_only_fence(self):
+        self.prepare_test()
+        with patch('notifier._send'), patch('scraper.main', return_value=REPORT):
+            daily.deliver()
+            self.assertTrue(daily.prepare(test=True, test_id='user-preview-2'))
+            daily.deliver()
+            self.assertFalse(daily.prepare(test=True, test_id='user-preview-2'))
+            self.assertFalse(daily.prepare(test=True))
+        with daily.connect() as conn:
+            keys = [r[0] for r in conn.execute('SELECT day FROM daily_digests')]
+        self.assertEqual({daily.TEST_KEY, 'requested-test-user-preview-2'}, set(keys))
+
+    def test_custom_id_cannot_target_production_or_contain_unsafe_text(self):
+        with self.assertRaises(ValueError): daily.prepare(test_id='2026-10-23')
+        with self.assertRaises(ValueError): daily.prepare(test=True, test_id='../unsafe')
+
     def test_india_time_boundary(self):
         self.assertIsNone(daily.daily_key(datetime(2026, 10, 22, 7, 29, tzinfo=timezone.utc)))
         self.assertEqual('2026-10-22', daily.daily_key(datetime(2026, 10, 22, 7, 30, tzinfo=timezone.utc)))
         self.assertIsNone(daily.daily_key(datetime(2026, 10, 22, 18, 30, tzinfo=timezone.utc)))
+
+    def test_acknowledged_new_card_becomes_reminder_without_rewriting_prior_history(self):
+        from boards import Job
+        from dataclasses import asdict
+        j = Job('fresh', 'Growth Manager', 'Example', 'Worldwide', 'https://example.org/new', 'lever/example', posted='1d', current_open_verified=True)
+        report = {**REPORT, 'digest_jobs': [{'job': asdict(j), 'label': 'new'}]}
+        with patch('daily_digest.daily_key', return_value='2026-10-23'), patch('scraper.main', return_value=report), patch('notifier._send'):
+            daily.prepare()
+            self.assertEqual('unconfirmed', storage.delivery_labels([j])[j.id])
+            daily.deliver()
+            self.assertEqual('previously_shared', storage.delivery_labels([j])[j.id])
+            self.assertFalse(daily.prepare())
+
+    def test_test_preview_with_job_cards_does_not_change_newness(self):
+        from boards import Job
+        from dataclasses import asdict
+        j = Job('fresh', 'Growth Manager', 'Example', 'Worldwide', 'https://example.org/new', 'lever/example', posted='1d', current_open_verified=True)
+        report = {**REPORT, 'digest_jobs': [{'job': asdict(j), 'label': 'new'}]}
+        with patch('scraper.main', return_value=report), patch('notifier._send'):
+            daily.prepare(test=True)
+            daily.deliver()
+        self.assertEqual('new', storage.delivery_labels([j])[j.id])
 
     def test_old_morning_time_is_blocked_and_late_recovery_uses_same_key(self):
         self.assertIsNone(daily.daily_key(datetime(2026, 10, 23, 3, 30, tzinfo=timezone.utc)))
@@ -116,7 +154,7 @@ class DailyTests(unittest.TestCase):
             daily.deliver()
             self.assertFalse(daily.prepare())
             send.assert_called_once()
-            jobs.assert_called_once()
+            jobs.assert_not_called()
 
     def test_normal_empty_daily_status_sends_even_when_silent_flag_is_true(self):
         with patch('daily_digest.daily_key', return_value='2026-10-23'), patch('scraper.main', return_value=REPORT), patch('notifier.SILENT_IF_EMPTY', True), patch('notifier._send') as send, patch('scraper.deliver_prepared') as jobs:

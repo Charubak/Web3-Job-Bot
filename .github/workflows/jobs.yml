@@ -9,11 +9,16 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: 'Preview first. Initialize baselines existing matches without sending; send delivers one daily status plus new matches; test sends one labeled status only.'
+        description: 'Preview first. Initialize baselines existing matches without sending; send delivers new matches and still-open reminders; test sends one labeled status only.'
         type: choice
         required: true
         default: preview
         options: [preview, initialize, send, test]
+      test_id:
+        description: 'Only for an explicitly requested additional test; reuse the same ID for any reconciliation.'
+        type: string
+        required: false
+        default: ''
 permissions:
   contents: read
 concurrency:
@@ -50,7 +55,7 @@ jobs:
           restore-keys: job-alert-state-v1-
       - name: Preview (no Telegram, no state changes)
         if: github.event_name == 'workflow_dispatch' && inputs.mode == 'preview'
-        run: python scraper.py --dry-run --report data/run_report.json
+        run: python scraper.py --dry-run --digest --report data/run_report.json
       - name: Initialize a baseline (no Telegram)
         if: github.event_name == 'workflow_dispatch' && inputs.mode == 'initialize'
         run: python scraper.py --initialize-state --report data/run_report.json
@@ -61,9 +66,10 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           DIGEST_MODE: ${{ inputs.mode }}
+          TEST_ID: ${{ inputs.test_id }}
         run: |
           if [ "$DIGEST_MODE" = test ]; then
-            python daily_digest.py prepare --test
+            python daily_digest.py prepare --test --test-id "$TEST_ID"
           else
             python daily_digest.py prepare
           fi
