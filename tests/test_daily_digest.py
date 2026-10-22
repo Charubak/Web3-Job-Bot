@@ -31,6 +31,22 @@ class DailyTests(unittest.TestCase):
         with patch('scraper.main', return_value=REPORT):
             self.assertTrue(daily.prepare(test=True))
 
+    def test_explicit_additional_test_has_separate_once_only_fence(self):
+        self.prepare_test()
+        with patch('notifier._send'), patch('scraper.main', return_value=REPORT):
+            daily.deliver()
+            self.assertTrue(daily.prepare(test=True, test_id='user-preview-2'))
+            daily.deliver()
+            self.assertFalse(daily.prepare(test=True, test_id='user-preview-2'))
+            self.assertFalse(daily.prepare(test=True))
+        with daily.connect() as conn:
+            keys = [r[0] for r in conn.execute('SELECT day FROM daily_digests')]
+        self.assertEqual({daily.TEST_KEY, 'requested-test-user-preview-2'}, set(keys))
+
+    def test_custom_id_cannot_target_production_or_contain_unsafe_text(self):
+        with self.assertRaises(ValueError): daily.prepare(test_id='2026-10-23')
+        with self.assertRaises(ValueError): daily.prepare(test=True, test_id='../unsafe')
+
     def test_india_time_boundary(self):
         self.assertIsNone(daily.daily_key(datetime(2026, 10, 22, 7, 29, tzinfo=timezone.utc)))
         self.assertEqual('2026-10-22', daily.daily_key(datetime(2026, 10, 22, 7, 30, tzinfo=timezone.utc)))

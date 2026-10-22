@@ -4,6 +4,7 @@ import hashlib
 import html
 import json
 import os
+import re
 import sqlite3
 import sys
 from contextlib import contextmanager
@@ -74,8 +75,10 @@ def verify_activation():
         raise RuntimeError('Verified activation required')
 
 
-def prepare(*, test=False, now=None):
-    key = TEST_KEY if test else daily_key(now)
+def prepare(*, test=False, test_id=None, now=None):
+    if test_id and (not test or not re.fullmatch(r'[A-Za-z0-9_-]{1,80}', test_id)):
+        raise ValueError('A bounded test identifier is allowed only for explicit test delivery')
+    key = ('requested-test-' + test_id if test_id else TEST_KEY) if test else daily_key(now)
     if key is None:
         return False
     with connect() as conn:
@@ -96,6 +99,7 @@ def prepare(*, test=False, now=None):
     data = {'key': key, 'created_at': datetime.now(timezone.utc).isoformat(),
             'text': render(report, test=test, now=now), 'test': test,
             'selected': report['counts']['selected']}
+    print('[daily-preview] ' + json.dumps(data['text'], ensure_ascii=False))
     payload = json.dumps(data, sort_keys=True)
     digest = hashlib.sha256(payload.encode()).hexdigest()
     PLAN.parent.mkdir(parents=True, exist_ok=True)
@@ -143,10 +147,11 @@ def cli():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('action', choices=['prepare', 'deliver'])
     parser.add_argument('--test', action='store_true')
+    parser.add_argument('--test-id', help='Unique identifier for one explicitly requested additional test')
     args = parser.parse_args()
     try:
         if args.action == 'prepare':
-            ready = prepare(test=args.test)
+            ready = prepare(test=args.test, test_id=args.test_id)
             with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
                 out.write(f'prepared={str(ready).lower()}\n')
         else:
