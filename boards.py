@@ -531,6 +531,9 @@ def _fetch_greenhouse_one(slug: str, company_name: str) -> list[Job]:
             timeout=12,
         )
         if resp.status_code != 200:
+            from source_health import record_failure
+            record_failure()
+            print(f"[greenhouse/{slug}] HTTP {resp.status_code}; source unavailable")
             return []
         jobs = []
         for j in resp.json().get("jobs", []):
@@ -610,6 +613,9 @@ def _fetch_lever_one(slug: str, company_name: str) -> list[Job]:
             timeout=12,
         )
         if resp.status_code != 200:
+            from source_health import record_failure
+            record_failure()
+            print(f"[lever/{slug}] HTTP {resp.status_code}; source unavailable")
             return []
         jobs = []
         for j in resp.json():
@@ -1490,6 +1496,8 @@ BOARDS = [
     fetch_lever_aave,
     fetch_cryptojobsdaily_telegram,
     fetch_cryptojobslist_telegram,
+    fetch_web3marketingjobs_telegram,
+    fetch_web3_marketing_jobs_telegram,
     fetch_remotive,
     fetch_twitter_bing,
     fetch_direct_ashby,

@@ -223,3 +223,39 @@ def are_unconfirmed(jobs: list) -> bool:
         return False
     finally:
         conn.close()
+
+
+def delivery_labels(jobs: list) -> dict[str, str]:
+    """Read historical acknowledgments separately from uncertain delivery fences."""
+    labels = {j.id: 'new' for j in jobs}
+    if not DB_PATH.exists():
+        return labels
+    conn = sqlite3.connect(DB_PATH.resolve().as_uri() + '?mode=ro', uri=True)
+    try:
+        tables = {r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+        confirmed, pending, cards = set(), set(), {}
+        for table, dest in (('seen_jobs', confirmed), ('unconfirmed_jobs', pending)):
+            if table in tables:
+                for identity, url in conn.execute(f'SELECT id, url FROM {table}'):
+                    dest.add(identity); dest.add(canonical_job_url(url))
+        if 'telegram_latest_review_jobs' in tables:
+            acknowledged = ('telegram_latest_job_review' in tables and
+                            conn.execute("SELECT 1 FROM telegram_latest_job_review WHERE status='confirmed'").fetchone())
+            for identity, url, title in conn.execute('SELECT id, url, title FROM telegram_latest_review_jobs'):
+                state = 'previously_shared' if acknowledged else 'unconfirmed'
+                if title:
+                    cards[(canonical_job_url(url), title.strip().casefold())] = state
+                else:
+                    dest = confirmed if acknowledged else pending
+                    dest.add(identity); dest.add(canonical_job_url(url))
+        for j in jobs:
+            url = canonical_job_url(j.url)
+            if j.id in pending or url in pending:
+                labels[j.id] = 'unconfirmed'
+            elif j.id in confirmed or url in confirmed:
+                labels[j.id] = 'previously_shared'
+            elif (url, j.title.strip().casefold()) in cards:
+                labels[j.id] = cards[(url, j.title.strip().casefold())]
+    finally:
+        conn.close()
+    return labels
