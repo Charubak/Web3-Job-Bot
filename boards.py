@@ -22,12 +22,22 @@ HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; JobScraper/1.0)"}
 # Keep peak parsing/response memory small even on a 256 MiB machine. ATS
 # companies are fetched sequentially inside their board, without nested pools.
 MAX_BOARD_WORKERS = 2
+MAX_WEB3CAREER_PAGES = 3
 MAX_RESPONSE_BYTES = 8 * 1024 * 1024
 MAX_REQUEST_SECONDS = 30
 _HTTP_SLOTS = BoundedSemaphore(MAX_BOARD_WORKERS)
 
 
 def _get(url: str, **kwargs) -> httpx.Response:
+    try:
+        return _get_bounded(url, **kwargs)
+    except Exception:
+        from source_health import record_request
+        record_request(url, None, 0)
+        raise
+
+
+def _get_bounded(url: str, **kwargs) -> httpx.Response:
     """Fetch a bounded, decoded body; RSS must use this too, never URL parsing."""
     kwargs.setdefault("headers", HEADERS)
     kwargs["headers"] = {"Accept-Encoding": "identity", **kwargs["headers"]}
@@ -52,12 +62,20 @@ def _get(url: str, **kwargs) -> httpx.Response:
                 # a second time when constructing the buffered response.
                 headers = {k: v for k, v in response.headers.items()
                            if k.lower() not in {"content-encoding", "content-length", "transfer-encoding"}}
+                from source_health import record_request
+                record_request(str(response.url), response.status_code, time.monotonic() - started)
                 return httpx.Response(response.status_code, headers=headers,
                                       content=bytes(body), request=response.request)
 
 
 def _plain_text(value: str) -> str:
-    return BeautifulSoup(html.unescape(value or ""), "html.parser").get_text(" ", strip=True)
+    soup = BeautifulSoup(html.unescape(value or ""), "html.parser")
+    for tag in soup.select('script, style'):
+        tag.decompose()
+    for tag in soup.select('p, div, li, br, h1, h2, h3, h4, h5, h6'):
+        tag.append('\n')
+    text = soup.get_text(' ', strip=False)
+    return '\n'.join(re.sub(r'[^\S\n]+', ' ', line).strip() for line in text.splitlines() if line.strip())
 
 
 def _fetch_feed(url: str):
@@ -90,6 +108,9 @@ class Job:
     published_at_upper_bound: str = ""
     # Set only by a live, trusted source that lists this requisition as open.
     current_open_verified: bool = False
+    # Preserve ATS metadata as evidence; never infer applicant eligibility from
+    # a company-country field, or discard it when structured location is Remote.
+    ats_country: str = ""
 
 
 _TRACKING_QUERY_KEYS = {
@@ -302,23 +323,32 @@ def _scrape_web3career_page(path: str) -> list[Job]:
 def fetch_web3career() -> list[Job]:
     paths = [
         "/marketing-jobs",
-        "/community-manager-jobs",
-        "/content-jobs",
         "/growth-jobs",
+        "/product-marketing-jobs",
     ]
     all_jobs: list[Job] = []
     seen_ids: set[str] = set()
     for path in paths:
-        try:
-            jobs = _scrape_web3career_page(path)
-            for j in jobs:
-                if j.id not in seen_ids:
-                    all_jobs.append(j)
-                    seen_ids.add(j.id)
-        except Exception as e:
-            from source_health import record_failure
-            record_failure()
-            print(f"[web3.career] ERROR ({path}): {e}")
+        page_ids = set()
+        for page in range(1, MAX_WEB3CAREER_PAGES + 1):
+            try:
+                jobs = _scrape_web3career_page(path if page == 1 else f'{path}?page={page}')
+                fresh = [j for j in jobs if j.id not in page_ids]
+                if not fresh:
+                    break  # Page parameter ignored, or the last page was empty.
+                page_ids.update(j.id for j in fresh)
+                for j in fresh:
+                    if j.id not in seen_ids:
+                        all_jobs.append(j)
+                        seen_ids.add(j.id)
+                if page == MAX_WEB3CAREER_PAGES:
+                    from source_health import record_warning
+                    record_warning('bounded_pagination')
+            except Exception as e:
+                from source_health import record_failure
+                record_failure()
+                print(f"[web3.career] ERROR ({path}, page {page}): {type(e).__name__}")
+                break
     print(f"[web3.career] {len(all_jobs)} jobs fetched")
     return all_jobs
 
@@ -506,17 +536,13 @@ GREENHOUSE_COMPANIES = [
     ("binance",         "Binance"), # Live EU board; shared Greenhouse API, verified 2026-10-22.
     ("coinbase",        "Coinbase"),
     ("consensys",       "Consensys"),
-    ("alchemy",         "Alchemy"),
     ("ripple",          "Ripple"),
     ("fireblocks",      "Fireblocks"),
     ("bitgo",           "BitGo"),
     ("gemini",          "Gemini"),
     ("nansen",          "Nansen"),
-    ("avalabs",         "Ava Labs"),
-    ("paradigm",        "Paradigm"),
     ("messari",         "Messari"),
     ("figment",         "Figment"),
-    ("solana",          "Solana Foundation"),
     ("okx",             "OKX"),
     ("openzeppelin",    "OpenZeppelin"),
     ("jumpcrypto",      "Jump Crypto"),
@@ -577,11 +603,10 @@ LEVER_COMPANIES = [
     ("1inch",          "1inch"),
     ("certik",         "CertiK"),
     ("anchorage",      "Anchorage Digital"),
-    ("ledger",         "Ledger"),
     ("immutable",      "Immutable"),
     ("animocabrands",  "Animoca Brands"),
     ("aurora-dev",     "Aurora (NEAR)"),
-    ("offchainlabs",   "Arbitrum (Offchain Labs)"),
+    ("offchainlabs",   "Offchain Labs"),
     # Verified official board: https://jobs.lever.co/jito (2026-10-19).
     ("jito",           "Jito Foundation"),
 ]
@@ -631,6 +656,7 @@ def _fetch_lever_one(slug: str, company_name: str) -> list[Job]:
                 id=_make_id(url), title=title, company=company_name,
                 location=location, url=url, source=f"lever/{slug}", posted=posted,
                 description=description, current_open_verified=True,
+                ats_country=str(j.get('country') or ''),
             ))
         return jobs
     except Exception as e:
@@ -1487,6 +1513,11 @@ def fetch_reviewed_public_roles():
     return fetch_reviewed_roles()
 
 
+def fetch_careers_discovery():
+    from career_discovery import fetch_career_indexes
+    return fetch_career_indexes()
+
+
 BOARDS = [
     fetch_reviewed_public_roles,
     fetch_cryptocurrencyjobs,
@@ -1513,6 +1544,7 @@ BOARDS = [
     fetch_hylo_verified,
     fetch_curated_companies,
     fetch_linkedin_hiring_posts,
+    fetch_careers_discovery,
 ]
 
 

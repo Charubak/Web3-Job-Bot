@@ -28,7 +28,9 @@ def coverage_note(report):
     if not report.get('counts', {}).get('raw', 1):
         return 'Search coverage was unavailable or empty today; this does not mean there are no suitable jobs.'
     if not sources or any(s['status'] != 'returned' for s in sources):
-        return 'Some job sources could not be fully checked today, so this list may be incomplete.'
+        failed = [s.get('source', '') for s in sources if s['status'] != 'returned' and s.get('source')]
+        detail = ('Incomplete checks: ' + ', '.join(failed) + '.\n') if failed else ''
+        return detail + 'Some job sources could not be fully checked today, so this list may be incomplete.'
     if any(not s['count'] for s in sources):
         return 'Some sources returned no listings; search coverage may be incomplete.'
     return ''

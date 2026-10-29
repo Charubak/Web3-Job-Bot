@@ -19,6 +19,10 @@ import boards
 # These are source associations only, never employer-HQ or eligibility evidence.
 # Board names are case-sensitive; do not guess slugs from company names.
 ASHBY_COMPANIES = (
+    # Official careers pages link to these exact boards; verified2026-10-29.
+    ("alchemy", "Alchemy"),
+    ("ava-labs", "Ava Labs"),
+    ("ledger", "Ledger"),
     ("trust-wallet", "Trust Wallet"),
     ("allium", "Allium"),
     ("keyrock", "Keyrock"),
@@ -28,6 +32,9 @@ ASHBY_COMPANIES = (
     ("morpho", "Morpho"),
 )
 ASHBY_ASSOCIATION_SOURCES = {
+    "alchemy": "https://www.alchemy.com/careers",
+    "ava-labs": "https://www.avalabs.org/careers",
+    "ledger": "https://careers.ledger.com/",
     "trust-wallet": "https://trustwallet.com/careers",
     "allium": "https://www.allium.so/about",
     "keyrock": "https://keyrock.com/careers/",

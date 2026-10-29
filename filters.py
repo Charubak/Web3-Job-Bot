@@ -52,6 +52,9 @@ def _normalise(text: str) -> str:
     text = re.sub(r"\bu\.?s\.?a\b\.?", "usa", text)
     text = re.sub(r"\bu\.s\.(?=\W|$)", "us", text)
     text = re.sub(r"\bu\.k\.(?=\W|$)", "uk", text)
+    # A list item is a clause boundary, not a space. Otherwise a US-only
+    # retirement benefit can acquire hiring keywords from an unrelated bullet.
+    text = re.sub(r"[\r\n]+", ". ", text)
     return re.sub(r"\s+", " ", text).strip(" .")
 
 
@@ -137,6 +140,12 @@ def _location_rejection(title: str, location: str, description: str) -> Optional
         sentence = _without_timezones(sentence.strip())
         if not sentence:
             continue
+        # Benefit eligibility is not applicant residency. Remove only the
+        # parenthetical qualifier, preserving any actual hiring clause.
+        if _has(r"\b(?:401k|retirement|medical|dental|vision|insurance|benefits?)\b", sentence):
+            sentence = re.sub(r"\((?:us|usa|uk|eu)(?:\s*\+\s*some other countries|\s+only)?\)", "", sentence)
+        if _has(r"\b(?:role|position|work)\b.{0,30}\b(?:cannot|can't|may not) be performed in\s+india\b|\b(?:do not|cannot|can't)\s+(?:hire|employ)\s+(?:in|from)\s+india\b", sentence):
+            return "Description explicitly excludes India"
         # Negated requirements must not become restrictions themselves.
         if _has(r"\b(?:no|without)\s+(?:geographic(?:al)?|country|location|residency)\s+(?:restrictions?|requirements?)\b", sentence):
             sentence = re.sub(r"\b(?:no|without)\s+(?:geographic(?:al)?|country|location|residency)\s+(?:restrictions?|requirements?)\b", "", sentence)
@@ -562,6 +571,10 @@ def classify_job(job, now: Optional[datetime] = None) -> FilterDecision:
     if not getattr(job, "url", ""):
         reasons.append("Application URL is missing")
     current_open_verified = getattr(job, "current_open_verified", False) is True
+    # Exclusion of other jurisdictions is not proof of India ineligibility,
+    # and bare Remote is not proof that India is supported. Research it.
+    if _has(r"\b(?:cannot|can't|may not) be performed in\b", description):
+        reasons.append("Role has jurisdiction exclusions; verify India eligibility against the exact exclusion and ATS country metadata")
     if posted is None and not current_open_verified:
         reasons.append("Posting date is missing or unparseable; recency needs verification")
     if posted and posted > now:

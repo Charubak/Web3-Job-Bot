@@ -84,7 +84,7 @@ class DailyTests(unittest.TestCase):
         self.assertIn('0 new', text)
         self.assertNotIn('<b>New</b>', text)
         self.assertIn('Some job sources could not be fully checked', text)
-        self.assertNotIn('cryptojobslist', text)
+        self.assertIn('Incomplete checks: cryptojobslist', text)
         self.assertNotIn('twitter_bing', text)
         self.assertTrue(text.endswith('this list may be incomplete.'))
 

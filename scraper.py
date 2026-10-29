@@ -106,7 +106,7 @@ def main(dry_run: bool = True, *, initialize: bool = False,
         report['digest_jobs'] = [{'job': asdict(j), 'label': labels[j.id], **(reviewed.get(j.id) or {})} for j in included]
         report['counts']['reminders'] = sum(labels[j.id] == 'previously_shared' for j in included)
         report['counts']['digest_new'] = sum(labels[j.id] == 'new' for j in included)
-        report['counts']['active_unverified'] = len(results.qualified) - len(active)
+        report['counts']['active_unverified'] = sum(j.current_open_verified is not True for j in candidates)
         report['counts']['unconfirmed_delivery'] = len(active) - len(included)
         report['counts']['unknown_age'] = sum(_parse_posted_date(j.posted) is None for j in included)
     print("[counts] " + json.dumps(report["counts"]))

@@ -135,7 +135,7 @@ class EvidencePreservationTests(unittest.TestCase):
         self.assertEqual(get.call_args.kwargs["params"], {"content": "true"})
         self.assertEqual(jobs[0].source, "greenhouse/example")
         self.assertEqual(jobs[0].location, "Remote")
-        self.assertEqual(jobs[0].description, "We hire globally. Must reside in Canada.")
+        self.assertEqual(jobs[0].description, "We hire globally.\nMust reside in Canada.")
         self.assertEqual(jobs[0].posted, "2026-10-18T10:00:00Z")
 
     def test_greenhouse_updated_timestamp_never_refreshes_original_age(self):
