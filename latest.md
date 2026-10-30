@@ -1,12 +1,12 @@
 # Public job collection
 
-Generated: 2026-10-29T10:04:55.672150+00:00
+Generated: 2026-10-30T08:07:55.349160+00:00
 
 Public collection evidence, not a delivered digest. First collection does not mean a new job. Research unresolved evidence and use private delivery history to label new/reminders.
 
-Counts: {"qualified": 4, "raw": 1683, "rejected": 1642, "review": 37, "source_failures": 6, "unconfirmed_open": 32, "unknown_age": 21, "zero_result_sources": 8}
+Counts: {"qualified": 4, "raw": 1702, "rejected": 1662, "review": 36, "source_failures": 5, "unconfirmed_open": 31, "unknown_age": 21, "zero_result_sources": 8}
 
-Incomplete sources: cryptojobs, cryptojobslist, cryptojobslist_web3, direct_hacken, lever, reviewed_public_roles
+Incomplete sources: cryptojobs, cryptojobslist, cryptojobslist_web3, direct_hacken, reviewed_public_roles
 Zero-result sources: cryptojobs, cryptojobslist, cryptojobslist_web3, direct_hacken, linkedin_hiring_posts, remotive, reviewed_public_roles, twitter_bing
 
 ## Candidates and unresolved evidence
@@ -158,7 +158,7 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 ### Grayscaleinvestments | Campaign Manager Marketing
 
 https://web3.career/campaign-manager-marketing-grayscaleinvestments/154991
-review | unconfirmed_open | within_30_days | first_collection
+review | unconfirmed_open | within_30_days | previously_collected
 Location: Remote
 Reasons: Adjacent marketing specialty; growth / GTM / PMM ownership is not established; Mid/senior individual-contributor or manager experience needs verification; Description does not establish ownership of growth, GTM, or product marketing; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
@@ -219,14 +219,6 @@ Location: Remote
 Reasons: Adjacent marketing specialty; growth / GTM / PMM ownership is not established; Mid/senior individual-contributor or manager experience needs verification; Description does not establish ownership of growth, GTM, or product marketing; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
 
-### Saifuro | Social Media & Content Manager (Crypto)
-
-https://cjl.ist/lk5udnotu
-review | unconfirmed_open | within_30_days | previously_collected
-Location: Remote
-Reasons: Mid/senior individual-contributor or manager experience needs verification; Description does not establish ownership of growth, GTM, or product marketing; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification
-Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
-
 ### 0g Labs | Brand Design Lead
 
 https://cryptocurrencyjobs.co/design/0g-labs-brand-design-lead/
@@ -235,10 +227,10 @@ Location:
 Reasons: Adjacent marketing specialty; growth / GTM / PMM ownership is not established; Description does not establish ownership of growth, GTM, or product marketing; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
 
-###  | Chainalysis Sr Product Marketing Manager, Platform Remote · United Kingdom, United Kingdom · Posted 8 days ago
+###  | Chainalysis Sr Product Marketing Manager, Platform Remote · United Kingdom, United Kingdom · Posted 9 days ago
 
 https://jobs.ashbyhq.com/chainalysis-careers/c68702ec-c016-456c-a7fe-92be1da2d08b
-review | unconfirmed_open | unknown | first_collection
+review | unconfirmed_open | unknown | previously_collected
 Location: 
 Reasons: Description does not establish ownership of growth, GTM, or product marketing; Regional title may describe a market or a hiring restriction; verify eligibility; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Posting date is missing or unparseable; recency needs verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
@@ -246,7 +238,7 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 ###  | Antares Head of Marketing & Communications USD 150-220K/year · Los Angeles, California, USA, Los Angeles · Posted 1 month ago
 
 https://jobs.ashbyhq.com/Antares/7ed6c040-72ff-43f5-9d3c-2f0314882003
-review | unconfirmed_open | unknown | first_collection
+review | unconfirmed_open | unknown | previously_collected
 Location: 
 Reasons: Adjacent marketing specialty; growth / GTM / PMM ownership is not established; Description does not establish ownership of growth, GTM, or product marketing; Head / director role needs evidence of early-stage, hands-on scope; Regional title may describe a market or a hiring restriction; verify eligibility; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Role-level remote work is unconfirmed; empty locations and distributed-company prose are insufficient; Posting date is missing or unparseable; recency needs verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Check responsibility and seniority from the full role, not just the title. Verify India eligibility and distinguish market scope, working hours, benefits and applicant residence. Check role-level remote terms and all contradictory residence/office requirements. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
@@ -254,7 +246,7 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 ###  | TaxBit Global Customer Marketing Manager, San Francisco USD 115-150K/year · San Francisco, California · Posted 1 month ago
 
 https://job-boards.greenhouse.io/taxbit/jobs/6207116004
-review | unconfirmed_open | unknown | first_collection
+review | unconfirmed_open | unknown | previously_collected
 Location: 
 Reasons: Adjacent marketing specialty; growth / GTM / PMM ownership is not established; Mid/senior individual-contributor or manager experience needs verification; Description does not establish ownership of growth, GTM, or product marketing; Regional title may describe a market or a hiring restriction; verify eligibility; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Role-level remote work is unconfirmed; empty locations and distributed-company prose are insufficient; Posting date is missing or unparseable; recency needs verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Verify India eligibility and distinguish market scope, working hours, benefits and applicant residence. Check role-level remote terms and all contradictory residence/office requirements. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
@@ -262,7 +254,7 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 ###  | Chainalysis Director, HRBP - GTM USD 168-260K/year · New York City, New York, United States, New York Office · Posted 1 month ago
 
 https://jobs.ashbyhq.com/chainalysis-careers/a8fa332e-a2b8-40cb-aa26-ca473a1999b4
-review | unconfirmed_open | unknown | first_collection
+review | unconfirmed_open | unknown | previously_collected
 Location: 
 Reasons: Description does not establish ownership of growth, GTM, or product marketing; Head / director role needs evidence of early-stage, hands-on scope; Regional title may describe a market or a hiring restriction; verify eligibility; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Role-level remote work is unconfirmed; empty locations and distributed-company prose are insufficient; Posting date is missing or unparseable; recency needs verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Check responsibility and seniority from the full role, not just the title. Verify India eligibility and distinguish market scope, working hours, benefits and applicant residence. Check role-level remote terms and all contradictory residence/office requirements. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
@@ -270,7 +262,7 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 ###  | Kalshi Growth - Perps USD 200-250K/year · New York City, New York, United States, New York Office · Posted 4 months ago
 
 https://jobs.ashbyhq.com/kalshi/043e65ba-22cf-447c-92fa-80c6b9750297
-review | unconfirmed_open | unknown | first_collection
+review | unconfirmed_open | unknown | previously_collected
 Location: 
 Reasons: Mid/senior individual-contributor or manager experience needs verification; Description does not establish ownership of growth, GTM, or product marketing; Regional title may describe a market or a hiring restriction; verify eligibility; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Role-level remote work is unconfirmed; empty locations and distributed-company prose are insufficient; Posting date is missing or unparseable; recency needs verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Verify India eligibility and distinguish market scope, working hours, benefits and applicant residence. Check role-level remote terms and all contradictory residence/office requirements. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
@@ -278,7 +270,7 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 ###  | UniSwap Ecosystem Growth Manager USD 180-220K/year · New York, New York, United States, New York · Posted 6 months ago
 
 https://jobs.ashbyhq.com/uniswap/3d25a6ac-30b7-424c-a93c-54ccf2e538b6
-review | unconfirmed_open | unknown | first_collection
+review | unconfirmed_open | unknown | previously_collected
 Location: 
 Reasons: Mid/senior individual-contributor or manager experience needs verification; Description does not establish ownership of growth, GTM, or product marketing; Regional title may describe a market or a hiring restriction; verify eligibility; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Role-level remote work is unconfirmed; empty locations and distributed-company prose are insufficient; Posting date is missing or unparseable; recency needs verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Verify India eligibility and distinguish market scope, working hours, benefits and applicant residence. Check role-level remote terms and all contradictory residence/office requirements. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
@@ -286,7 +278,7 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 ###  | Kalshi Esports GTM USD 150-250K/year · New York City, New York, United States, New York Office · Posted 1 month ago
 
 https://jobs.ashbyhq.com/kalshi/c32760bb-dc13-4315-a78c-ac553f37fd7d
-review | unconfirmed_open | unknown | first_collection
+review | unconfirmed_open | unknown | previously_collected
 Location: 
 Reasons: Mid/senior individual-contributor or manager experience needs verification; Description does not establish ownership of growth, GTM, or product marketing; Regional title may describe a market or a hiring restriction; verify eligibility; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Role-level remote work is unconfirmed; empty locations and distributed-company prose are insufficient; Posting date is missing or unparseable; recency needs verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Verify India eligibility and distinguish market scope, working hours, benefits and applicant residence. Check role-level remote terms and all contradictory residence/office requirements. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
@@ -294,15 +286,7 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 ###  | Tempo Enterprise GTM (SF) San Francisco, California , United States, San Francisco Office · Posted 9 months ago
 
 https://jobs.ashbyhq.com/tempo-xyz/9661a50f-911e-4d33-abe7-01c579e22e7b
-review | unconfirmed_open | unknown | first_collection
-Location: 
-Reasons: Mid/senior individual-contributor or manager experience needs verification; Description does not establish ownership of growth, GTM, or product marketing; Regional title may describe a market or a hiring restriction; verify eligibility; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Role-level remote work is unconfirmed; empty locations and distributed-company prose are insufficient; Posting date is missing or unparseable; recency needs verification
-Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Verify India eligibility and distinguish market scope, working hours, benefits and applicant residence. Check role-level remote terms and all contradictory residence/office requirements. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
-
-###  | Ellipsis Labs Growth Manager - Asia , Asia · Posted 6 months ago
-
-https://jobs.ashbyhq.com/ellipsislabs/ad7d62ed-7587-4ec5-b236-d4df64b223bc
-review | unconfirmed_open | unknown | first_collection
+review | unconfirmed_open | unknown | previously_collected
 Location: 
 Reasons: Mid/senior individual-contributor or manager experience needs verification; Description does not establish ownership of growth, GTM, or product marketing; Regional title may describe a market or a hiring restriction; verify eligibility; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Role-level remote work is unconfirmed; empty locations and distributed-company prose are insufficient; Posting date is missing or unparseable; recency needs verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Verify India eligibility and distinguish market scope, working hours, benefits and applicant residence. Check role-level remote terms and all contradictory residence/office requirements. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
@@ -310,7 +294,15 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 ###  | Tempo Enterprise GTM (NYC) New York City, New York, United States, NYC Office · Posted 9 months ago
 
 https://jobs.ashbyhq.com/tempo-xyz/a403e56e-749f-402e-9949-f8aef622d9d0
-review | unconfirmed_open | unknown | first_collection
+review | unconfirmed_open | unknown | previously_collected
+Location: 
+Reasons: Mid/senior individual-contributor or manager experience needs verification; Description does not establish ownership of growth, GTM, or product marketing; Regional title may describe a market or a hiring restriction; verify eligibility; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Role-level remote work is unconfirmed; empty locations and distributed-company prose are insufficient; Posting date is missing or unparseable; recency needs verification
+Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Verify India eligibility and distinguish market scope, working hours, benefits and applicant residence. Check role-level remote terms and all contradictory residence/office requirements. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
+
+###  | Ellipsis Labs Growth Manager - Asia , Asia · Posted 6 months ago
+
+https://jobs.ashbyhq.com/ellipsislabs/ad7d62ed-7587-4ec5-b236-d4df64b223bc
+review | unconfirmed_open | unknown | previously_collected
 Location: 
 Reasons: Mid/senior individual-contributor or manager experience needs verification; Description does not establish ownership of growth, GTM, or product marketing; Regional title may describe a market or a hiring restriction; verify eligibility; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Role-level remote work is unconfirmed; empty locations and distributed-company prose are insufficient; Posting date is missing or unparseable; recency needs verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Verify India eligibility and distinguish market scope, working hours, benefits and applicant residence. Check role-level remote terms and all contradictory residence/office requirements. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
@@ -318,7 +310,7 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 ###  | Kalshi GTM - AI Remote · United States, Remote · Posted 3 months ago
 
 https://jobs.ashbyhq.com/kalshi/d1c3d4eb-dfa2-4973-a975-2b91430576f9
-review | unconfirmed_open | unknown | first_collection
+review | unconfirmed_open | unknown | previously_collected
 Location: 
 Reasons: Mid/senior individual-contributor or manager experience needs verification; Description does not establish ownership of growth, GTM, or product marketing; Regional title may describe a market or a hiring restriction; verify eligibility; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Posting date is missing or unparseable; recency needs verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
@@ -326,7 +318,7 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 ###  | Paradigm Growth - Paradigm Portfolio Remote · , Remote · Posted 4 years ago
 
 https://jobs.ashbyhq.com/Paradigm/80eee80a-aecb-4888-b219-fba7b99dcb1b
-review | unconfirmed_open | unknown | first_collection
+review | unconfirmed_open | unknown | previously_collected
 Location: 
 Reasons: Mid/senior individual-contributor or manager experience needs verification; Description does not establish ownership of growth, GTM, or product marketing; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Posting date is missing or unparseable; recency needs verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
@@ -334,7 +326,7 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 ###  | Kalshi GTM - Healthcare Remote · United States, Remote · Posted 3 months ago
 
 https://jobs.ashbyhq.com/kalshi/09a99865-5f92-41bf-9def-dcbd27734c9e
-review | unconfirmed_open | unknown | first_collection
+review | unconfirmed_open | unknown | previously_collected
 Location: 
 Reasons: Mid/senior individual-contributor or manager experience needs verification; Description does not establish ownership of growth, GTM, or product marketing; Regional title may describe a market or a hiring restriction; verify eligibility; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Posting date is missing or unparseable; recency needs verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
@@ -342,20 +334,20 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 ## Source health
 
 - blockace: returned, 70 listings, 0 failures, 1 requests; 
-- careers_discovery: returned, 27 listings, 0 failures, 2 requests; 
-- cryptocurrencyjobs: returned, 56 listings, 0 failures, 1 requests; 
+- careers_discovery: returned, 26 listings, 0 failures, 2 requests; 
+- cryptocurrencyjobs: returned, 53 listings, 0 failures, 1 requests; 
 - cryptojobs: unavailable, 0 listings, 1 failures, 1 requests; 
 - cryptojobsdaily_telegram: returned, 13 listings, 0 failures, 1 requests; 
 - cryptojobslist: unavailable, 0 listings, 1 failures, 1 requests; 
-- cryptojobslist_telegram: returned, 18 listings, 0 failures, 1 requests; 
+- cryptojobslist_telegram: returned, 16 listings, 0 failures, 1 requests; 
 - cryptojobslist_web3: unavailable, 0 listings, 1 failures, 1 requests; 
 - curated_companies: returned, 4 listings, 0 failures, 7 requests; 
-- direct_ashby: returned, 109 listings, 0 failures, 10 requests; 
+- direct_ashby: returned, 110 listings, 0 failures, 10 requests; 
 - direct_gains: returned, 1 listings, 0 failures, 2 requests; 
 - direct_hacken: unavailable, 0 listings, 1 failures, 1 requests; 
-- greenhouse: returned, 1094 listings, 0 failures, 13 requests; 
+- greenhouse: returned, 1105 listings, 0 failures, 13 requests; 
 - hylo_verified: returned, 1 listings, 0 failures, 1 requests; 
-- lever: partial, 88 listings, 1 failures, 9 requests; 
+- lever: returned, 98 listings, 0 failures, 9 requests; 
 - lever_aave: returned, 16 listings, 0 failures, 1 requests; 
 - linkedin_hiring_posts: returned, 0 listings, 0 failures, 2 requests; zero_results
 - remote3: returned, 8 listings, 0 failures, 1 requests; 
@@ -364,7 +356,7 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 - reviewed_public_roles: unavailable, 0 listings, 1 failures, 1 requests; 
 - twitter_bing: returned, 0 listings, 0 failures, 4 requests; zero_results
 - web3_marketing_jobs_telegram: returned, 17 listings, 0 failures, 1 requests; 
-- web3career: returned, 120 listings, 0 failures, 9 requests; 
+- web3career: returned, 119 listings, 0 failures, 9 requests; 
 - web3hiring_telegram: returned, 19 listings, 0 failures, 1 requests; 
 - web3marketingjobs_telegram: returned, 18 listings, 0 failures, 1 requests; 
 
