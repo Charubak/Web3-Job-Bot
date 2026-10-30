@@ -1,10 +1,10 @@
 # Public job collection
 
-Generated: 2026-10-30T08:07:55.349160+00:00
+Generated: 2026-10-30T13:53:22.451566+00:00
 
 Public collection evidence, not a delivered digest. First collection does not mean a new job. Research unresolved evidence and use private delivery history to label new/reminders.
 
-Counts: {"qualified": 4, "raw": 1702, "rejected": 1662, "review": 36, "source_failures": 5, "unconfirmed_open": 31, "unknown_age": 21, "zero_result_sources": 8}
+Counts: {"qualified": 4, "raw": 1710, "rejected": 1670, "review": 36, "source_failures": 5, "unconfirmed_open": 31, "unknown_age": 21, "zero_result_sources": 8}
 
 Incomplete sources: cryptojobs, cryptojobslist, cryptojobslist_web3, direct_hacken, reviewed_public_roles
 Zero-result sources: cryptojobs, cryptojobslist, cryptojobslist_web3, direct_hacken, linkedin_hiring_posts, remotive, reviewed_public_roles, twitter_bing
@@ -345,7 +345,7 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 - direct_ashby: returned, 110 listings, 0 failures, 10 requests; 
 - direct_gains: returned, 1 listings, 0 failures, 2 requests; 
 - direct_hacken: unavailable, 0 listings, 1 failures, 1 requests; 
-- greenhouse: returned, 1105 listings, 0 failures, 13 requests; 
+- greenhouse: returned, 1112 listings, 0 failures, 13 requests; 
 - hylo_verified: returned, 1 listings, 0 failures, 1 requests; 
 - lever: returned, 98 listings, 0 failures, 9 requests; 
 - lever_aave: returned, 16 listings, 0 failures, 1 requests; 
@@ -357,7 +357,7 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 - twitter_bing: returned, 0 listings, 0 failures, 4 requests; zero_results
 - web3_marketing_jobs_telegram: returned, 17 listings, 0 failures, 1 requests; 
 - web3career: returned, 119 listings, 0 failures, 9 requests; 
-- web3hiring_telegram: returned, 19 listings, 0 failures, 1 requests; 
+- web3hiring_telegram: returned, 20 listings, 0 failures, 1 requests; 
 - web3marketingjobs_telegram: returned, 18 listings, 0 failures, 1 requests; 
 
 ## Required independent follow-ups
