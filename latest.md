@@ -1,10 +1,10 @@
 # Public job collection
 
-Generated: 2026-10-30T13:53:22.451566+00:00
+Generated: 2026-10-31T13:23:08.063256+00:00
 
 Public collection evidence, not a delivered digest. First collection does not mean a new job. Research unresolved evidence and use private delivery history to label new/reminders.
 
-Counts: {"qualified": 4, "raw": 1710, "rejected": 1670, "review": 36, "source_failures": 5, "unconfirmed_open": 31, "unknown_age": 21, "zero_result_sources": 8}
+Counts: {"qualified": 4, "raw": 1723, "rejected": 1682, "review": 37, "source_failures": 5, "unconfirmed_open": 32, "unknown_age": 21, "zero_result_sources": 8}
 
 Incomplete sources: cryptojobs, cryptojobslist, cryptojobslist_web3, direct_hacken, reviewed_public_roles
 Zero-result sources: cryptojobs, cryptojobslist, cryptojobslist_web3, direct_hacken, linkedin_hiring_posts, remotive, reviewed_public_roles, twitter_bing
@@ -219,6 +219,14 @@ Location: Remote
 Reasons: Adjacent marketing specialty; growth / GTM / PMM ownership is not established; Mid/senior individual-contributor or manager experience needs verification; Description does not establish ownership of growth, GTM, or product marketing; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
 
+### Starknet Foundation | Growth Manager
+
+https://cryptocurrencyjobs.co/marketing/starknet-foundation-growth-manager/
+review | unconfirmed_open | within_30_days | first_collection
+Location: 
+Reasons: Mid/senior individual-contributor or manager experience needs verification; Description does not establish ownership of growth, GTM, or product marketing; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification
+Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
+
 ### 0g Labs | Brand Design Lead
 
 https://cryptocurrencyjobs.co/design/0g-labs-brand-design-lead/
@@ -227,7 +235,7 @@ Location:
 Reasons: Adjacent marketing specialty; growth / GTM / PMM ownership is not established; Description does not establish ownership of growth, GTM, or product marketing; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
 
-###  | Chainalysis Sr Product Marketing Manager, Platform Remote · United Kingdom, United Kingdom · Posted 9 days ago
+###  | Chainalysis Sr Product Marketing Manager, Platform Remote · United Kingdom, United Kingdom · Posted 10 days ago
 
 https://jobs.ashbyhq.com/chainalysis-careers/c68702ec-c016-456c-a7fe-92be1da2d08b
 review | unconfirmed_open | unknown | previously_collected
@@ -275,7 +283,7 @@ Location:
 Reasons: Mid/senior individual-contributor or manager experience needs verification; Description does not establish ownership of growth, GTM, or product marketing; Regional title may describe a market or a hiring restriction; verify eligibility; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Role-level remote work is unconfirmed; empty locations and distributed-company prose are insufficient; Posting date is missing or unparseable; recency needs verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Verify India eligibility and distinguish market scope, working hours, benefits and applicant residence. Check role-level remote terms and all contradictory residence/office requirements. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
 
-###  | Kalshi Esports GTM USD 150-250K/year · New York City, New York, United States, New York Office · Posted 1 month ago
+###  | Kalshi Esports GTM USD 150-250K/year · New York City, New York, United States, New York Office · Posted 2 months ago
 
 https://jobs.ashbyhq.com/kalshi/c32760bb-dc13-4315-a78c-ac553f37fd7d
 review | unconfirmed_open | unknown | previously_collected
@@ -335,19 +343,19 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 
 - blockace: returned, 70 listings, 0 failures, 1 requests; 
 - careers_discovery: returned, 26 listings, 0 failures, 2 requests; 
-- cryptocurrencyjobs: returned, 53 listings, 0 failures, 1 requests; 
+- cryptocurrencyjobs: returned, 58 listings, 0 failures, 1 requests; 
 - cryptojobs: unavailable, 0 listings, 1 failures, 1 requests; 
 - cryptojobsdaily_telegram: returned, 13 listings, 0 failures, 1 requests; 
 - cryptojobslist: unavailable, 0 listings, 1 failures, 1 requests; 
-- cryptojobslist_telegram: returned, 16 listings, 0 failures, 1 requests; 
+- cryptojobslist_telegram: returned, 14 listings, 0 failures, 1 requests; 
 - cryptojobslist_web3: unavailable, 0 listings, 1 failures, 1 requests; 
 - curated_companies: returned, 4 listings, 0 failures, 7 requests; 
 - direct_ashby: returned, 110 listings, 0 failures, 10 requests; 
 - direct_gains: returned, 1 listings, 0 failures, 2 requests; 
 - direct_hacken: unavailable, 0 listings, 1 failures, 1 requests; 
-- greenhouse: returned, 1112 listings, 0 failures, 13 requests; 
+- greenhouse: returned, 1122 listings, 0 failures, 13 requests; 
 - hylo_verified: returned, 1 listings, 0 failures, 1 requests; 
-- lever: returned, 98 listings, 0 failures, 9 requests; 
+- lever: returned, 99 listings, 0 failures, 9 requests; 
 - lever_aave: returned, 16 listings, 0 failures, 1 requests; 
 - linkedin_hiring_posts: returned, 0 listings, 0 failures, 2 requests; zero_results
 - remote3: returned, 8 listings, 0 failures, 1 requests; 
@@ -357,7 +365,7 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 - twitter_bing: returned, 0 listings, 0 failures, 4 requests; zero_results
 - web3_marketing_jobs_telegram: returned, 17 listings, 0 failures, 1 requests; 
 - web3career: returned, 119 listings, 0 failures, 9 requests; 
-- web3hiring_telegram: returned, 20 listings, 0 failures, 1 requests; 
+- web3hiring_telegram: returned, 19 listings, 0 failures, 1 requests; 
 - web3marketingjobs_telegram: returned, 18 listings, 0 failures, 1 requests; 
 
 ## Required independent follow-ups
