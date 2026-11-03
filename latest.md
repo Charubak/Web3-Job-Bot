@@ -1,12 +1,12 @@
 # Public job collection
 
-Generated: 2026-11-02T16:52:13.773489+00:00
+Generated: 2026-11-03T14:53:50.485609+00:00
 
 Public collection evidence, not a delivered digest. First collection does not mean a new job. Research unresolved evidence and use private delivery history to label new/reminders.
 
-Counts: {"qualified": 4, "raw": 1732, "rejected": 1692, "review": 36, "source_failures": 5, "unconfirmed_open": 31, "unknown_age": 21, "zero_result_sources": 8}
+Counts: {"qualified": 4, "raw": 1712, "rejected": 1674, "review": 34, "source_failures": 6, "unconfirmed_open": 29, "unknown_age": 20, "zero_result_sources": 8}
 
-Incomplete sources: cryptojobs, cryptojobslist, cryptojobslist_web3, direct_hacken, reviewed_public_roles
+Incomplete sources: cryptojobs, cryptojobslist, cryptojobslist_web3, direct_hacken, greenhouse, reviewed_public_roles
 Zero-result sources: cryptojobs, cryptojobslist, cryptojobslist_web3, direct_hacken, linkedin_hiring_posts, remotive, reviewed_public_roles, twitter_bing
 
 ## Candidates and unresolved evidence
@@ -203,14 +203,6 @@ Location: Remote
 Reasons: Adjacent marketing specialty; growth / GTM / PMM ownership is not established; Description does not establish ownership of growth, GTM, or product marketing; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Posting date is missing or unparseable; recency needs verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
 
-### HyroTrader | Crypto Trader & Content Creator (Remote)
-
-https://cjl.ist/29vza4wlc
-review | unconfirmed_open | within_30_days | previously_collected
-Location: Remote
-Reasons: Adjacent marketing specialty; growth / GTM / PMM ownership is not established; Mid/senior individual-contributor or manager experience needs verification; Description does not establish ownership of growth, GTM, or product marketing; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification
-Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
-
 ### Starknet Foundation | Growth Manager
 
 https://cryptocurrencyjobs.co/marketing/starknet-foundation-growth-manager/
@@ -227,7 +219,7 @@ Location:
 Reasons: Adjacent marketing specialty; growth / GTM / PMM ownership is not established; Description does not establish ownership of growth, GTM, or product marketing; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
 
-###  | Chainalysis Sr Product Marketing Manager, Platform Remote · United Kingdom, United Kingdom · Posted 12 days ago
+###  | Chainalysis Sr Product Marketing Manager, Platform Remote · United Kingdom, United Kingdom · Posted 13 days ago
 
 https://jobs.ashbyhq.com/chainalysis-careers/c68702ec-c016-456c-a7fe-92be1da2d08b
 review | unconfirmed_open | unknown | previously_collected
@@ -323,14 +315,6 @@ Location:
 Reasons: Mid/senior individual-contributor or manager experience needs verification; Description does not establish ownership of growth, GTM, or product marketing; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Posting date is missing or unparseable; recency needs verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
 
-###  | Kalshi GTM - Healthcare Remote · United States, Remote · Posted 3 months ago
-
-https://jobs.ashbyhq.com/kalshi/09a99865-5f92-41bf-9def-dcbd27734c9e
-review | unconfirmed_open | unknown | previously_collected
-Location: 
-Reasons: Mid/senior individual-contributor or manager experience needs verification; Description does not establish ownership of growth, GTM, or product marketing; Regional title may describe a market or a hiring restriction; verify eligibility; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Posting date is missing or unparseable; recency needs verification
-Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
-
 ## Source health
 
 - blockace: returned, 70 listings, 0 failures, 1 requests; 
@@ -345,7 +329,7 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 - direct_ashby: returned, 107 listings, 0 failures, 10 requests; 
 - direct_gains: returned, 1 listings, 0 failures, 2 requests; 
 - direct_hacken: unavailable, 0 listings, 1 failures, 1 requests; 
-- greenhouse: returned, 1140 listings, 0 failures, 13 requests; 
+- greenhouse: partial, 1121 listings, 1 failures, 13 requests; 
 - hylo_verified: returned, 1 listings, 0 failures, 1 requests; 
 - lever: returned, 98 listings, 0 failures, 9 requests; 
 - lever_aave: returned, 16 listings, 0 failures, 1 requests; 
