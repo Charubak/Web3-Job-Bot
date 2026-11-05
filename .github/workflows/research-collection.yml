@@ -16,6 +16,15 @@ on:
       - 'boards.py'
       - 'direct_sources.py'
       - 'reviewed_roles.py'
+      - 'filters.py'
+      - 'employers.py'
+      - 'employers.json'
+      - 'company_roles.py'
+      - 'career_discovery.py'
+      - 'hylo_source.py'
+      - 'linkedin_discovery.py'
+      - 'source_health.py'
+      - 'requirements.txt'
   workflow_dispatch:
 permissions:
   contents: read

@@ -357,6 +357,60 @@ def fetch_web3career() -> list[Job]:
 # Board 3: cryptojobslist.com  (HTTP scraping — table rows)
 # ---------------------------------------------------------------------------
 
+CRYPTOJOBSLIST_RSS_URL = "https://api.cryptojobslist.com/jobs.rss"
+MAX_CRYPTOJOBSLIST_RSS_ITEMS = 100
+
+
+def fetch_cryptojobslist_rss() -> list[Job]:
+    """Official public RSS, independent of the blocked category HTML pages.
+
+    The live feed has no per-job dates. Its channel build time is not a job's
+    posting date. Full descriptions preserve geographic restrictions, but a
+    board feed alone never verifies employer identity or an active application.
+    """
+    from source_health import record_failure, record_warning
+    try:
+        feed = _fetch_feed(CRYPTOJOBSLIST_RSS_URL)
+        if not feed.get('version') or feed.get('bozo'):
+            raise ValueError('Invalid public RSS response')
+        record_warning('bounded_public_rss_100')
+        record_warning('rss_original_posting_dates_unverified')
+        jobs = []
+        for entry in feed.entries[:MAX_CRYPTOJOBSLIST_RSS_ITEMS]:
+            title = _plain_text(entry.get('title', ''))
+            company = _company_text(entry.get('author', ''))
+            url = str(entry.get('link', '')).strip()
+            try:
+                parts = urlsplit(url)
+                valid_url = (parts.scheme == 'https' and
+                             parts.hostname in {'cryptojobslist.com', 'www.cryptojobslist.com'} and
+                             not parts.username and not parts.password and
+                             parts.port in (None, 443) and
+                             parts.path.startswith('/jobs/') and len(parts.path) > 6)
+            except ValueError:
+                valid_url = False
+            if not title or not company or not valid_url:
+                record_warning('rss_incomplete_or_untrusted_item')
+                continue
+            description = _rss_description(entry)
+            if not description:
+                record_warning('rss_missing_description')
+                continue
+            jobs.append(Job(
+                id=_make_id(url), title=title, company=company,
+                location=_plain_text(entry.get('media_location', '')),
+                url=canonical_job_url(url), source='cryptojobslist.com/rss',
+                posted='', description=description,
+                published_at_upper_bound=entry.get('published', ''),
+            ))
+        print(f'[cryptojobslist.com/rss] {len(jobs)} unverified public feed listings fetched')
+        return jobs
+    except Exception as exc:
+        record_failure()
+        print(f'[cryptojobslist.com/rss] ERROR: {type(exc).__name__}')
+        return []
+
+
 def fetch_cryptojobslist() -> list[Job]:
     base = "https://cryptojobslist.com"
     try:
@@ -678,6 +732,75 @@ def fetch_lever() -> list[Job]:
 # Board 8: blockace.io — HTML scraping, all remote web3 jobs
 # ---------------------------------------------------------------------------
 
+MAX_BLOCKACE_DETAILS = 10
+
+
+def _blockace_detail(job, now):
+    """Read exact-role dates; never promote a board page to employer evidence."""
+    import json
+    from filters import _parse_posted_date
+    from source_health import record_failure, record_warning
+    try:
+        parts = urlsplit(job.url)
+        if (parts.scheme != 'https' or parts.hostname != 'blockace.io' or
+                parts.username or parts.password or parts.port not in (None, 443) or
+                not parts.path.startswith('/jobs/')):
+            record_warning('blockace_untrusted_detail_url')
+            return None
+        response = _get(job.url, headers=HEADERS, follow_redirects=True, timeout=15)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, 'html.parser')
+        matches = []
+        for script in soup.select('script[type="application/ld+json"]'):
+            try:
+                value = json.loads(script.get_text())
+            except (ValueError, TypeError):
+                continue
+            pending = list(value) if isinstance(value, list) else [value]
+            while pending:
+                row = pending.pop()
+                if not isinstance(row, dict):
+                    continue
+                if isinstance(row.get('@graph'), list):
+                    pending.extend(row['@graph'])
+                kind = row.get('@type')
+                if kind != 'JobPosting' and not (isinstance(kind, list) and 'JobPosting' in kind):
+                    continue
+                if canonical_job_url(str(row.get('url', ''))).rstrip('/') != canonical_job_url(job.url).rstrip('/'):
+                    continue
+                if _plain_text(str(row.get('title', ''))).casefold() != job.title.casefold():
+                    continue
+                employer = row.get('hiringOrganization') or {}
+                if not isinstance(employer, dict) or _company_text(str(employer.get('name', ''))).casefold() != job.company.casefold():
+                    continue
+                matches.append(row)
+        if len(matches) != 1:
+            record_warning('blockace_exact_role_metadata_unverified')
+            return job
+        row = matches[0]
+        expires = _parse_posted_date(row.get('validThrough'), now=now)
+        if expires is not None:
+            # A date-only expiry includes that whole day.
+            if re.fullmatch(r'\d{4}-\d{2}-\d{2}', str(row.get('validThrough', ''))):
+                expires += timedelta(days=1)
+            if expires <= now:
+                record_warning('expired_blockace_listing_suppressed')
+                return None
+        posted = _parse_posted_date(row.get('datePosted'), now=now)
+        if posted is not None and posted <= now:
+            job.posted = posted.isoformat()
+        else:
+            record_warning('blockace_original_date_unverified')
+        if isinstance(row.get('description'), str):
+            job.description = _plain_text(row['description']) or job.description
+        return job
+    except Exception as exc:
+        record_failure()
+        record_warning('blockace_detail_unavailable')
+        print(f'[blockace.io/detail] ERROR: {type(exc).__name__}')
+        return job
+
+
 def fetch_blockace() -> list[Job]:
     """Scrape blockace.io job listings."""
     base = "https://blockace.io"
@@ -722,8 +845,25 @@ def fetch_blockace() -> list[Job]:
                     description=card.get_text(" ", strip=True),
                 )
             )
-        print(f"[blockace.io] {len(jobs)} jobs fetched")
-        return jobs
+        # The index can retain years-old jobs without dates. Inspect a bounded
+        # number of relevant exact postings rather than treating them as fresh.
+        checked, result, seen = 0, [], set()
+        now = datetime.now(timezone.utc)
+        for job in jobs:
+            if job.id in seen:
+                continue
+            seen.add(job.id)
+            if re.search(r'\b(marketing|growth|gtm|content)\b', job.title, re.I):
+                if checked < MAX_BLOCKACE_DETAILS:
+                    checked += 1
+                    job = _blockace_detail(job, now)
+                else:
+                    from source_health import record_warning
+                    record_warning('bounded_blockace_details_10')
+            if job is not None:
+                result.append(job)
+        print(f"[blockace.io] {len(result)} jobs fetched; {checked} relevant detail pages checked")
+        return result
     except Exception as e:
         from source_health import record_failure
         record_failure()
@@ -1522,6 +1662,7 @@ BOARDS = [
     fetch_cryptocurrencyjobs,
     fetch_web3career,
     fetch_cryptojobslist,
+    fetch_cryptojobslist_rss,
     fetch_remote3,
     fetch_cryptojobslist_web3,
     fetch_greenhouse,
@@ -1574,14 +1715,16 @@ def _preserve_duplicate_posting_dates(jobs: list[Job], now: datetime) -> list[Jo
         if not job.url:
             continue
         key = canonical_job_url(job.url)
+        # Exclusion-only evidence of an older existence is useful even from
+        # a secondary source, but only for this exact canonical requisition.
+        upper = _parse_posted_date(getattr(job, "published_at_upper_bound", ""), now=now)
+        if upper is not None and upper <= now:
+            upper_bounds[key] = min(upper_bounds.get(key, upper), upper)
         if key in primary_urls and not _is_primary_source(job):
             continue
         posted = _parse_posted_date(job.posted, now=now)
         if posted is not None and posted <= now:
             earliest[key] = min(earliest.get(key, posted), posted)
-        upper = _parse_posted_date(getattr(job, "published_at_upper_bound", ""), now=now)
-        if upper is not None and upper <= now:
-            upper_bounds[key] = min(upper_bounds.get(key, upper), upper)
 
     reconciled = []
     cutoff = now - timedelta(days=MAX_AGE_DAYS)
@@ -1625,8 +1768,7 @@ def fetch_all(*, now: datetime | None = None) -> list[Job]:
                 results[idx] = []
 
     all_jobs: list[Job] = []
-    seen_ids: set[str] = set()
-    seen_title_company: set[str] = set()
+    seen_urls: set[str] = set()
 
     candidates = _preserve_duplicate_posting_dates(
         [job for idx in range(len(BOARDS)) for job in results.get(idx, [])], now)
@@ -1636,17 +1778,15 @@ def fetch_all(*, now: datetime | None = None) -> list[Job]:
         not bool(job.location),
     ))
     for job in candidates:
-        tc_key = _title_company_key(job)
-        # Unknown companies cannot safely identify cross-board duplicates.
-        is_primary = _is_primary_source(job)
-        # Separate ATS requisitions can have the same title but different
-        # eligibility. Keep both; suppress lower-information reposts instead.
-        if job.id in seen_ids or (not is_primary and job.company.strip() and tc_key in seen_title_company):
+        # Same title/employer is only a research hint, not proof of a repost.
+        # Distinct requisitions can differ in age, geography, and availability.
+        # Primary evidence wins only for an identical canonical URL.
+        key = canonical_job_url(job.url)
+        if key and key in seen_urls:
             continue
         all_jobs.append(job)
-        seen_ids.add(job.id)
-        if job.company.strip():
-            seen_title_company.add(tc_key)
+        if key:
+            seen_urls.add(key)
 
     return all_jobs
 

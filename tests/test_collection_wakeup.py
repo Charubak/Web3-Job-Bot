@@ -34,6 +34,14 @@ class CollectionWakeupTests(unittest.TestCase):
         self.assertNotIn('research-data', push)
         self.assertNotIn('pull_request:', self.triggers)
 
+    def test_classification_and_transitive_source_inputs_refresh_evidence(self):
+        push = self.triggers.split('  push:', 1)[1].split('  workflow_dispatch:', 1)[0]
+        for path in ('boards.py', 'research_collector.py', 'filters.py', 'employers.py',
+                     'employers.json', 'company_roles.py', 'direct_sources.py',
+                     'reviewed_roles.py', 'career_discovery.py', 'hylo_source.py',
+                     'linkedin_discovery.py', 'source_health.py', 'requirements.txt'):
+            self.assertIn(f"'{path}'", push)
+
     def test_no_feedback_loop_or_parallel_publication(self):
         self.assertNotIn("workflows: ['Public job research collection']", self.triggers)
         self.assertIn('group: public-job-research-collection', self.workflow)

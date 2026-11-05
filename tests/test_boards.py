@@ -399,6 +399,19 @@ class DuplicateEvidenceTests(unittest.TestCase):
         self.assertEqual(fetched, [primary])
         self.assertEqual(classify_job(fetched[0], now=now).status, "review")
 
+    def test_same_url_secondary_existence_bound_is_not_lost_to_primary_preference(self):
+        from filters import classify_job
+        primary, now = self.eligible_posting(20)
+        primary.published_at_upper_bound = (now - timedelta(days=1)).isoformat()
+        indexed, _ = self.eligible_posting(20)
+        indexed.source = 'aggregator'
+        indexed.published_at_upper_bound = (now - timedelta(days=60)).isoformat()
+        with patch('boards.BOARDS', [lambda: [primary, indexed]]):
+            fetched = boards.fetch_all(now=now)
+        self.assertEqual(1, len(fetched))
+        self.assertEqual(indexed.published_at_upper_bound, fetched[0].published_at_upper_bound)
+        self.assertEqual('rejected', classify_job(fetched[0], now=now).status)
+
     def test_missing_or_future_primary_date_stays_review_when_duplicates_are_unexpired(self):
         from filters import classify_job
 
@@ -421,11 +434,21 @@ class DuplicateEvidenceTests(unittest.TestCase):
             fetched = boards.fetch_all(now=now)
         self.assertEqual(classify_job(fetched[0], now=now).status, "rejected")
 
-    def test_primary_replaces_earlier_low_information_aggregator(self):
+    def test_primary_does_not_erase_distinct_aggregator_requisition(self):
         repost = job(job_id="repost", location="Worldwide")
         primary = job(source="greenhouse/example", job_id="primary", location="Remote", description="Must be based in the US.")
         with patch("boards.BOARDS", [lambda: [repost], lambda: [primary]]):
-            self.assertEqual(boards.fetch_all(), [primary])
+            self.assertEqual(boards.fetch_all(), [primary, repost])
+
+    def test_distinct_aggregator_requisitions_do_not_hide_newer_job(self):
+        old = job(job_id='old', description='Prior opening')
+        old.posted = '2026-09-01'
+        newer = job(job_id='new', description='Different opening')
+        newer.posted = '2026-11-04'
+        with patch('boards.BOARDS', [lambda: [old, newer]]):
+            rows = boards.fetch_all(now=datetime(2026, 11, 5, tzinfo=timezone.utc))
+        self.assertEqual([old, newer], rows)
+        self.assertEqual('2026-11-04', rows[1].posted)
 
     def test_primary_wins_identical_url_duplicate(self):
         repost = job(job_id="same", location="Worldwide")
@@ -455,3 +478,4 @@ class DuplicateEvidenceTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

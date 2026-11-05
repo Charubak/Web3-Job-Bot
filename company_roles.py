@@ -9,7 +9,7 @@ emitted until a complete, independently scoped role description is present.
 import json
 import re
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from urllib.parse import urljoin, urlsplit
 
 from bs4 import BeautifulSoup, NavigableString, Tag
@@ -201,6 +201,21 @@ def _iso_publication(value) -> str:
     return value if _iso_date(value) else ""
 
 
+def _expiry_passed(value, now=None):
+    """Respect timestamp offsets; a date-only expiry includes that whole day."""
+    if not _iso_date(value):
+        return False
+    expires = datetime.fromisoformat(value.replace('Z', '+00:00'))
+    if expires.tzinfo is None:
+        expires = expires.replace(tzinfo=timezone.utc)
+    if re.fullmatch(r'\d{4}-\d{2}-\d{2}', value):
+        expires += timedelta(days=1)
+    current = now or datetime.now(timezone.utc)
+    if current.tzinfo is None:
+        current = current.replace(tzinfo=timezone.utc)
+    return expires <= current
+
+
 def _oldest_publication(values) -> str:
     def instant(value):
         parsed = datetime.fromisoformat(value.replace('Z', '+00:00'))
@@ -363,9 +378,7 @@ def _parse_role(page: str, source: RoleSource, *, now=None) -> list[boards.Job]:
     location = _location(root, heading, source, description)
     postings = _job_postings(page, source)
     location = _with_structured_locations(location, postings)
-    today = (now or datetime.now(timezone.utc)).date().isoformat()
-    if any(_iso_date(posting.get("validThrough")) and
-           _iso_date(posting["validThrough"]) < today for posting in postings):
+    if any(_expiry_passed(posting.get('validThrough'), now) for posting in postings):
         return []
     parts = [description]
     for posting in postings:
@@ -444,9 +457,7 @@ def _parse_tyb(index_page: str, body_page: str, *, now=None) -> list[boards.Job]
     index_source = RoleSource(TYB_SOGAL_URL, 'TYB', TYB_TITLE, (), False)
     postings = _job_postings(body_page, cosign_source)
     listing_postings = _job_postings(index_page, index_source)
-    today = (now or datetime.now(timezone.utc)).date().isoformat()
-    if any(_iso_date(posting.get('validThrough')) and
-           _iso_date(posting['validThrough']) < today for posting in postings + listing_postings):
+    if any(_expiry_passed(posting.get('validThrough'), now) for posting in postings + listing_postings):
         return []
     descriptions = [boards._plain_text(posting.get('description', '')) for posting in postings]
     if not descriptions or any(len(description.split()) < 100 or
@@ -504,3 +515,4 @@ def fetch_company_roles() -> list[boards.Job]:
     jobs.extend(fetch_tyb())
     print(f"[company/curated] {len(jobs)} complete, currently open roles fetched")
     return jobs
+
