@@ -1,10 +1,10 @@
 # Public job collection
 
-Generated: 2026-11-05T07:55:35.805026+00:00
+Generated: 2026-11-05T08:05:33.266752+00:00
 
 Public collection evidence, not a delivered digest. First collection does not mean a new job. Research unresolved evidence and use private delivery history to label new/reminders.
 
-Counts: {"qualified": 4, "raw": 1721, "rejected": 1681, "review": 36, "source_failures": 5, "unconfirmed_open": 31, "unknown_age": 20, "zero_result_sources": 8}
+Counts: {"qualified": 4, "raw": 1722, "rejected": 1682, "review": 36, "source_failures": 5, "unconfirmed_open": 31, "unknown_age": 20, "zero_result_sources": 8}
 
 Incomplete sources: cryptojobs, cryptojobslist, cryptojobslist_web3, direct_hacken, reviewed_public_roles
 Zero-result sources: cryptojobs, cryptojobslist, cryptojobslist_web3, direct_hacken, linkedin_hiring_posts, remotive, reviewed_public_roles, twitter_bing
@@ -345,7 +345,7 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 - direct_ashby: returned, 108 listings, 0 failures, 11 requests; 
 - direct_gains: returned, 1 listings, 0 failures, 2 requests; 
 - direct_hacken: unavailable, 0 listings, 1 failures, 1 requests; 
-- greenhouse: returned, 1136 listings, 0 failures, 12 requests; 
+- greenhouse: returned, 1137 listings, 0 failures, 12 requests; 
 - hylo_verified: returned, 1 listings, 0 failures, 1 requests; 
 - lever: returned, 95 listings, 0 failures, 9 requests; 
 - lever_aave: returned, 18 listings, 0 failures, 1 requests; 
