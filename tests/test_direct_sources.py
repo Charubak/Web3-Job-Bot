@@ -185,6 +185,21 @@ class AshbySourceTests(unittest.TestCase):
         for source in direct.ASHBY_ASSOCIATION_SOURCES.values():
             self.assertTrue(source.startswith("https://"))
 
+    def test_nansen_migration_preserves_identity_age_and_regional_limits(self):
+        self.assertNotIn(("nansen", "Nansen"), boards.GREENHOUSE_COMPANIES)
+        self.assertIn(("nansen", "Nansen"), direct.ASHBY_COMPANIES)
+        self.assertEqual("https://www.nansen.ai/careers", direct.ASHBY_ASSOCIATION_SOURCES["nansen"])
+        fixture = ashby_posting(jobUrl="https://jobs.ashbyhq.com/nansen/role-123", location="Remote EMEA")
+        with patch("boards._get", return_value=response({"jobs": [fixture]})):
+            posting = direct._fetch_ashby_one("nansen", "Nansen")[0]
+        self.assertEqual("Nansen", posting.company)
+        self.assertEqual("ashby/nansen", posting.source)
+        self.assertEqual(fixture["jobUrl"], posting.url)
+        self.assertIn("EMEA", posting.location)
+        self.assertEqual("", posting.posted)
+        self.assertEqual(fixture["publishedAt"], posting.published_at_upper_bound)
+        self.assertEqual("", posting.employer_country)
+
 
 class GainsSourceTests(unittest.TestCase):
     def fetch(self, page=GAINS_ROLE, index=GAINS_INDEX):
@@ -353,3 +368,4 @@ class HackenSourceTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

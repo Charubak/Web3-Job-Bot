@@ -23,6 +23,10 @@ GitHub connector readers should select `research-data` as the ref when fetching 
 
 Manual refresh: `gh workflow run research-collection.yml --repo Charubak/Web3-Job-Bot --ref main`. This never sends a digest or Telegram message. An all-empty run fails without overwriting the last successful report. Concurrent collection/publication is serialized. Posting-date history resides in versioned data-branch commits, independent of expiring Actions caches; the initial legacy SQLite import reads only public job-history columns, read-only.
 
+The existing Mac 13:00 IST dispatch still targets the legacy `Scheduled job search` workflow. Since 5 November, its completion also wakes this research collector, including when legacy delivery is intentionally skipped. Only manual upstream runs from this repository's `main` branch qualify; legacy scheduled recovery checks do not trigger extra collections. Main-branch changes to the collector workflow or source adapters also refresh public evidence. Data-branch publication cannot trigger itself, and the shared collector concurrency group serializes overlapping requests. No Telegram credentials or delivery commands are used by this bridge.
+
+The Mac must remain online and awake. The bridge repairs the cutover's no-op trigger; it does not make GitHub scheduling exact. A digest starting at 13:00 IST must wait for a current collector run to finish, then read its newly published manifest, or perform independent current research and clearly disclose the stale-input gap. Never translate stale inputs or unavailable sources into “no new jobs.”
+
 ## Evidence semantics
 
 - `classification=qualified`: deterministic screening requirements passed, not a guarantee of fit or India eligibility. Read the reasons and any `research_tasks`.
@@ -41,6 +45,9 @@ Official careers pages verified29Oct2026 link Alchemy to Ashby `alchemy`, Ava La
 
 CryptoJobsList/Crypto.jobs/Hacken may still block public HTTP. Their status remains visible; a research worker must attempt permitted browser access or indexed/official alternatives and disclose failures. Fixed Bing social queries remain only a fallback; authenticated X and LinkedIn searches are a separate worker capability and must be checked on each run.
 
+On 5 November, Nansen's official careers page redirected to Ashby `nansen`; the obsolete Greenhouse board returned 404 and was removed. This association is not proof of employer headquarters or worldwide eligibility. Ashby publication dates remain exclusion-only age evidence, never original posting dates. Animoca's existing Lever API responded successfully and was not moved. A reviewed LinkedIn page with a full description but no verified Apply control reports `application_cta_unverified`; it is withheld without claiming the role is closed.
+
 ## Reversible delivery cutover
 
-`JOB_DIGEST_DELIVERY=chatgpt` on the repository disables every run of the legacy `jobs.yml` sending workflow, including Mac dispatches and cron fallbacks. It does not disable `research-collection.yml` or delete any Telegram state or credentials. Set it only after the replacement schedule and public inputs are verified. Unset it or set `telegram` to restore the previous channel. The Mac LaunchAgent may continue to request a skipped workflow until removed separately; that cannot send when the workflow guard is active. No extra test messages are needed for this cutover.
+`JOB_DIGEST_DELIVERY=chatgpt` on the repository disables every run of the legacy `jobs.yml` sending workflow, including Mac dispatches and cron fallbacks. It does not disable `research-collection.yml` or delete any Telegram state or credentials. Set it only after the replacement schedule and public inputs are verified. Unset it or set `telegram` to restore the previous channel. The Mac LaunchAgent continues to request a skipped delivery workflow; its completion now wakes the message-free research collector. It cannot send when the workflow guard is active. No extra test messages are needed for this cutover.
+

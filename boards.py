@@ -540,7 +540,6 @@ GREENHOUSE_COMPANIES = [
     ("fireblocks",      "Fireblocks"),
     ("bitgo",           "BitGo"),
     ("gemini",          "Gemini"),
-    ("nansen",          "Nansen"),
     ("messari",         "Messari"),
     ("figment",         "Figment"),
     ("okx",             "OKX"),
@@ -1650,4 +1649,5 @@ def fetch_all(*, now: datetime | None = None) -> list[Job]:
             seen_title_company.add(tc_key)
 
     return all_jobs
+
 

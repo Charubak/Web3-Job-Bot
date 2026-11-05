@@ -2,6 +2,20 @@ name: Public job research collection
 on:
   schedule:
     - cron: '0,15 7 * * *' #12:30/12:45 Asia/Kolkata, before13:00 research digest
+  # Keep the already-authorized Mac wake-up useful after the ChatGPT cutover.
+  # A skipped legacy delivery is intentional and still needs fresh research.
+  workflow_run:
+    workflows: ['Scheduled job search']
+    types: [completed]
+    branches: [main]
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/research-collection.yml'
+      - 'research_collector.py'
+      - 'boards.py'
+      - 'direct_sources.py'
+      - 'reviewed_roles.py'
   workflow_dispatch:
 permissions:
   contents: read
@@ -10,7 +24,14 @@ concurrency:
   cancel-in-progress: false
 jobs:
   collect:
-    if: github.repository == 'Charubak/Web3-Job-Bot' && github.event.repository.private == false && github.ref == 'refs/heads/main'
+    if: >-
+      github.repository == 'Charubak/Web3-Job-Bot' &&
+      github.event.repository.private == false &&
+      github.ref == 'refs/heads/main' &&
+      (github.event_name != 'workflow_run' ||
+       (github.event.workflow_run.event == 'workflow_dispatch' &&
+        github.event.workflow_run.head_branch == 'main' &&
+        github.event.workflow_run.head_repository.full_name == github.repository))
     runs-on: ubuntu-latest
     timeout-minutes: 12
     env:
@@ -96,3 +117,4 @@ jobs:
             git commit -m 'Refresh public job research evidence'
             git push origin HEAD:research-data
           fi
+

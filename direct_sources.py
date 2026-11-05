@@ -23,6 +23,8 @@ ASHBY_COMPANIES = (
     ("alchemy", "Alchemy"),
     ("ava-labs", "Ava Labs"),
     ("ledger", "Ledger"),
+    # Official careers redirect verified 2026-11-05; old Greenhouse board is 404.
+    ("nansen", "Nansen"),
     ("trust-wallet", "Trust Wallet"),
     ("allium", "Allium"),
     ("keyrock", "Keyrock"),
@@ -35,6 +37,7 @@ ASHBY_ASSOCIATION_SOURCES = {
     "alchemy": "https://www.alchemy.com/careers",
     "ava-labs": "https://www.avalabs.org/careers",
     "ledger": "https://careers.ledger.com/",
+    "nansen": "https://www.nansen.ai/careers",
     "trust-wallet": "https://trustwallet.com/careers",
     "allium": "https://www.allium.so/about",
     "keyrock": "https://keyrock.com/careers/",
@@ -336,3 +339,4 @@ def fetch_hacken() -> list[boards.Job]:
         record_failure()
         print(f"[company/hacken.io] ERROR: {exc}")
         return []
+

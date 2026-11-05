@@ -21,6 +21,11 @@ def fetch_reviewed_roles():
     description = soup.select_one('.show-more-less-html__markup')
     company = soup.select_one('.topcard__org-name-link')
     text = soup.get_text(' ', strip=True)
+    if not soup.select_one('.apply-button'):
+        # A full description alone cannot establish that applications are open.
+        # Report the evidence gap explicitly instead of silently implying closure.
+        from source_health import record_warning
+        record_warning('application_cta_unverified')
     if (not title or title.get_text(' ', strip=True) != 'Marketing Manager' or
         not company or 'Zoniqx' not in company.get_text() or not description or
         'no longer accepting applications' in text.lower() or
@@ -59,3 +64,4 @@ def reviewed_details(job, now=None):
                 'note': '5+ years · 3+ in Web3 · Confirm team remote terms and employing entity',
                 'display_location': 'India · Remote advertised on LinkedIn'}
     return None
+

@@ -31,3 +31,16 @@ class ReviewedRolesTests(unittest.TestCase):
             self.assertEqual([],fetch_reviewed_roles())
             response.text='<h1>Sign in</h1>'
             self.assertEqual([],fetch_reviewed_roles())
+
+    def test_missing_apply_evidence_is_diagnostic_not_a_closed_role_claim(self):
+        import source_health
+        html = '<h1>Marketing Manager</h1><a class="topcard__org-name-link">Zoniqx Inc</a><div class="show-more-less-html__markup">India (Remote). Own and run marketing across channels. 2+ years.</div>'
+        response = SimpleNamespace(text=html, raise_for_status=lambda: None)
+        source_health.reset()
+        with patch('boards._get', return_value=response):
+            self.assertEqual([], source_health.run_source(fetch_reviewed_roles))
+        row = source_health.snapshot()[0]
+        self.assertEqual('unavailable', row['status'])
+        self.assertEqual(1, row['failures'])
+        self.assertEqual(['application_cta_unverified'], row['warnings'])
+

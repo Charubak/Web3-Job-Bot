@@ -2,6 +2,8 @@
 
 Legacy Telegram delivery remains available during verification. Setting repository variable `JOB_DIGEST_DELIVERY=chatgpt` disables its workflow without deleting credentials or delivery history; the collection workflow continues independently. Do this only after verifying the replacement schedule and fresh public inputs.
 
+The 5 November repair connects the existing Mac 13:00 IST wake-up to the public research collector even when legacy Telegram delivery is skipped. It also refreshes evidence after collector changes on `main`, without triggering itself from the data branch. GitHub cron is still a fallback, not an exact-time guarantee. A digest must await fresh `generated_at` evidence or perform current independent research; stale collection and failed sources are never evidence that there are no openings. The [research contract](docs/research-digest-contract.md) describes the bridge and remaining source limits.
+
 # Web3 Growth / GTM / Product Marketing Job Bot
 
 A conservative job search for experienced growth and product-marketing roles. Preview locally or run a bounded scheduled search in GitHub Actions. An always-on Fly.io server is **not required**.
@@ -167,3 +169,4 @@ Binance is labeled adjacent and retains its remote/team and employing-entity
 caveats, rather than being declared automatically qualified. Reviewed inclusion
 expires by November 20 and respects older stored posting history. Source access
 failures are reported and never replaced with cached descriptions.
+
