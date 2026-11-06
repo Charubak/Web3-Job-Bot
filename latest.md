@@ -1,12 +1,12 @@
 # Public job collection
 
-Generated: 2026-11-06T07:51:09.144880+00:00
+Generated: 2026-11-06T10:08:14.771429+00:00
 
 Public collection evidence, not a delivered digest. First collection does not mean a new job. Research unresolved evidence and use private delivery history to label new/reminders.
 
-Counts: {"qualified": 4, "raw": 1817, "rejected": 1776, "review": 37, "source_failures": 5, "unconfirmed_open": 32, "unknown_age": 20, "withheld_public_urls": 0, "zero_result_sources": 8}
+Counts: {"qualified": 4, "raw": 1814, "rejected": 1773, "review": 37, "source_failures": 6, "unconfirmed_open": 32, "unknown_age": 20, "withheld_public_urls": 0, "zero_result_sources": 8}
 
-Incomplete sources: cryptojobs, cryptojobslist, cryptojobslist_web3, direct_hacken, reviewed_public_roles
+Incomplete sources: cryptojobs, cryptojobslist, cryptojobslist_web3, direct_hacken, lever, reviewed_public_roles
 Zero-result sources: cryptojobs, cryptojobslist, cryptojobslist_web3, direct_hacken, linkedin_hiring_posts, remotive, reviewed_public_roles, twitter_bing
 
 Public application URL warning: none
@@ -350,15 +350,15 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 - cryptojobsdaily_telegram: returned, 13 listings, 0 failures, 1 requests; 
 - cryptojobslist: unavailable, 0 listings, 1 failures, 1 requests; 
 - cryptojobslist_rss: returned, 100 listings, 0 failures, 1 requests; 
-- cryptojobslist_telegram: returned, 16 listings, 0 failures, 1 requests; 
+- cryptojobslist_telegram: returned, 15 listings, 0 failures, 1 requests; 
 - cryptojobslist_web3: unavailable, 0 listings, 1 failures, 1 requests; 
 - curated_companies: returned, 4 listings, 0 failures, 7 requests; 
 - direct_ashby: returned, 111 listings, 0 failures, 11 requests; 
 - direct_gains: returned, 1 listings, 0 failures, 2 requests; 
 - direct_hacken: unavailable, 0 listings, 1 failures, 1 requests; 
-- greenhouse: returned, 1123 listings, 0 failures, 12 requests; 
+- greenhouse: returned, 1125 listings, 0 failures, 12 requests; 
 - hylo_verified: returned, 1 listings, 0 failures, 1 requests; 
-- lever: returned, 96 listings, 0 failures, 9 requests; 
+- lever: partial, 91 listings, 1 failures, 9 requests; 
 - lever_aave: returned, 15 listings, 0 failures, 1 requests; 
 - linkedin_hiring_posts: returned, 0 listings, 0 failures, 2 requests; zero_results
 - remote3: returned, 8 listings, 0 failures, 1 requests; 
