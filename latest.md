@@ -1,13 +1,13 @@
 # Public job collection
 
-Generated: 2026-11-06T10:08:14.771429+00:00
+Generated: 2026-11-06T14:50:04.787849+00:00
 
 Public collection evidence, not a delivered digest. First collection does not mean a new job. Research unresolved evidence and use private delivery history to label new/reminders.
 
-Counts: {"qualified": 4, "raw": 1814, "rejected": 1773, "review": 37, "source_failures": 6, "unconfirmed_open": 32, "unknown_age": 20, "withheld_public_urls": 0, "zero_result_sources": 8}
+Counts: {"qualified": 4, "raw": 1818, "rejected": 1778, "review": 36, "source_failures": 5, "unconfirmed_open": 32, "unknown_age": 19, "withheld_public_urls": 0, "zero_result_sources": 9}
 
-Incomplete sources: cryptojobs, cryptojobslist, cryptojobslist_web3, direct_hacken, lever, reviewed_public_roles
-Zero-result sources: cryptojobs, cryptojobslist, cryptojobslist_web3, direct_hacken, linkedin_hiring_posts, remotive, reviewed_public_roles, twitter_bing
+Incomplete sources: cryptojobs, cryptojobslist, cryptojobslist_web3, direct_hacken, reviewed_public_roles
+Zero-result sources: cryptojobs, cryptojobslist, cryptojobslist_web3, direct_gains, direct_hacken, linkedin_hiring_posts, remotive, reviewed_public_roles, twitter_bing
 
 Public application URL warning: none
 
@@ -36,14 +36,6 @@ review | verified_open | unknown | previously_collected
 Location: Cayman; Grand Cayman; Cayman Islands
 Reasons: Adjacent marketing specialty; growth / GTM / PMM ownership is not established; Mid/senior individual-contributor or manager experience needs verification; Location contains an unexplained qualifier; eligibility needs verification; Employer home country is unknown; verified non-India employer evidence is required; Role-level remote work is unconfirmed; empty locations and distributed-company prose are insufficient
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Verify India eligibility and distinguish market scope, working hours, benefits and applicant residence. Check role-level remote terms and all contradictory residence/office requirements.
-
-### Gains | Chief Marketing Officer / Head of Growth
-
-https://hiring.gains.trade/roles/head-of-growth/
-review | verified_open | unknown | previously_collected
-Location: Growth · Remote · Full time · Reports to the Project Leads
-Reasons: Executive-level scope needs review against a senior IC / player-coach target; Head / director role needs evidence of early-stage, hands-on scope; Location contains an unexplained qualifier; eligibility needs verification; Employer home country is unknown; verified non-India employer evidence is required
-Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Check responsibility and seniority from the full role, not just the title. Verify India eligibility and distinguish market scope, working hours, benefits and applicant residence.
 
 ### Hylo | Marketing & Growth Lead
 
@@ -344,7 +336,7 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 ## Source health
 
 - blockace: returned, 63 listings, 0 failures, 8 requests; 
-- careers_discovery: returned, 27 listings, 0 failures, 2 requests; 
+- careers_discovery: returned, 25 listings, 0 failures, 2 requests; 
 - cryptocurrencyjobs: returned, 54 listings, 0 failures, 1 requests; 
 - cryptojobs: unavailable, 0 listings, 1 failures, 1 requests; 
 - cryptojobsdaily_telegram: returned, 13 listings, 0 failures, 1 requests; 
@@ -353,12 +345,12 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 - cryptojobslist_telegram: returned, 15 listings, 0 failures, 1 requests; 
 - cryptojobslist_web3: unavailable, 0 listings, 1 failures, 1 requests; 
 - curated_companies: returned, 4 listings, 0 failures, 7 requests; 
-- direct_ashby: returned, 111 listings, 0 failures, 11 requests; 
-- direct_gains: returned, 1 listings, 0 failures, 2 requests; 
+- direct_ashby: returned, 110 listings, 0 failures, 11 requests; 
+- direct_gains: returned, 0 listings, 0 failures, 2 requests; zero_results
 - direct_hacken: unavailable, 0 listings, 1 failures, 1 requests; 
-- greenhouse: returned, 1125 listings, 0 failures, 12 requests; 
+- greenhouse: returned, 1128 listings, 0 failures, 12 requests; 
 - hylo_verified: returned, 1 listings, 0 failures, 1 requests; 
-- lever: partial, 91 listings, 1 failures, 9 requests; 
+- lever: returned, 96 listings, 0 failures, 9 requests; 
 - lever_aave: returned, 15 listings, 0 failures, 1 requests; 
 - linkedin_hiring_posts: returned, 0 listings, 0 failures, 2 requests; zero_results
 - remote3: returned, 8 listings, 0 failures, 1 requests; 
