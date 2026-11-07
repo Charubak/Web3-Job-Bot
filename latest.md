@@ -1,13 +1,14 @@
 # Public job collection
 
-Generated: 2026-11-07T07:35:34.977437+00:00
+Generated: 2026-11-07T07:55:08.810090+00:00
 
 Public collection evidence, not a delivered digest. First collection does not mean a new job. Research unresolved evidence and use private delivery history to label new/reminders.
 
-Counts: {"qualified": 4, "raw": 1811, "rejected": 1772, "review": 35, "source_failures": 5, "unconfirmed_open": 31, "unknown_age": 18, "withheld_public_urls": 0, "zero_result_sources": 9}
+Counts: {"qualified": 4, "raw": 1837, "rejected": 1798, "review": 35, "source_failures": 5, "unconfirmed_open": 31, "unknown_age": 18, "withheld_public_urls": 0, "zero_result_sources": 9}
 
 Incomplete sources: cryptojobs, cryptojobslist, cryptojobslist_web3, direct_hacken, reviewed_public_roles
-Zero-result sources: cryptojobs, cryptojobslist, cryptojobslist_web3, direct_gains, direct_hacken, linkedin_hiring_posts, remotive, reviewed_public_roles, twitter_bing
+Successful requests with no listings (not proof of no jobs): direct_gains, linkedin_hiring_posts, remotive, twitter_bing
+Bounded sources: cryptojobslist_rss, web3career
 
 Public application URL warning: none
 
@@ -327,38 +328,39 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 
 ## Source health
 
-- blockace: returned, 63 listings, 0 failures, 8 requests; 
-- careers_discovery: returned, 24 listings, 0 failures, 2 requests; 
-- cryptocurrencyjobs: returned, 54 listings, 0 failures, 1 requests; 
-- cryptojobs: unavailable, 0 listings, 1 failures, 1 requests; 
-- cryptojobsdaily_telegram: returned, 13 listings, 0 failures, 1 requests; 
-- cryptojobslist: unavailable, 0 listings, 1 failures, 1 requests; 
-- cryptojobslist_rss: returned, 100 listings, 0 failures, 1 requests; 
-- cryptojobslist_telegram: returned, 15 listings, 0 failures, 1 requests; 
-- cryptojobslist_web3: unavailable, 0 listings, 1 failures, 1 requests; 
-- curated_companies: returned, 4 listings, 0 failures, 7 requests; 
-- direct_ashby: returned, 99 listings, 0 failures, 11 requests; 
-- direct_gains: returned, 0 listings, 0 failures, 2 requests; zero_results
-- direct_hacken: unavailable, 0 listings, 1 failures, 1 requests; 
-- greenhouse: returned, 1132 listings, 0 failures, 12 requests; 
-- hylo_verified: returned, 1 listings, 0 failures, 1 requests; 
-- lever: returned, 96 listings, 0 failures, 9 requests; 
-- lever_aave: returned, 15 listings, 0 failures, 1 requests; 
-- linkedin_hiring_posts: returned, 0 listings, 0 failures, 2 requests; zero_results
-- remote3: returned, 8 listings, 0 failures, 1 requests; 
-- remoteok: returned, 14 listings, 0 failures, 1 requests; 
-- remotive: returned, 0 listings, 0 failures, 1 requests; zero_results
-- reviewed_public_roles: unavailable, 0 listings, 1 failures, 1 requests; 
-- twitter_bing: returned, 0 listings, 0 failures, 4 requests; zero_results
-- web3_marketing_jobs_telegram: returned, 17 listings, 0 failures, 1 requests; 
-- web3career: returned, 121 listings, 0 failures, 9 requests; 
-- web3hiring_telegram: returned, 19 listings, 0 failures, 1 requests; 
-- web3marketingjobs_telegram: returned, 18 listings, 0 failures, 1 requests; 
+- blockace: returned, 63 listings, 0 failures, 8 requests; warnings: expired_blockace_listing_suppressed
+- careers_discovery: returned, 24 listings, 0 failures, 2 requests; warnings: index_leads_require_primary_verification
+- cryptocurrencyjobs: returned, 54 listings, 0 failures, 1 requests
+- cryptojobs: unavailable, 0 listings, 1 failures, 1 requests
+- cryptojobsdaily_telegram: returned, 13 listings, 0 failures, 1 requests
+- cryptojobslist: unavailable, 0 listings, 1 failures, 1 requests
+- cryptojobslist_rss: returned, 100 listings, 0 failures, 1 requests; warnings: bounded_public_rss_100, rss_original_posting_dates_unverified
+- cryptojobslist_telegram: returned, 15 listings, 0 failures, 1 requests
+- cryptojobslist_web3: unavailable, 0 listings, 1 failures, 1 requests
+- curated_companies: returned, 4 listings, 0 failures, 7 requests
+- direct_ashby: returned, 104 listings, 0 failures, 12 requests
+- direct_gains: returned, 0 listings, 0 failures, 2 requests; warnings: zero_results
+- direct_hacken: unavailable, 0 listings, 1 failures, 1 requests
+- greenhouse: returned, 1153 listings, 0 failures, 13 requests
+- hylo_verified: returned, 1 listings, 0 failures, 1 requests
+- lever: returned, 96 listings, 0 failures, 9 requests
+- lever_aave: returned, 15 listings, 0 failures, 1 requests
+- linkedin_hiring_posts: returned, 0 listings, 0 failures, 2 requests; warnings: zero_results
+- remote3: returned, 8 listings, 0 failures, 1 requests
+- remoteok: returned, 14 listings, 0 failures, 1 requests
+- remotive: returned, 0 listings, 0 failures, 1 requests; warnings: zero_results
+- reviewed_public_roles: unavailable, 0 listings, 1 failures, 1 requests; warnings: application_cta_unverified
+- twitter_bing: returned, 0 listings, 0 failures, 4 requests; warnings: zero_results
+- web3_marketing_jobs_telegram: returned, 17 listings, 0 failures, 1 requests
+- web3career: returned, 121 listings, 0 failures, 9 requests; warnings: bounded_pagination
+- web3hiring_telegram: returned, 19 listings, 0 failures, 1 requests
+- web3marketingjobs_telegram: returned, 18 listings, 0 failures, 1 requests
 
 ## Required independent follow-ups
 
 - X: (web3 OR crypto OR defi) (hiring OR "join us") ("marketing manager" OR "growth lead" OR "head of marketing")
-- LinkedIn posts/jobs: (web3 OR crypto OR defi) ("marketing manager" OR "growth strategist" OR "head of growth") remote
+- LinkedIn posts/jobs: (web3 OR crypto OR defi) ("marketing manager" OR "growth strategist" OR "head of growth"); search variants both with and without remote.
 - CryptoJobsList: site:cryptojobslist.com/jobs (marketing OR growth) remote
 - Blocked or partial sources: Use independent browsing for every failed_or_partial_sources entry. Attempt the source directly, record access failure if blocked, then search its indexed roles and official company careers. Never report access failure as zero jobs.
+- Bounded sources: Inspect coverage.bounded_sources and each source warnings list. If a permitted native search hits its cap before the date cutoff, narrow by title family or supported date window, deduplicate exact posts and report any remaining truncation. A capped feed is not complete coverage. Stop at access restrictions.
 - Company careers: Follow primary links for all promising unresolved candidates and newly discovered employers.
