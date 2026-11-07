@@ -1,10 +1,10 @@
 # Public job collection
 
-Generated: 2026-11-06T14:50:04.787849+00:00
+Generated: 2026-11-07T07:35:34.977437+00:00
 
 Public collection evidence, not a delivered digest. First collection does not mean a new job. Research unresolved evidence and use private delivery history to label new/reminders.
 
-Counts: {"qualified": 4, "raw": 1818, "rejected": 1778, "review": 36, "source_failures": 5, "unconfirmed_open": 32, "unknown_age": 19, "withheld_public_urls": 0, "zero_result_sources": 9}
+Counts: {"qualified": 4, "raw": 1811, "rejected": 1772, "review": 35, "source_failures": 5, "unconfirmed_open": 31, "unknown_age": 18, "withheld_public_urls": 0, "zero_result_sources": 9}
 
 Incomplete sources: cryptojobs, cryptojobslist, cryptojobslist_web3, direct_hacken, reviewed_public_roles
 Zero-result sources: cryptojobs, cryptojobslist, cryptojobslist_web3, direct_gains, direct_hacken, linkedin_hiring_posts, remotive, reviewed_public_roles, twitter_bing
@@ -229,7 +229,7 @@ Location:
 Reasons: Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Role-level remote work is unconfirmed; empty locations and distributed-company prose are insufficient; Posting date is missing or unparseable; recency needs verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Verify India eligibility and distinguish market scope, working hours, benefits and applicant residence. Check role-level remote terms and all contradictory residence/office requirements. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
 
-###  | Chainalysis Sr. Product Marketing Manager, Government Remote · London, England, United Kingdom, London · Posted 8 days ago
+###  | Chainalysis Sr. Product Marketing Manager, Government Remote · London, England, United Kingdom, London · Posted 9 days ago
 
 https://jobs.ashbyhq.com/chainalysis-careers/acb89ce6-040d-4cdb-8d01-451cb2d07702
 review | unconfirmed_open | unknown | previously_collected
@@ -237,21 +237,13 @@ Location:
 Reasons: Description does not establish ownership of growth, GTM, or product marketing; Regional title may describe a market or a hiring restriction; verify eligibility; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Posting date is missing or unparseable; recency needs verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
 
-###  | Chainalysis Sr Product Marketing Manager, Platform Remote · United Kingdom, United Kingdom · Posted 16 days ago
+###  | Chainalysis Sr Product Marketing Manager, Platform Remote · United Kingdom, United Kingdom · Posted 17 days ago
 
 https://jobs.ashbyhq.com/chainalysis-careers/c68702ec-c016-456c-a7fe-92be1da2d08b
 review | unconfirmed_open | unknown | previously_collected
 Location: 
 Reasons: Description does not establish ownership of growth, GTM, or product marketing; Regional title may describe a market or a hiring restriction; verify eligibility; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Posting date is missing or unparseable; recency needs verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
-
-###  | Antares Head of Marketing & Communications USD 150-220K/year · Los Angeles, California, USA, Los Angeles · Posted 1 month ago
-
-https://jobs.ashbyhq.com/Antares/7ed6c040-72ff-43f5-9d3c-2f0314882003
-review | unconfirmed_open | unknown | previously_collected
-Location: 
-Reasons: Adjacent marketing specialty; growth / GTM / PMM ownership is not established; Description does not establish ownership of growth, GTM, or product marketing; Head / director role needs evidence of early-stage, hands-on scope; Regional title may describe a market or a hiring restriction; verify eligibility; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Role-level remote work is unconfirmed; empty locations and distributed-company prose are insufficient; Posting date is missing or unparseable; recency needs verification
-Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Check responsibility and seniority from the full role, not just the title. Verify India eligibility and distinguish market scope, working hours, benefits and applicant residence. Check role-level remote terms and all contradictory residence/office requirements. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
 
 ###  | TaxBit Global Customer Marketing Manager, San Francisco USD 115-150K/year · San Francisco, California · Posted 1 month ago
 
@@ -336,7 +328,7 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 ## Source health
 
 - blockace: returned, 63 listings, 0 failures, 8 requests; 
-- careers_discovery: returned, 25 listings, 0 failures, 2 requests; 
+- careers_discovery: returned, 24 listings, 0 failures, 2 requests; 
 - cryptocurrencyjobs: returned, 54 listings, 0 failures, 1 requests; 
 - cryptojobs: unavailable, 0 listings, 1 failures, 1 requests; 
 - cryptojobsdaily_telegram: returned, 13 listings, 0 failures, 1 requests; 
@@ -345,10 +337,10 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 - cryptojobslist_telegram: returned, 15 listings, 0 failures, 1 requests; 
 - cryptojobslist_web3: unavailable, 0 listings, 1 failures, 1 requests; 
 - curated_companies: returned, 4 listings, 0 failures, 7 requests; 
-- direct_ashby: returned, 110 listings, 0 failures, 11 requests; 
+- direct_ashby: returned, 99 listings, 0 failures, 11 requests; 
 - direct_gains: returned, 0 listings, 0 failures, 2 requests; zero_results
 - direct_hacken: unavailable, 0 listings, 1 failures, 1 requests; 
-- greenhouse: returned, 1128 listings, 0 failures, 12 requests; 
+- greenhouse: returned, 1132 listings, 0 failures, 12 requests; 
 - hylo_verified: returned, 1 listings, 0 failures, 1 requests; 
 - lever: returned, 96 listings, 0 failures, 9 requests; 
 - lever_aave: returned, 15 listings, 0 failures, 1 requests; 
@@ -360,7 +352,7 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 - twitter_bing: returned, 0 listings, 0 failures, 4 requests; zero_results
 - web3_marketing_jobs_telegram: returned, 17 listings, 0 failures, 1 requests; 
 - web3career: returned, 121 listings, 0 failures, 9 requests; 
-- web3hiring_telegram: returned, 18 listings, 0 failures, 1 requests; 
+- web3hiring_telegram: returned, 19 listings, 0 failures, 1 requests; 
 - web3marketingjobs_telegram: returned, 18 listings, 0 failures, 1 requests; 
 
 ## Required independent follow-ups
