@@ -32,6 +32,8 @@ ASHBY_COMPANIES = (
     ("Lido.fi", "Lido"),
     ("Injective", "Injective"),
     ("morpho", "Morpho"),
+    # Official homepage links this board; verified 2026-11-07.
+    ("whetstoneresearch", "Whetstone Research"),
 )
 ASHBY_ASSOCIATION_SOURCES = {
     "alchemy": "https://www.alchemy.com/careers",
@@ -45,6 +47,7 @@ ASHBY_ASSOCIATION_SOURCES = {
     "Lido.fi": "https://lido.fi/opportunities/strategic-project-manager-operations",
     "Injective": "https://injective.com/",
     "morpho": "https://morpho.org/jobs/ashby-head-of-security-ed97697e-2dd2-4b9e-b8b4-1a3d9c288db9",
+    "whetstoneresearch": "https://whetstone.cc/",
 }
 
 GAINS_INDEX_URL = "https://hiring.gains.trade/"

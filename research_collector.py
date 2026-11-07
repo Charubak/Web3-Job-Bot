@@ -292,6 +292,9 @@ def build_report(jobs, previous, sources, now=None):
         })
     failed = [s['source'] for s in source_rows if s['status'] != 'returned']
     zeros = [s['source'] for s in source_rows if not s['count']]
+    successful_zeros = [s['source'] for s in source_rows if not s['count'] and s['status'] == 'returned']
+    bounded = [s['source'] for s in source_rows
+               if any(w.startswith('bounded_') for w in s['warnings'])]
     report = {
         'schema_version': SCHEMA_VERSION, 'generated_at': now.isoformat(),
         'collector_commit': os.environ.get('GITHUB_SHA', ''),
@@ -305,6 +308,7 @@ def build_report(jobs, previous, sources, now=None):
                    'source_failures': len(failed), 'zero_result_sources': len(zeros),
                    'withheld_public_urls': withheld_urls},
         'coverage': {'complete': False, 'failed_or_partial_sources': failed, 'zero_result_sources': zeros,
+                     'successful_zero_result_sources': successful_zeros, 'bounded_sources': bounded,
                      'withheld_public_urls': withheld_urls,
                      'url_warning': (f'{withheld_urls} non-rejected listings were withheld because their public application URL could not be safely preserved. Verify the exact requisitions before proposing them.' if withheld_urls else ''),
                      'limitations': ['Social adapters use bounded public Bing indexes, not native X/LinkedIn search.',
@@ -319,9 +323,10 @@ def build_report(jobs, previous, sources, now=None):
                            for r in candidates if r['classification'] == 'review' or r['research_tasks']],
         'search_followups': [
             {'source': 'X', 'query': '(web3 OR crypto OR defi) (hiring OR "join us") ("marketing manager" OR "growth lead" OR "head of marketing")', 'required': True},
-            {'source': 'LinkedIn posts/jobs', 'query': '(web3 OR crypto OR defi) ("marketing manager" OR "growth strategist" OR "head of growth") remote', 'required': True},
+            {'source': 'LinkedIn posts/jobs', 'query': '(web3 OR crypto OR defi) ("marketing manager" OR "growth strategist" OR "head of growth"); search variants both with and without remote.', 'required': True},
             {'source': 'CryptoJobsList', 'query': 'site:cryptojobslist.com/jobs (marketing OR growth) remote', 'required': True},
             {'source': 'Blocked or partial sources', 'query': 'Use independent browsing for every failed_or_partial_sources entry. Attempt the source directly, record access failure if blocked, then search its indexed roles and official company careers. Never report access failure as zero jobs.', 'required': True},
+            {'source': 'Bounded sources', 'query': 'Inspect coverage.bounded_sources and each source warnings list. If a permitted native search hits its cap before the date cutoff, narrow by title family or supported date window, deduplicate exact posts and report any remaining truncation. A capped feed is not complete coverage. Stop at access restrictions.', 'required': True},
             {'source': 'Company careers', 'query': 'Follow primary links for all promising unresolved candidates and newly discovered employers.', 'required': True},
         ],
     }
@@ -332,7 +337,8 @@ def markdown(report):
     lines = ['# Public job collection', '', 'Generated: '+report['generated_at'], '', report['notice'], '',
              'Counts: '+json.dumps(report['counts'], sort_keys=True), '',
              'Incomplete sources: '+(', '.join(report['coverage']['failed_or_partial_sources']) or 'none reported'),
-             'Zero-result sources: '+(', '.join(report['coverage']['zero_result_sources']) or 'none'), '',
+             'Successful requests with no listings (not proof of no jobs): '+(', '.join(report['coverage'].get('successful_zero_result_sources', [])) or 'none'),
+             'Bounded sources: '+(', '.join(report['coverage'].get('bounded_sources', [])) or 'none reported'), '',
              'Public application URL warning: '+(report['coverage'].get('url_warning') or 'none'), '',
              '## Candidates and unresolved evidence', '']
     for row in report['candidates']:
@@ -343,7 +349,9 @@ def markdown(report):
                       'Research: '+' '.join(row['research_tasks']), ''])
     lines.extend(['## Source health', ''])
     for source in report['sources']:
-        lines.append(f"- {source['source']}: {source['status']}, {source['count']} listings, {source['failures']} failures, {len(source['requests'])} requests; {source['warning']}")
+        warnings = list(dict.fromkeys(filter(None, [source.get('warning', ''), *source.get('warnings', [])])))
+        detail = '; warnings: ' + ', '.join(warnings) if warnings else ''
+        lines.append(f"- {source['source']}: {source['status']}, {source['count']} listings, {source['failures']} failures, {len(source['requests'])} requests{detail}")
     lines.extend(['', '## Required independent follow-ups', ''])
     lines.extend(f"- {s['source']}: {s['query']}" for s in report['search_followups'])
     return '\n'.join(lines)+'\n'

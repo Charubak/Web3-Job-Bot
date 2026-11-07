@@ -599,6 +599,9 @@ GREENHOUSE_COMPANIES = [
     ("okx",             "OKX"),
     ("openzeppelin",    "OpenZeppelin"),
     ("jumpcrypto",      "Jump Crypto"),
+    # Live branded job-boards.greenhouse.io/primexbt and public API verified
+    # 2026-11-07. Association only, not employer-base or eligibility evidence.
+    ("primexbt",        "PrimeXBT"),
 ]
 
 
