@@ -1,13 +1,13 @@
 # Public job collection
 
-Generated: 2026-11-08T14:07:24.396691+00:00
+Generated: 2026-11-08T21:04:57.754799+00:00
 
 Public collection evidence, not a delivered digest. First collection does not mean a new job. Research unresolved evidence and use private delivery history to label new/reminders.
 
-Counts: {"qualified": 4, "raw": 1838, "rejected": 1801, "review": 33, "source_failures": 5, "unconfirmed_open": 29, "unknown_age": 16, "withheld_public_urls": 0, "zero_result_sources": 9}
+Counts: {"qualified": 4, "raw": 2041, "rejected": 2004, "review": 33, "source_failures": 5, "unconfirmed_open": 29, "unknown_age": 16, "withheld_public_urls": 0, "zero_result_sources": 10}
 
 Incomplete sources: cryptojobs, cryptojobslist, cryptojobslist_web3, direct_hacken, reviewed_public_roles
-Successful requests with no listings (not proof of no jobs): direct_gains, linkedin_hiring_posts, remotive, twitter_bing
+Successful requests with no listings (not proof of no jobs): direct_gains, linkedin_hiring_posts, remotive, twitter_bing, workable
 Bounded sources: cryptojobslist_rss, web3career
 
 Public application URL warning: none
@@ -319,26 +319,29 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 - cryptojobsdaily_telegram: returned, 13 listings, 0 failures, 1 requests
 - cryptojobslist: unavailable, 0 listings, 1 failures, 1 requests
 - cryptojobslist_rss: returned, 100 listings, 0 failures, 1 requests; warnings: bounded_public_rss_100, rss_original_posting_dates_unverified
-- cryptojobslist_telegram: returned, 14 listings, 0 failures, 1 requests
+- cryptojobslist_telegram: returned, 13 listings, 0 failures, 1 requests
 - cryptojobslist_web3: unavailable, 0 listings, 1 failures, 1 requests
 - curated_companies: returned, 4 listings, 0 failures, 7 requests
 - direct_ashby: returned, 104 listings, 0 failures, 12 requests
 - direct_gains: returned, 0 listings, 0 failures, 2 requests; warnings: zero_results
 - direct_hacken: unavailable, 0 listings, 1 failures, 1 requests
-- greenhouse: returned, 1153 listings, 0 failures, 13 requests
+- greenhouse: returned, 1151 listings, 0 failures, 13 requests
 - hylo_verified: returned, 1 listings, 0 failures, 1 requests
 - lever: returned, 96 listings, 0 failures, 9 requests
 - lever_aave: returned, 15 listings, 0 failures, 1 requests
 - linkedin_hiring_posts: returned, 0 listings, 0 failures, 2 requests; warnings: zero_results
+- registry_careers: returned, 201 listings, 0 failures, 9 requests; warnings: registry_unreviewed_associations_not_fetched
 - remote3: returned, 8 listings, 0 failures, 1 requests
 - remoteok: returned, 14 listings, 0 failures, 1 requests
 - remotive: returned, 0 listings, 0 failures, 1 requests; warnings: zero_results
-- reviewed_public_roles: unavailable, 0 listings, 1 failures, 1 requests
+- reviewed_public_roles: unavailable, 0 listings, 1 failures, 1 requests; warnings: application_cta_unverified
+- teamtailor: returned, 5 listings, 0 failures, 1 requests; warnings: ats_original_posting_dates_unverified
 - twitter_bing: returned, 0 listings, 0 failures, 4 requests; warnings: zero_results
 - web3_marketing_jobs_telegram: returned, 17 listings, 0 failures, 1 requests
 - web3career: returned, 121 listings, 0 failures, 9 requests; warnings: bounded_pagination
 - web3hiring_telegram: returned, 19 listings, 0 failures, 1 requests
 - web3marketingjobs_telegram: returned, 18 listings, 0 failures, 1 requests
+- workable: returned, 0 listings, 0 failures, 1 requests; warnings: zero_results, ats_original_posting_dates_unverified
 
 ## Required independent follow-ups
 
