@@ -1,10 +1,10 @@
 # Public job collection
 
-Generated: 2026-11-08T07:30:50.327254+00:00
+Generated: 2026-11-08T14:07:24.396691+00:00
 
 Public collection evidence, not a delivered digest. First collection does not mean a new job. Research unresolved evidence and use private delivery history to label new/reminders.
 
-Counts: {"qualified": 4, "raw": 1837, "rejected": 1800, "review": 33, "source_failures": 5, "unconfirmed_open": 29, "unknown_age": 16, "withheld_public_urls": 0, "zero_result_sources": 9}
+Counts: {"qualified": 4, "raw": 1838, "rejected": 1801, "review": 33, "source_failures": 5, "unconfirmed_open": 29, "unknown_age": 16, "withheld_public_urls": 0, "zero_result_sources": 9}
 
 Incomplete sources: cryptojobs, cryptojobslist, cryptojobslist_web3, direct_hacken, reviewed_public_roles
 Successful requests with no listings (not proof of no jobs): direct_gains, linkedin_hiring_posts, remotive, twitter_bing
@@ -333,7 +333,7 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 - remote3: returned, 8 listings, 0 failures, 1 requests
 - remoteok: returned, 14 listings, 0 failures, 1 requests
 - remotive: returned, 0 listings, 0 failures, 1 requests; warnings: zero_results
-- reviewed_public_roles: unavailable, 0 listings, 1 failures, 1 requests; warnings: application_cta_unverified
+- reviewed_public_roles: unavailable, 0 listings, 1 failures, 1 requests
 - twitter_bing: returned, 0 listings, 0 failures, 4 requests; warnings: zero_results
 - web3_marketing_jobs_telegram: returned, 17 listings, 0 failures, 1 requests
 - web3career: returned, 121 listings, 0 failures, 9 requests; warnings: bounded_pagination
