@@ -164,7 +164,10 @@ def seed_history(path):
 
 def reconcile(jobs, previous, now):
     """Same requisition only: retain original/oldest dates and permanent expiry."""
-    history = {key: dict(row) for key, row in previous.items()}
+    # A supported ATS may rename a title slug or expose both tenant-qualified
+    # and global links. Preserve legacy keys AND merge exact canonical aliases
+    # before looking up the new job. Never transfer evidence by title/company.
+    history = canonical_history(previous, now=now)
     updated = []
     cutoff = now - timedelta(days=MAX_AGE_DAYS)
     for job in jobs:
@@ -192,6 +195,18 @@ def reconcile(jobs, previous, now):
             listing.posted = posted.isoformat()
         updated.append(listing)
     return updated, history
+
+
+def canonical_history(previous, now=None):
+    aliases = {}
+    for key, row in previous.items():
+        url = row.get('url')
+        if not public_url(url):
+            continue
+        alias = hashlib.sha256(canonical_job_url(url).encode()).hexdigest()[:16]
+        aliases[alias] = merge_history({alias: aliases.get(alias, {})},
+                                       {alias: row}, now=now)[alias]
+    return merge_history(previous, aliases, now=now)
 
 
 def related_key(job):
@@ -254,6 +269,14 @@ def public_candidate(job, decision, previous, now):
 
 def build_report(jobs, previous, sources, now=None):
     now = now or datetime.now(timezone.utc)
+    try:
+        from career_registry import registry_audit
+        registry_coverage = {'status': 'available', **registry_audit(now=now)}
+    except Exception:
+        # A new discovery source must not veto successful established sources.
+        registry_coverage = {'status': 'unavailable', 'active': [],
+                             'notice': 'Career registry audit unavailable; inspect registry_careers source health.'}
+    previous = canonical_history(previous, now=now)
     reconciled, history = reconcile(enrich_employers(jobs), previous, now)
     decisions = []
     for job in reconciled:
@@ -301,6 +324,7 @@ def build_report(jobs, previous, sources, now=None):
         'run_url': ('https://github.com/'+os.environ['GITHUB_REPOSITORY']+'/actions/runs/'+os.environ['GITHUB_RUN_ID'])
                    if os.environ.get('GITHUB_REPOSITORY') and os.environ.get('GITHUB_RUN_ID') else '',
         'collection_only': True,
+        'career_registry': registry_coverage,
         'notice': 'Public collection evidence, not a delivered digest. First collection does not mean a new job. Research unresolved evidence and use private delivery history to label new/reminders.',
         'counts': {'raw': len(jobs), 'qualified': counts['qualified'], 'review': counts['review'],
                    'rejected': counts['rejected'], 'unconfirmed_open': sum(r['opening_status'] == 'unconfirmed_open' for r in candidates),

@@ -146,7 +146,18 @@ def canonical_job_url(url: str) -> str:
     # Never alter potential userinfo; ordinary public posting hosts are safe
     # to lowercase because DNS names are case-insensitive.
     netloc = parts.netloc if "@" in parts.netloc else parts.netloc.lower()
-    return urlunsplit((parts.scheme.lower(), netloc, parts.path, "&".join(query), fragment))
+    path = parts.path
+    # Public ATS aliases identify one requisition regardless of title slug or
+    # tenant/application-form path. Keep unknown query selectors and fragments.
+    if parts.hostname == "apply.workable.com" and not parts.username and not parts.password:
+        match = re.fullmatch(r"/(?:[A-Za-z0-9_-]+/)?j/([A-Za-z0-9_-]+)(?:/apply)?/?", path)
+        if match:
+            path = f"/j/{match.group(1)}"
+    if parts.hostname == "crossmint.na.teamtailor.com" and not parts.username and not parts.password:
+        match = re.fullmatch(r"/jobs/(\d+)(?:-[^/]+)?/?", path)
+        if match:
+            path = f"/jobs/{match.group(1)}"
+    return urlunsplit((parts.scheme.lower(), netloc, path, "&".join(query), fragment))
 
 
 def _make_id(url: str) -> str:
@@ -1660,6 +1671,21 @@ def fetch_careers_discovery():
     return fetch_career_indexes()
 
 
+def fetch_registry_careers() -> list[Job]:
+    from career_registry import fetch_registry_careers as fetch
+    return fetch()
+
+
+def fetch_workable() -> list[Job]:
+    from public_ats import fetch_workable as fetch
+    return fetch()
+
+
+def fetch_teamtailor() -> list[Job]:
+    from public_ats import fetch_teamtailor as fetch
+    return fetch()
+
+
 BOARDS = [
     fetch_reviewed_public_roles,
     fetch_cryptocurrencyjobs,
@@ -1688,6 +1714,9 @@ BOARDS = [
     fetch_curated_companies,
     fetch_linkedin_hiring_posts,
     fetch_careers_discovery,
+    fetch_registry_careers,
+    fetch_workable,
+    fetch_teamtailor,
 ]
 
 
