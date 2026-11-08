@@ -63,8 +63,24 @@ def reconcile_job_history(jobs: list, *, persist: bool = False,
         conn = sqlite3.connect(DB_PATH.resolve().as_uri() + "?mode=ro", uri=True)
         try:
             if conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='job_history'").fetchone():
-                history = {row[0]: row[1:] for row in conn.execute(
-                    "SELECT id, first_seen_at, first_posted_at, expired_at FROM job_history")}
+                rows = list(conn.execute(
+                    "SELECT id, first_seen_at, first_posted_at, expired_at, url FROM job_history"))
+                history = {row[0]: row[1:4] for row in rows}
+                # Read legacy ATS URL aliases without rewriting old IDs or
+                # tombstones. Canonicalization improvements must never reset age.
+                for job_id, first_seen, first_posted, expired, url in rows:
+                    canonical = canonical_job_url(url) if url else ""
+                    key = hashlib.sha256(canonical.encode()).hexdigest()[:16] if canonical else job_id
+                    prior = history.get(key)
+                    if prior:
+                        def earliest(a, b):
+                            valid = [(parsed, value) for value in (a, b)
+                                     if (parsed := _parse_posted_date(value, now=now)) is not None]
+                            return min(valid, key=lambda pair: pair[0])[1] if valid else a or b
+                        first_seen = earliest(prior[0], first_seen)
+                        first_posted = earliest(prior[1], first_posted)
+                        expired = prior[2] or expired
+                    history[key] = (first_seen, first_posted, expired)
             # Legacy delivery records also prove the job existed by that date.
             # They provide an age ceiling only, never a fabricated posting date.
             for table, date_column in (("seen_jobs", "seen_at"), ("unconfirmed_jobs", "attempted_at")):
@@ -162,7 +178,10 @@ def filter_unseen(jobs: list) -> list:
                 elif url:
                     seen_urls.add(canonical_job_url(url))
         if conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='job_history'").fetchone():
-            seen.update(row[0] for row in conn.execute("SELECT id FROM job_history WHERE expired_at IS NOT NULL"))
+            for job_id, url in conn.execute("SELECT id, url FROM job_history WHERE expired_at IS NOT NULL"):
+                seen.add(job_id)
+                if url:
+                    seen_urls.add(canonical_job_url(url))
     finally:
         conn.close()
     return [j for j in jobs if j.id not in seen and _history_id(j) not in seen

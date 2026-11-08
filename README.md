@@ -1,3 +1,5 @@
+Free source coverage now includes a reviewed employer-discovery registry and documented public Workable/Teamtailor feeds. See [coverage, review gates and exclusions](docs/free-source-expansion.md).
+
 # Daily research collection (29 October 2026)The new no-message workflow collects public job evidence at12:30/12:45IST for a separate research-capable digest. It publishes a compact manifest, readable candidate queue, connector-sized evidence shards and durable posting-date history on branch `research-data`. It does not claim that collection alone completes native X/LinkedIn search or resolves unknown eligibility. See [the input contract, remaining source limits and reversible delivery cutover](docs/research-digest-contract.md).
 
 Legacy Telegram delivery remains available during verification. Setting repository variable `JOB_DIGEST_DELIVERY=chatgpt` disables its workflow without deleting credentials or delivery history; the collection workflow continues independently. Do this only after verifying the replacement schedule and fresh public inputs.

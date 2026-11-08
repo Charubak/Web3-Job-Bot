@@ -403,6 +403,12 @@ def _is_primary_source(job) -> bool:
     # These prefixes are assigned only by the direct public-ATS adapters. An
     # aggregator merely linking to an ATS does not authenticate its own text.
     source = str(getattr(job, "source", "") or "").lower().strip()
+    # New feeds are trusted only for independently checked employer boards.
+    if source.startswith(('workable/', 'teamtailor/')):
+        from public_ats import WORKABLE_COMPANIES, TEAMTAILOR_COMPANIES
+        allowed = {f'workable/{slug}'.lower() for slug, _ in WORKABLE_COMPANIES}
+        allowed |= {f'teamtailor/{host}'.lower() for host, _ in TEAMTAILOR_COMPANIES}
+        return source in allowed
     if any(source.startswith(prefix) and source[len(prefix):].strip() for prefix in ("greenhouse/", "lever/", "ashby/")):
         return True
     exact_sources = {
