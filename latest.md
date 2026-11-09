@@ -1,12 +1,12 @@
 # Public job collection
 
-Generated: 2026-11-09T07:34:55.648020+00:00
+Generated: 2026-11-09T07:57:49.973697+00:00
 
 Public collection evidence, not a delivered digest. First collection does not mean a new job. Research unresolved evidence and use private delivery history to label new/reminders.
 
-Counts: {"qualified": 4, "raw": 2040, "rejected": 2003, "review": 33, "source_failures": 5, "unconfirmed_open": 29, "unknown_age": 16, "withheld_public_urls": 0, "zero_result_sources": 10}
+Counts: {"qualified": 4, "raw": 2038, "rejected": 2001, "review": 33, "source_failures": 6, "unconfirmed_open": 29, "unknown_age": 16, "withheld_public_urls": 0, "zero_result_sources": 10}
 
-Incomplete sources: cryptojobs, cryptojobslist, cryptojobslist_web3, direct_hacken, reviewed_public_roles
+Incomplete sources: cryptojobs, cryptojobslist, cryptojobslist_web3, direct_hacken, lever, reviewed_public_roles
 Successful requests with no listings (not proof of no jobs): direct_gains, linkedin_hiring_posts, remotive, twitter_bing, workable
 Bounded sources: cryptojobslist_rss, web3career
 
@@ -327,7 +327,7 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 - direct_hacken: unavailable, 0 listings, 1 failures, 1 requests
 - greenhouse: returned, 1150 listings, 0 failures, 13 requests
 - hylo_verified: returned, 1 listings, 0 failures, 1 requests
-- lever: returned, 98 listings, 0 failures, 9 requests
+- lever: partial, 96 listings, 1 failures, 9 requests
 - lever_aave: returned, 15 listings, 0 failures, 1 requests
 - linkedin_hiring_posts: returned, 0 listings, 0 failures, 2 requests; warnings: zero_results
 - registry_careers: returned, 201 listings, 0 failures, 9 requests; warnings: registry_unreviewed_associations_not_fetched
