@@ -1,12 +1,12 @@
 # Public job collection
 
-Generated: 2026-11-09T07:57:49.973697+00:00
+Generated: 2026-11-09T17:14:12.193477+00:00
 
 Public collection evidence, not a delivered digest. First collection does not mean a new job. Research unresolved evidence and use private delivery history to label new/reminders.
 
-Counts: {"qualified": 4, "raw": 2038, "rejected": 2001, "review": 33, "source_failures": 6, "unconfirmed_open": 29, "unknown_age": 16, "withheld_public_urls": 0, "zero_result_sources": 10}
+Counts: {"qualified": 4, "raw": 2039, "rejected": 2001, "review": 34, "source_failures": 5, "unconfirmed_open": 30, "unknown_age": 16, "withheld_public_urls": 0, "zero_result_sources": 10}
 
-Incomplete sources: cryptojobs, cryptojobslist, cryptojobslist_web3, direct_hacken, lever, reviewed_public_roles
+Incomplete sources: cryptojobs, cryptojobslist, cryptojobslist_web3, direct_hacken, reviewed_public_roles
 Successful requests with no listings (not proof of no jobs): direct_gains, linkedin_hiring_posts, remotive, twitter_bing, workable
 Bounded sources: cryptojobslist_rss, web3career
 
@@ -214,6 +214,14 @@ Location: Remote
 Reasons: Description does not establish ownership of growth, GTM, or product marketing; Regional title may describe a market or a hiring restriction; verify eligibility; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
 
+### Taxbit | Global Customer Marketing Manager, San Francisco
+
+https://cryptocurrencyjobs.co/marketing/taxbit-global-customer-marketing-manager-san-francisco/
+review | unconfirmed_open | within_30_days | first_collection
+Location: 
+Reasons: Adjacent marketing specialty; growth / GTM / PMM ownership is not established; Mid/senior individual-contributor or manager experience needs verification; Description does not establish ownership of growth, GTM, or product marketing; Regional title may describe a market or a hiring restriction; verify eligibility; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Role-level remote work is unconfirmed; empty locations and distributed-company prose are insufficient
+Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Verify India eligibility and distinguish market scope, working hours, benefits and applicant residence. Check role-level remote terms and all contradictory residence/office requirements. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
+
 ### Starknet Foundation | Growth Manager
 
 https://cryptocurrencyjobs.co/marketing/starknet-foundation-growth-manager/
@@ -314,7 +322,7 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 
 - blockace: returned, 63 listings, 0 failures, 8 requests; warnings: expired_blockace_listing_suppressed
 - careers_discovery: returned, 24 listings, 0 failures, 2 requests; warnings: index_leads_require_primary_verification
-- cryptocurrencyjobs: returned, 54 listings, 0 failures, 1 requests
+- cryptocurrencyjobs: returned, 58 listings, 0 failures, 1 requests
 - cryptojobs: unavailable, 0 listings, 1 failures, 1 requests
 - cryptojobsdaily_telegram: returned, 13 listings, 0 failures, 1 requests
 - cryptojobslist: unavailable, 0 listings, 1 failures, 1 requests
@@ -322,13 +330,13 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 - cryptojobslist_telegram: returned, 13 listings, 0 failures, 1 requests
 - cryptojobslist_web3: unavailable, 0 listings, 1 failures, 1 requests
 - curated_companies: returned, 4 listings, 0 failures, 7 requests
-- direct_ashby: returned, 104 listings, 0 failures, 12 requests
+- direct_ashby: returned, 103 listings, 0 failures, 12 requests
 - direct_gains: returned, 0 listings, 0 failures, 2 requests; warnings: zero_results
 - direct_hacken: unavailable, 0 listings, 1 failures, 1 requests
-- greenhouse: returned, 1150 listings, 0 failures, 13 requests
+- greenhouse: returned, 1149 listings, 0 failures, 13 requests
 - hylo_verified: returned, 1 listings, 0 failures, 1 requests
-- lever: partial, 96 listings, 1 failures, 9 requests
-- lever_aave: returned, 15 listings, 0 failures, 1 requests
+- lever: returned, 98 listings, 0 failures, 9 requests
+- lever_aave: returned, 12 listings, 0 failures, 1 requests
 - linkedin_hiring_posts: returned, 0 listings, 0 failures, 2 requests; warnings: zero_results
 - registry_careers: returned, 201 listings, 0 failures, 9 requests; warnings: registry_unreviewed_associations_not_fetched
 - remote3: returned, 8 listings, 0 failures, 1 requests
