@@ -1,6 +1,6 @@
 # Public job collection
 
-Generated: 2026-11-10T07:32:22.934919+00:00
+Generated: 2026-11-10T07:33:27.764802+00:00
 
 Public collection evidence, not a delivered digest. First collection does not mean a new job. Research unresolved evidence and use private delivery history to label new/reminders.
 
