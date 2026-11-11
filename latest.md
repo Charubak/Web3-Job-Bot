@@ -1,12 +1,12 @@
 # Public job collection
 
-Generated: 2026-11-10T15:26:57.655027+00:00
+Generated: 2026-11-11T08:13:36.264233+00:00
 
 Public collection evidence, not a delivered digest. First collection does not mean a new job. Research unresolved evidence and use private delivery history to label new/reminders.
 
-Counts: {"qualified": 4, "raw": 2044, "rejected": 2005, "review": 35, "source_failures": 6, "unconfirmed_open": 31, "unknown_age": 16, "withheld_public_urls": 0, "zero_result_sources": 10}
+Counts: {"qualified": 4, "raw": 2063, "rejected": 2024, "review": 35, "source_failures": 5, "unconfirmed_open": 31, "unknown_age": 16, "withheld_public_urls": 0, "zero_result_sources": 10}
 
-Incomplete sources: cryptojobs, cryptojobslist, cryptojobslist_web3, direct_hacken, lever, reviewed_public_roles
+Incomplete sources: cryptojobs, cryptojobslist, cryptojobslist_web3, direct_hacken, reviewed_public_roles
 Successful requests with no listings (not proof of no jobs): direct_gains, linkedin_hiring_posts, remotive, twitter_bing, workable
 Bounded sources: cryptojobslist_rss, web3career
 
@@ -78,14 +78,6 @@ Location: Remote
 Reasons: Mid/senior marketing ownership fits the target scope; First-party role is Remote with no stated location restriction; country eligibility is unconfirmed; Employer country has recent sourced verification outside India; Current opening verified; original posting date is unconfirmed
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Check responsibility and seniority from the full role, not just the title. Verify India eligibility and distinguish market scope, working hours, benefits and applicant residence. Check role-level remote terms and all contradictory residence/office requirements. Find the earliest original posting date; label unknown age without inventing a date.
 
-### Aria | Fractional Chief Marketing Officer Marketer ARIA
-
-https://web3.career/fractional-chief-marketing-officer-marketer-aria-aria/155982
-review | unconfirmed_open | within_30_days | previously_collected
-Location: Remote
-Reasons: Adjacent marketing specialty; growth / GTM / PMM ownership is not established; Mid/senior individual-contributor or manager experience needs verification; Description does not establish ownership of growth, GTM, or product marketing; Executive-level scope needs review against a senior IC / player-coach target; Employer home country is unknown; verified non-India employer evidence is required; Full role description is missing or too thin to verify requirements; First-party employer / ATS evidence is missing; aggregator claims need verification
-Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Check responsibility and seniority from the full role, not just the title. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
-
 ### Bitpanda | Senior Permance Marketing Specialist
 
 https://web3.career/senior-performance-marketing-specialist-bitpanda/155927
@@ -117,6 +109,14 @@ review | unconfirmed_open | within_30_days | previously_collected
 Location: Remote
 Reasons: Mid/senior individual-contributor or manager experience needs verification; Description does not establish ownership of growth, GTM, or product marketing; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
+
+### Aria | Fractional Chief Marketing Officer Marketer ARIA
+
+https://web3.career/fractional-chief-marketing-officer-marketer-aria-aria/155982
+review | unconfirmed_open | within_30_days | previously_collected
+Location: Remote
+Reasons: Adjacent marketing specialty; growth / GTM / PMM ownership is not established; Mid/senior individual-contributor or manager experience needs verification; Description does not establish ownership of growth, GTM, or product marketing; Executive-level scope needs review against a senior IC / player-coach target; Employer home country is unknown; verified non-India employer evidence is required; Full role description is missing or too thin to verify requirements; First-party employer / ATS evidence is missing; aggregator claims need verification
+Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Check responsibility and seniority from the full role, not just the title. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
 
 ### Tastylive | Director Integrated Marketing
 
@@ -238,7 +238,7 @@ Location:
 Reasons: Mid/senior individual-contributor or manager experience needs verification; Description does not establish ownership of growth, GTM, or product marketing; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
 
-###  | Chainalysis Sr. Product Marketing Manager, Government Remote · London, England, United Kingdom, London · Posted 12 days ago
+###  | Chainalysis Sr. Product Marketing Manager, Government Remote · London, England, United Kingdom, London · Posted 13 days ago
 
 https://jobs.ashbyhq.com/chainalysis-careers/acb89ce6-040d-4cdb-8d01-451cb2d07702
 review | unconfirmed_open | unknown | previously_collected
@@ -246,7 +246,7 @@ Location:
 Reasons: Description does not establish ownership of growth, GTM, or product marketing; Regional title may describe a market or a hiring restriction; verify eligibility; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Posting date is missing or unparseable; recency needs verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
 
-###  | Chainalysis Sr Product Marketing Manager, Platform Remote · United Kingdom, United Kingdom · Posted 20 days ago
+###  | Chainalysis Sr Product Marketing Manager, Platform Remote · United Kingdom, United Kingdom · Posted 21 days ago
 
 https://jobs.ashbyhq.com/chainalysis-careers/c68702ec-c016-456c-a7fe-92be1da2d08b
 review | unconfirmed_open | unknown | previously_collected
@@ -329,24 +329,24 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 ## Source health
 
 - blockace: returned, 63 listings, 0 failures, 8 requests; warnings: expired_blockace_listing_suppressed
-- careers_discovery: returned, 25 listings, 0 failures, 2 requests; warnings: index_leads_require_primary_verification
-- cryptocurrencyjobs: returned, 58 listings, 0 failures, 1 requests
+- careers_discovery: returned, 26 listings, 0 failures, 2 requests; warnings: index_leads_require_primary_verification
+- cryptocurrencyjobs: returned, 59 listings, 0 failures, 1 requests
 - cryptojobs: unavailable, 0 listings, 1 failures, 1 requests
 - cryptojobsdaily_telegram: returned, 13 listings, 0 failures, 1 requests
 - cryptojobslist: unavailable, 0 listings, 1 failures, 1 requests
 - cryptojobslist_rss: returned, 100 listings, 0 failures, 1 requests; warnings: bounded_public_rss_100, rss_original_posting_dates_unverified
-- cryptojobslist_telegram: returned, 13 listings, 0 failures, 1 requests
+- cryptojobslist_telegram: returned, 14 listings, 0 failures, 1 requests
 - cryptojobslist_web3: unavailable, 0 listings, 1 failures, 1 requests
 - curated_companies: returned, 4 listings, 0 failures, 7 requests
-- direct_ashby: returned, 98 listings, 0 failures, 12 requests
+- direct_ashby: returned, 99 listings, 0 failures, 12 requests
 - direct_gains: returned, 0 listings, 0 failures, 2 requests; warnings: zero_results
 - direct_hacken: unavailable, 0 listings, 1 failures, 1 requests
-- greenhouse: returned, 1156 listings, 0 failures, 13 requests
+- greenhouse: returned, 1161 listings, 0 failures, 13 requests
 - hylo_verified: returned, 1 listings, 0 failures, 1 requests
-- lever: partial, 94 listings, 1 failures, 9 requests
+- lever: returned, 99 listings, 0 failures, 9 requests
 - lever_aave: returned, 12 listings, 0 failures, 1 requests
 - linkedin_hiring_posts: returned, 0 listings, 0 failures, 2 requests; warnings: zero_results
-- registry_careers: returned, 206 listings, 0 failures, 9 requests; warnings: registry_unreviewed_associations_not_fetched
+- registry_careers: returned, 210 listings, 0 failures, 9 requests; warnings: registry_unreviewed_associations_not_fetched
 - remote3: returned, 8 listings, 0 failures, 1 requests
 - remoteok: returned, 15 listings, 0 failures, 1 requests
 - remotive: returned, 0 listings, 0 failures, 1 requests; warnings: zero_results
@@ -354,7 +354,7 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 - teamtailor: returned, 5 listings, 0 failures, 1 requests; warnings: ats_original_posting_dates_unverified
 - twitter_bing: returned, 0 listings, 0 failures, 4 requests; warnings: zero_results
 - web3_marketing_jobs_telegram: returned, 17 listings, 0 failures, 1 requests
-- web3career: returned, 120 listings, 0 failures, 9 requests; warnings: bounded_pagination
+- web3career: returned, 121 listings, 0 failures, 9 requests; warnings: bounded_pagination
 - web3hiring_telegram: returned, 19 listings, 0 failures, 1 requests
 - web3marketingjobs_telegram: returned, 17 listings, 0 failures, 1 requests
 - workable: returned, 0 listings, 0 failures, 1 requests; warnings: zero_results, ats_original_posting_dates_unverified
