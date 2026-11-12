@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-12T07:32:49.132252+00:00",
+  "generated_at": "2026-11-12T15:48:46.529282+00:00",
   "collector_commit": "8f09bdc106aa27b2b3c76ef52734be65ee60461c",
-  "run_url": "https://github.com/Charubak/Web3-Job-Bot/actions/runs/43175926856",
+  "run_url": "https://github.com/Charubak/Web3-Job-Bot/actions/runs/43251638982",
   "collection_only": true,
   "career_registry": {
     "status": "available",
@@ -93,11 +93,11 @@
   },
   "notice": "Public collection evidence, not a delivered digest. First collection does not mean a new job. Research unresolved evidence and use private delivery history to label new/reminders.",
   "counts": {
-    "raw": 2083,
+    "raw": 2087,
     "qualified": 4,
-    "review": 44,
-    "rejected": 2035,
-    "unconfirmed_open": 41,
+    "review": 40,
+    "rejected": 2043,
+    "unconfirmed_open": 37,
     "unknown_age": 24,
     "source_failures": 1,
     "zero_result_sources": 7,
@@ -151,42 +151,42 @@
         {
           "url": "https://blockace.io",
           "status_code": 200,
-          "elapsed_seconds": 0.56
+          "elapsed_seconds": 13.47
         },
         {
           "url": "https://blockace.io/jobs/chief-marketing-officer-cmo-at-bifrost-foundation-c49f15/",
           "status_code": 200,
-          "elapsed_seconds": 3.18
+          "elapsed_seconds": 0.53
         },
         {
           "url": "https://blockace.io/jobs/marketing-bounty-manager-at-indra-crypto-capital-e35504/",
           "status_code": 200,
-          "elapsed_seconds": 3.14
+          "elapsed_seconds": 0.67
         },
         {
           "url": "https://blockace.io/jobs/senior-marketing-manager-at-seedifyfund-348093/",
           "status_code": 200,
-          "elapsed_seconds": 3.67
+          "elapsed_seconds": 0.58
         },
         {
           "url": "https://blockace.io/jobs/crypto-enthusiast-community-and-influencer-marketing-at-nft-contemporary-78ac00/",
           "status_code": 200,
-          "elapsed_seconds": 2.29
+          "elapsed_seconds": 0.55
         },
         {
           "url": "https://blockace.io/jobs/marketing-manager-at-platform-and-capital-eb289b/",
           "status_code": 200,
-          "elapsed_seconds": 3.97
+          "elapsed_seconds": 0.67
         },
         {
           "url": "https://blockace.io/jobs/token-marketing-lead-at-outlier-ventures-f5dbbc/",
           "status_code": 200,
-          "elapsed_seconds": 5.84
+          "elapsed_seconds": 0.65
         },
         {
           "url": "https://blockace.io/jobs/marketing-blockchain-analyst-04cd9b68/",
           "status_code": 200,
-          "elapsed_seconds": 6.53
+          "elapsed_seconds": 0.56
         }
       ]
     },
@@ -203,12 +203,12 @@
         {
           "url": "https://www.paradigm.xyz/careers",
           "status_code": 200,
-          "elapsed_seconds": 0.3
+          "elapsed_seconds": 0.4
         },
         {
           "url": "https://jobs.solana.com/jobs",
           "status_code": 200,
-          "elapsed_seconds": 7.56
+          "elapsed_seconds": 0.64
         }
       ]
     },
@@ -223,7 +223,7 @@
         {
           "url": "https://cryptocurrencyjobs.co/index.xml",
           "status_code": 200,
-          "elapsed_seconds": 0.26
+          "elapsed_seconds": 0.27
         }
       ]
     },
@@ -238,7 +238,7 @@
         {
           "url": "https://cryptojobslist.com/web3",
           "status_code": 200,
-          "elapsed_seconds": 0.87
+          "elapsed_seconds": 1.08
         }
       ]
     },
@@ -260,7 +260,7 @@
     {
       "source": "cryptojobslist",
       "status": "returned",
-      "count": 25,
+      "count": 24,
       "failures": 0,
       "warning": "",
       "warnings": [],
@@ -268,7 +268,7 @@
         {
           "url": "https://cryptojobslist.com/marketing",
           "status_code": 200,
-          "elapsed_seconds": 0.38
+          "elapsed_seconds": 0.43
         }
       ]
     },
@@ -286,7 +286,7 @@
         {
           "url": "https://api.cryptojobslist.com/jobs.rss",
           "status_code": 200,
-          "elapsed_seconds": 0.18
+          "elapsed_seconds": 0.28
         }
       ]
     },
@@ -301,7 +301,7 @@
         {
           "url": "https://t.me/s/cryptojobslist",
           "status_code": 200,
-          "elapsed_seconds": 0.76
+          "elapsed_seconds": 0.81
         }
       ]
     },
@@ -316,7 +316,7 @@
         {
           "url": "https://cryptojobslist.com/web3",
           "status_code": 200,
-          "elapsed_seconds": 0.25
+          "elapsed_seconds": 0.33
         }
       ]
     },
@@ -331,37 +331,37 @@
         {
           "url": "https://job-boards.eu.greenhouse.io/defuselabs/jobs/4997160101",
           "status_code": 200,
-          "elapsed_seconds": 0.33
+          "elapsed_seconds": 0.35
         },
         {
           "url": "https://talent.yzilabs.com/jobs/c2ce0aad-fee1-49a3-9abc-b6ad32480795",
           "status_code": 200,
-          "elapsed_seconds": 1.2
+          "elapsed_seconds": 0.98
         },
         {
           "url": "https://intercepta.io/careers/marketing-marketing-lead-remote",
           "status_code": 200,
-          "elapsed_seconds": 0.61
+          "elapsed_seconds": 0.74
         },
         {
           "url": "https://www.thegroupthree.com/careers/",
           "status_code": 200,
-          "elapsed_seconds": 0.6
+          "elapsed_seconds": 0.67
         },
         {
           "url": "https://getblock.factorial.com/job_posting/full-stack-marketing-manager-marketing-pmm-327722",
           "status_code": 200,
-          "elapsed_seconds": 0.45
+          "elapsed_seconds": 0.52
         },
         {
           "url": "https://jobs.sogalventures.com/companies/tyb/jobs/95076705-lifecycle-marketing-lead",
           "status_code": 200,
-          "elapsed_seconds": 0.48
+          "elapsed_seconds": 0.59
         },
         {
           "url": "https://cosign.co/jobs/0jw5ou60xx",
           "status_code": 200,
-          "elapsed_seconds": 0.92
+          "elapsed_seconds": 1.29
         }
       ]
     },
@@ -376,62 +376,62 @@
         {
           "url": "https://api.ashbyhq.com/posting-api/job-board/alchemy",
           "status_code": 200,
-          "elapsed_seconds": 0.1
+          "elapsed_seconds": 0.16
         },
         {
           "url": "https://api.ashbyhq.com/posting-api/job-board/ava-labs",
           "status_code": 200,
-          "elapsed_seconds": 0.07
+          "elapsed_seconds": 0.12
         },
         {
           "url": "https://api.ashbyhq.com/posting-api/job-board/ledger",
           "status_code": 200,
-          "elapsed_seconds": 0.07
+          "elapsed_seconds": 0.14
         },
         {
           "url": "https://api.ashbyhq.com/posting-api/job-board/nansen",
           "status_code": 200,
-          "elapsed_seconds": 0.08
+          "elapsed_seconds": 0.11
         },
         {
           "url": "https://api.ashbyhq.com/posting-api/job-board/trust-wallet",
           "status_code": 200,
-          "elapsed_seconds": 0.06
+          "elapsed_seconds": 0.13
         },
         {
           "url": "https://api.ashbyhq.com/posting-api/job-board/allium",
           "status_code": 200,
-          "elapsed_seconds": 0.12
+          "elapsed_seconds": 0.13
         },
         {
           "url": "https://api.ashbyhq.com/posting-api/job-board/keyrock",
           "status_code": 200,
-          "elapsed_seconds": 0.11
+          "elapsed_seconds": 0.12
         },
         {
           "url": "https://api.ashbyhq.com/posting-api/job-board/ether.fi",
           "status_code": 200,
-          "elapsed_seconds": 0.07
+          "elapsed_seconds": 0.13
         },
         {
           "url": "https://api.ashbyhq.com/posting-api/job-board/Lido.fi",
           "status_code": 200,
-          "elapsed_seconds": 0.09
+          "elapsed_seconds": 0.21
         },
         {
           "url": "https://api.ashbyhq.com/posting-api/job-board/Injective",
           "status_code": 200,
-          "elapsed_seconds": 0.1
+          "elapsed_seconds": 0.17
         },
         {
           "url": "https://api.ashbyhq.com/posting-api/job-board/morpho",
           "status_code": 200,
-          "elapsed_seconds": 0.18
+          "elapsed_seconds": 0.15
         },
         {
           "url": "https://api.ashbyhq.com/posting-api/job-board/whetstoneresearch",
           "status_code": 200,
-          "elapsed_seconds": 0.09
+          "elapsed_seconds": 0.08
         }
       ]
     },
@@ -446,12 +446,12 @@
         {
           "url": "https://hiring.gains.trade/",
           "status_code": 200,
-          "elapsed_seconds": 0.23
+          "elapsed_seconds": 0.45
         },
         {
           "url": "https://hiring.gains.trade/roles/head-of-growth/",
           "status_code": 200,
-          "elapsed_seconds": 0.2
+          "elapsed_seconds": 0.3
         }
       ]
     },
@@ -466,14 +466,14 @@
         {
           "url": "https://hacken.io/careers/175289-growth-marketing-manager/",
           "status_code": 200,
-          "elapsed_seconds": 1.46
+          "elapsed_seconds": 1.13
         }
       ]
     },
     {
       "source": "greenhouse",
       "status": "returned",
-      "count": 1147,
+      "count": 1142,
       "failures": 0,
       "warning": "",
       "warnings": [],
@@ -481,22 +481,22 @@
         {
           "url": "https://boards-api.greenhouse.io/v1/boards/binance/jobs",
           "status_code": 200,
-          "elapsed_seconds": 0.26
+          "elapsed_seconds": 0.29
         },
         {
           "url": "https://boards-api.greenhouse.io/v1/boards/coinbase/jobs",
           "status_code": 200,
-          "elapsed_seconds": 0.21
+          "elapsed_seconds": 0.27
         },
         {
           "url": "https://boards-api.greenhouse.io/v1/boards/consensys/jobs",
           "status_code": 200,
-          "elapsed_seconds": 0.2
+          "elapsed_seconds": 0.15
         },
         {
           "url": "https://boards-api.greenhouse.io/v1/boards/ripple/jobs",
           "status_code": 200,
-          "elapsed_seconds": 0.26
+          "elapsed_seconds": 0.25
         },
         {
           "url": "https://boards-api.greenhouse.io/v1/boards/fireblocks/jobs",
@@ -506,42 +506,42 @@
         {
           "url": "https://boards-api.greenhouse.io/v1/boards/bitgo/jobs",
           "status_code": 200,
-          "elapsed_seconds": 0.15
+          "elapsed_seconds": 0.26
         },
         {
           "url": "https://boards-api.greenhouse.io/v1/boards/gemini/jobs",
           "status_code": 200,
-          "elapsed_seconds": 0.14
+          "elapsed_seconds": 0.23
         },
         {
           "url": "https://boards-api.greenhouse.io/v1/boards/messari/jobs",
           "status_code": 200,
-          "elapsed_seconds": 0.14
+          "elapsed_seconds": 0.12
         },
         {
           "url": "https://boards-api.greenhouse.io/v1/boards/figment/jobs",
           "status_code": 200,
-          "elapsed_seconds": 0.17
+          "elapsed_seconds": 0.12
         },
         {
           "url": "https://boards-api.greenhouse.io/v1/boards/okx/jobs",
           "status_code": 200,
-          "elapsed_seconds": 0.31
+          "elapsed_seconds": 0.35
         },
         {
           "url": "https://boards-api.greenhouse.io/v1/boards/openzeppelin/jobs",
           "status_code": 200,
-          "elapsed_seconds": 0.21
+          "elapsed_seconds": 0.17
         },
         {
           "url": "https://boards-api.greenhouse.io/v1/boards/jumpcrypto/jobs",
           "status_code": 200,
-          "elapsed_seconds": 0.16
+          "elapsed_seconds": 0.12
         },
         {
           "url": "https://boards-api.greenhouse.io/v1/boards/primexbt/jobs",
           "status_code": 200,
-          "elapsed_seconds": 0.13
+          "elapsed_seconds": 0.16
         }
       ]
     },
@@ -556,14 +556,14 @@
         {
           "url": "https://jobs.solana.com/companies/hylo-2/jobs/97132369-marketing-growth-lead",
           "status_code": 200,
-          "elapsed_seconds": 0.38
+          "elapsed_seconds": 1.02
         }
       ]
     },
     {
       "source": "lever",
       "status": "returned",
-      "count": 96,
+      "count": 97,
       "failures": 0,
       "warning": "",
       "warnings": [],
@@ -571,54 +571,54 @@
         {
           "url": "https://api.lever.co/v0/postings/binance",
           "status_code": 200,
-          "elapsed_seconds": 1.5
+          "elapsed_seconds": 6.6
         },
         {
           "url": "https://api.lever.co/v0/postings/1inch",
           "status_code": 200,
-          "elapsed_seconds": 4.31
+          "elapsed_seconds": 0.23
         },
         {
           "url": "https://api.lever.co/v0/postings/certik",
           "status_code": 200,
-          "elapsed_seconds": 0.48
+          "elapsed_seconds": 2.56
         },
         {
           "url": "https://api.lever.co/v0/postings/anchorage",
           "status_code": 200,
-          "elapsed_seconds": 0.55
+          "elapsed_seconds": 10.76
         },
         {
           "url": "https://api.lever.co/v0/postings/immutable",
           "status_code": 200,
-          "elapsed_seconds": 0.45
+          "elapsed_seconds": 0.28
         },
         {
           "url": "https://api.lever.co/v0/postings/animocabrands",
           "status_code": 200,
-          "elapsed_seconds": 0.6
+          "elapsed_seconds": 0.31
         },
         {
           "url": "https://api.lever.co/v0/postings/aurora-dev",
           "status_code": 200,
-          "elapsed_seconds": 0.56
+          "elapsed_seconds": 0.39
         },
         {
           "url": "https://api.lever.co/v0/postings/offchainlabs",
           "status_code": 200,
-          "elapsed_seconds": 0.94
+          "elapsed_seconds": 0.34
         },
         {
           "url": "https://api.lever.co/v0/postings/jito",
           "status_code": 200,
-          "elapsed_seconds": 0.74
+          "elapsed_seconds": 0.25
         }
       ]
     },
     {
       "source": "lever_aave",
       "status": "returned",
-      "count": 12,
+      "count": 13,
       "failures": 0,
       "warning": "",
       "warnings": [],
@@ -626,7 +626,7 @@
         {
           "url": "https://api.eu.lever.co/v0/postings/aavelabs",
           "status_code": 200,
-          "elapsed_seconds": 0.88
+          "elapsed_seconds": 0.84
         }
       ]
     },
@@ -641,19 +641,19 @@
         {
           "url": "https://www.bing.com/search",
           "status_code": 200,
-          "elapsed_seconds": 0.23
+          "elapsed_seconds": 0.2
         },
         {
           "url": "https://www.bing.com/search",
           "status_code": 200,
-          "elapsed_seconds": 0.25
+          "elapsed_seconds": 0.22
         }
       ]
     },
     {
       "source": "registry_careers",
       "status": "returned",
-      "count": 209,
+      "count": 216,
       "failures": 0,
       "warning": "",
       "warnings": [
@@ -663,47 +663,47 @@
         {
           "url": "https://api.ashbyhq.com/posting-api/job-board/kraken.com",
           "status_code": 200,
-          "elapsed_seconds": 0.86
+          "elapsed_seconds": 0.17
         },
         {
           "url": "https://api.ashbyhq.com/posting-api/job-board/blockstream",
           "status_code": 200,
-          "elapsed_seconds": 0.08
+          "elapsed_seconds": 0.14
         },
         {
           "url": "https://api.ashbyhq.com/posting-api/job-board/phantom",
           "status_code": 200,
-          "elapsed_seconds": 0.08
+          "elapsed_seconds": 0.12
         },
         {
           "url": "https://api.ashbyhq.com/posting-api/job-board/risklabs",
           "status_code": 200,
-          "elapsed_seconds": 0.09
+          "elapsed_seconds": 0.08
         },
         {
           "url": "https://api.ashbyhq.com/posting-api/job-board/cointracker",
           "status_code": 200,
-          "elapsed_seconds": 0.09
+          "elapsed_seconds": 0.11
         },
         {
           "url": "https://api.ashbyhq.com/posting-api/job-board/rain",
           "status_code": 200,
-          "elapsed_seconds": 0.09
+          "elapsed_seconds": 0.15
         },
         {
           "url": "https://api.ashbyhq.com/posting-api/job-board/Blockworks",
           "status_code": 200,
-          "elapsed_seconds": 0.09
+          "elapsed_seconds": 0.14
         },
         {
           "url": "https://api.ashbyhq.com/posting-api/job-board/tenderly",
           "status_code": 200,
-          "elapsed_seconds": 0.09
+          "elapsed_seconds": 0.13
         },
         {
           "url": "https://api.ashbyhq.com/posting-api/job-board/plasma",
           "status_code": 200,
-          "elapsed_seconds": 0.09
+          "elapsed_seconds": 0.24
         }
       ]
     },
@@ -718,7 +718,7 @@
         {
           "url": "https://www.remote3.co/api/rss",
           "status_code": 200,
-          "elapsed_seconds": 0.27
+          "elapsed_seconds": 0.26
         }
       ]
     },
@@ -733,7 +733,7 @@
         {
           "url": "https://remoteok.com/remote-crypto+web3-jobs.json",
           "status_code": 200,
-          "elapsed_seconds": 0.52
+          "elapsed_seconds": 0.55
         }
       ]
     },
@@ -748,7 +748,7 @@
         {
           "url": "https://remotive.com/api/remote-jobs",
           "status_code": 200,
-          "elapsed_seconds": 0.15
+          "elapsed_seconds": 0.17
         }
       ]
     },
@@ -765,7 +765,7 @@
         {
           "url": "https://www.linkedin.com/jobs/view/4479493250/",
           "status_code": 200,
-          "elapsed_seconds": 0.63
+          "elapsed_seconds": 0.71
         }
       ]
     },
@@ -782,7 +782,7 @@
         {
           "url": "https://crossmint.na.teamtailor.com/jobs.rss",
           "status_code": 200,
-          "elapsed_seconds": 0.4
+          "elapsed_seconds": 0.39
         }
       ]
     },
@@ -797,22 +797,22 @@
         {
           "url": "https://www.bing.com/search",
           "status_code": 200,
-          "elapsed_seconds": 0.24
-        },
-        {
-          "url": "https://www.bing.com/search",
-          "status_code": 200,
-          "elapsed_seconds": 0.22
-        },
-        {
-          "url": "https://www.bing.com/search",
-          "status_code": 200,
-          "elapsed_seconds": 0.22
-        },
-        {
-          "url": "https://www.bing.com/search",
-          "status_code": 200,
           "elapsed_seconds": 0.23
+        },
+        {
+          "url": "https://www.bing.com/search",
+          "status_code": 200,
+          "elapsed_seconds": 0.21
+        },
+        {
+          "url": "https://www.bing.com/search",
+          "status_code": 200,
+          "elapsed_seconds": 0.2
+        },
+        {
+          "url": "https://www.bing.com/search",
+          "status_code": 200,
+          "elapsed_seconds": 0.2
         }
       ]
     },
@@ -827,14 +827,14 @@
         {
           "url": "https://t.me/s/web3_marketing_jobs",
           "status_code": 200,
-          "elapsed_seconds": 0.9
+          "elapsed_seconds": 0.85
         }
       ]
     },
     {
       "source": "web3career",
       "status": "returned",
-      "count": 121,
+      "count": 122,
       "failures": 0,
       "warning": "",
       "warnings": [
@@ -844,47 +844,47 @@
         {
           "url": "https://web3.career/marketing-jobs",
           "status_code": 200,
-          "elapsed_seconds": 0.77
+          "elapsed_seconds": 0.66
         },
         {
           "url": "https://web3.career/marketing-jobs",
           "status_code": 200,
-          "elapsed_seconds": 0.39
+          "elapsed_seconds": 0.85
         },
         {
           "url": "https://web3.career/marketing-jobs",
-          "status_code": 200,
-          "elapsed_seconds": 0.42
-        },
-        {
-          "url": "https://web3.career/growth-jobs",
-          "status_code": 200,
-          "elapsed_seconds": 0.57
-        },
-        {
-          "url": "https://web3.career/growth-jobs",
-          "status_code": 200,
-          "elapsed_seconds": 0.5
-        },
-        {
-          "url": "https://web3.career/growth-jobs",
-          "status_code": 200,
-          "elapsed_seconds": 0.38
-        },
-        {
-          "url": "https://web3.career/product-marketing-jobs",
           "status_code": 200,
           "elapsed_seconds": 0.54
         },
         {
-          "url": "https://web3.career/product-marketing-jobs",
+          "url": "https://web3.career/growth-jobs",
           "status_code": 200,
-          "elapsed_seconds": 0.38
+          "elapsed_seconds": 0.47
+        },
+        {
+          "url": "https://web3.career/growth-jobs",
+          "status_code": 200,
+          "elapsed_seconds": 0.48
+        },
+        {
+          "url": "https://web3.career/growth-jobs",
+          "status_code": 200,
+          "elapsed_seconds": 0.67
         },
         {
           "url": "https://web3.career/product-marketing-jobs",
           "status_code": 200,
-          "elapsed_seconds": 0.38
+          "elapsed_seconds": 0.56
+        },
+        {
+          "url": "https://web3.career/product-marketing-jobs",
+          "status_code": 200,
+          "elapsed_seconds": 0.77
+        },
+        {
+          "url": "https://web3.career/product-marketing-jobs",
+          "status_code": 200,
+          "elapsed_seconds": 0.41
         }
       ]
     },
@@ -914,7 +914,7 @@
         {
           "url": "https://t.me/s/web3marketingjobs",
           "status_code": 200,
-          "elapsed_seconds": 0.79
+          "elapsed_seconds": 0.76
         }
       ]
     },
@@ -931,35 +931,35 @@
         {
           "url": "https://apply.workable.com/api/v1/widget/accounts/walletconnect",
           "status_code": 200,
-          "elapsed_seconds": 0.24
+          "elapsed_seconds": 0.32
         }
       ]
     }
   ],
   "rejection_counts": {
-    "Technical, sales, support, or other non-target role": 1000,
-    "Title is outside growth, GTM, and product marketing": 531,
-    "Location is restricted to a country, city, or region": 161,
-    "Product management role rather than growth marketing / GTM / PMM": 150,
+    "Technical, sales, support, or other non-target role": 1004,
+    "Title is outside growth, GTM, and product marketing": 529,
+    "Location is restricted to a country, city, or region": 163,
+    "Product management role rather than growth marketing / GTM / PMM": 151,
     "Junior or execution-support title does not fit the target seniority": 80,
-    "Posting is older than 30 days": 42,
-    "Community, partnerships / BD, or event-focused role is excluded": 33,
+    "Posting is older than 30 days": 46,
+    "Community, partnerships / BD, or event-focused role is excluded": 31,
     "Dedicated Social Media Manager roles are excluded": 13,
     "Description targets early-career experience": 10,
-    "Location requires office or hybrid attendance": 9,
+    "Location requires office or hybrid attendance": 10,
     "Title specifies a geographically restricted remote role": 4,
     "Description is primarily community, events, or business development": 2
   },
   "review_reason_counts": {
-    "Employer home country is unknown; verified non-India employer evidence is required": 42,
-    "First-party employer / ATS evidence is missing; aggregator claims need verification": 41,
-    "Description does not establish ownership of growth, GTM, or product marketing": 38,
-    "Mid/senior individual-contributor or manager experience needs verification": 24,
+    "Employer home country is unknown; verified non-India employer evidence is required": 38,
+    "First-party employer / ATS evidence is missing; aggregator claims need verification": 37,
+    "Description does not establish ownership of growth, GTM, or product marketing": 34,
+    "Mid/senior individual-contributor or manager experience needs verification": 21,
     "Posting date is missing or unparseable; recency needs verification": 20,
     "Role-level remote work is unconfirmed; empty locations and distributed-company prose are insufficient": 18,
-    "Adjacent marketing specialty; growth / GTM / PMM ownership is not established": 17,
+    "Adjacent marketing specialty; growth / GTM / PMM ownership is not established": 15,
     "Regional title may describe a market or a hiring restriction; verify eligibility": 15,
-    "Full role description is missing or too thin to verify requirements": 9,
+    "Full role description is missing or too thin to verify requirements": 8,
     "Head / director role needs evidence of early-stage, hands-on scope": 5,
     "Location contains an unexplained qualifier; eligibility needs verification": 4,
     "Role has jurisdiction exclusions; verify India eligibility against the exact exclusion and ATS country metadata": 1,
