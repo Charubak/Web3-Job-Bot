@@ -1,16 +1,16 @@
 # Public job collection
 
-Generated: 2026-11-13T07:31:33.471522+00:00
+Generated: 2026-11-13T15:09:57.579141+00:00
 
 Public collection evidence, not a delivered digest. First collection does not mean a new job. Research unresolved evidence and use private delivery history to label new/reminders.
 
-Counts: {"qualified": 4, "raw": 2088, "rejected": 2043, "review": 41, "source_failures": 1, "unconfirmed_open": 38, "unknown_age": 25, "withheld_public_urls": 0, "zero_result_sources": 7}
+Counts: {"qualified": 4, "raw": 1692, "rejected": 1646, "review": 42, "source_failures": 2, "unconfirmed_open": 38, "unknown_age": 25, "withheld_public_urls": 1, "zero_result_sources": 7}
 
-Incomplete sources: reviewed_public_roles
+Incomplete sources: greenhouse, reviewed_public_roles
 Successful requests with no listings (not proof of no jobs): cryptojobs, direct_gains, linkedin_hiring_posts, remotive, twitter_bing, workable
 Bounded sources: cryptojobslist_rss, web3career
 
-Public application URL warning: none
+Public application URL warning: 1 non-rejected listings were withheld because their public application URL could not be safely preserved. Verify the exact requisitions before proposing them.
 
 ## Candidates and unresolved evidence
 
@@ -193,7 +193,7 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 ### Blockstream | Marketing Content Manager
 
 https://cryptojobslist.com/jobs/marketing-content-manager-at-blockstream
-review | unconfirmed_open | unknown | first_collection
+review | unconfirmed_open | unknown | previously_collected
 Location: Remote
 Reasons: Adjacent marketing specialty; growth / GTM / PMM ownership is not established; Mid/senior individual-contributor or manager experience needs verification; Description does not establish ownership of growth, GTM, or product marketing; Employer home country is unknown; verified non-India employer evidence is required; Full role description is missing or too thin to verify requirements; First-party employer / ATS evidence is missing; aggregator claims need verification; Posting date is missing or unparseable; recency needs verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
@@ -377,7 +377,7 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 ## Source health
 
 - blockace: returned, 63 listings, 0 failures, 8 requests; warnings: expired_blockace_listing_suppressed
-- careers_discovery: returned, 26 listings, 0 failures, 2 requests; warnings: index_leads_require_primary_verification
+- careers_discovery: returned, 25 listings, 0 failures, 2 requests; warnings: index_leads_require_primary_verification
 - cryptocurrencyjobs: returned, 51 listings, 0 failures, 1 requests
 - cryptojobs: returned, 0 listings, 0 failures, 1 requests; warnings: zero_results
 - cryptojobsdaily_telegram: returned, 13 listings, 0 failures, 1 requests
@@ -389,7 +389,7 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 - direct_ashby: returned, 100 listings, 0 failures, 12 requests
 - direct_gains: returned, 0 listings, 0 failures, 2 requests; warnings: zero_results
 - direct_hacken: returned, 1 listings, 0 failures, 1 requests
-- greenhouse: returned, 1146 listings, 0 failures, 13 requests
+- greenhouse: partial, 752 listings, 1 failures, 13 requests
 - hylo_verified: returned, 1 listings, 0 failures, 1 requests
 - lever: returned, 96 listings, 0 failures, 9 requests
 - lever_aave: returned, 13 listings, 0 failures, 1 requests
@@ -399,7 +399,7 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 - remoteok: returned, 15 listings, 0 failures, 1 requests
 - remotive: returned, 0 listings, 0 failures, 1 requests; warnings: zero_results
 - reviewed_public_roles: unavailable, 0 listings, 1 failures, 1 requests; warnings: application_cta_unverified
-- teamtailor: returned, 5 listings, 0 failures, 1 requests; warnings: ats_original_posting_dates_unverified
+- teamtailor: returned, 4 listings, 0 failures, 1 requests; warnings: ats_original_posting_dates_unverified
 - twitter_bing: returned, 0 listings, 0 failures, 4 requests; warnings: zero_results
 - web3_marketing_jobs_telegram: returned, 17 listings, 0 failures, 1 requests
 - web3career: returned, 122 listings, 0 failures, 9 requests; warnings: bounded_pagination
