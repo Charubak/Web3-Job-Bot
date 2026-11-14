@@ -1,26 +1,18 @@
 # Public job collection
 
-Generated: 2026-11-13T15:09:57.579141+00:00
+Generated: 2026-11-14T07:31:39.863121+00:00
 
 Public collection evidence, not a delivered digest. First collection does not mean a new job. Research unresolved evidence and use private delivery history to label new/reminders.
 
-Counts: {"qualified": 4, "raw": 1692, "rejected": 1646, "review": 42, "source_failures": 2, "unconfirmed_open": 38, "unknown_age": 25, "withheld_public_urls": 1, "zero_result_sources": 7}
+Counts: {"qualified": 3, "raw": 2076, "rejected": 2032, "review": 41, "source_failures": 2, "unconfirmed_open": 38, "unknown_age": 25, "withheld_public_urls": 1, "zero_result_sources": 7}
 
-Incomplete sources: greenhouse, reviewed_public_roles
+Incomplete sources: lever, reviewed_public_roles
 Successful requests with no listings (not proof of no jobs): cryptojobs, direct_gains, linkedin_hiring_posts, remotive, twitter_bing, workable
 Bounded sources: cryptojobslist_rss, web3career
 
 Public application URL warning: 1 non-rejected listings were withheld because their public application URL could not be safely preserved. Verify the exact requisitions before proposing them.
 
 ## Candidates and unresolved evidence
-
-### Binance | Senior Growth Manager - CIS
-
-https://job-boards.eu.greenhouse.io/binance/jobs/5002495101
-review | verified_open | within_30_days | previously_collected
-Location: Armenia; Georgia; Kazakhstan
-Reasons: Location contains an unexplained qualifier; eligibility needs verification; Employer home country is unknown; verified non-India employer evidence is required; Role-level remote work is unconfirmed; empty locations and distributed-company prose are insufficient
-Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Verify India eligibility and distinguish market scope, working hours, benefits and applicant residence. Check role-level remote terms and all contradictory residence/office requirements.
 
 ### Offchain Labs | Sr Product Marketing Manager
 
@@ -37,14 +29,6 @@ review | verified_open | unknown | previously_collected
 Location: Cayman; Grand Cayman; Cayman Islands
 Reasons: Adjacent marketing specialty; growth / GTM / PMM ownership is not established; Mid/senior individual-contributor or manager experience needs verification; Location contains an unexplained qualifier; eligibility needs verification; Employer home country is unknown; verified non-India employer evidence is required; Role-level remote work is unconfirmed; empty locations and distributed-company prose are insufficient
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Verify India eligibility and distinguish market scope, working hours, benefits and applicant residence. Check role-level remote terms and all contradictory residence/office requirements.
-
-### Hylo | Marketing & Growth Lead
-
-https://jobs.solana.com/companies/hylo-2/jobs/97132369-marketing-growth-lead
-qualified | verified_open | within_30_days | previously_collected
-Location: Remote
-Reasons: Mid/senior marketing ownership fits the target scope; First-party role is Remote with no stated location restriction; country eligibility is unconfirmed; Employer country has recent sourced verification outside India
-Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Check responsibility and seniority from the full role, not just the title. Verify India eligibility and distinguish market scope, working hours, benefits and applicant residence. Check role-level remote terms and all contradictory residence/office requirements.
 
 ### Defuse Labs | Head of Product Marketing & Growth
 
@@ -286,7 +270,7 @@ Location:
 Reasons: Regional title may describe a market or a hiring restriction; verify eligibility; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Posting date is missing or unparseable; recency needs verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
 
-###  | Chainalysis Sr. Product Marketing Manager, Government Remote · London, England, United Kingdom, London · Posted 15 days ago
+###  | Chainalysis Sr. Product Marketing Manager, Government Remote · London, England, United Kingdom, London · Posted 16 days ago
 
 https://jobs.ashbyhq.com/chainalysis-careers/acb89ce6-040d-4cdb-8d01-451cb2d07702
 review | unconfirmed_open | unknown | previously_collected
@@ -389,17 +373,17 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 - direct_ashby: returned, 100 listings, 0 failures, 12 requests
 - direct_gains: returned, 0 listings, 0 failures, 2 requests; warnings: zero_results
 - direct_hacken: returned, 1 listings, 0 failures, 1 requests
-- greenhouse: partial, 752 listings, 1 failures, 13 requests
+- greenhouse: returned, 1139 listings, 0 failures, 13 requests
 - hylo_verified: returned, 1 listings, 0 failures, 1 requests
-- lever: returned, 96 listings, 0 failures, 9 requests
+- lever: partial, 91 listings, 1 failures, 9 requests
 - lever_aave: returned, 13 listings, 0 failures, 1 requests
 - linkedin_hiring_posts: returned, 0 listings, 0 failures, 2 requests; warnings: zero_results
-- registry_careers: returned, 216 listings, 0 failures, 9 requests; warnings: registry_unreviewed_associations_not_fetched
+- registry_careers: returned, 217 listings, 0 failures, 9 requests; warnings: registry_unreviewed_associations_not_fetched
 - remote3: returned, 8 listings, 0 failures, 1 requests
 - remoteok: returned, 15 listings, 0 failures, 1 requests
 - remotive: returned, 0 listings, 0 failures, 1 requests; warnings: zero_results
 - reviewed_public_roles: unavailable, 0 listings, 1 failures, 1 requests; warnings: application_cta_unverified
-- teamtailor: returned, 4 listings, 0 failures, 1 requests; warnings: ats_original_posting_dates_unverified
+- teamtailor: returned, 5 listings, 0 failures, 1 requests; warnings: ats_original_posting_dates_unverified
 - twitter_bing: returned, 0 listings, 0 failures, 4 requests; warnings: zero_results
 - web3_marketing_jobs_telegram: returned, 17 listings, 0 failures, 1 requests
 - web3career: returned, 122 listings, 0 failures, 9 requests; warnings: bounded_pagination
