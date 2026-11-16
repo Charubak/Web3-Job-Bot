@@ -1,6 +1,6 @@
 # Public job collection
 
-Generated: 2026-11-15T16:39:56.405132+00:00
+Generated: 2026-11-16T07:48:40.472585+00:00
 
 Public collection evidence, not a delivered digest. First collection does not mean a new job. Research unresolved evidence and use private delivery history to label new/reminders.
 
@@ -254,7 +254,7 @@ Location:
 Reasons: Regional title may describe a market or a hiring restriction; verify eligibility; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Posting date is missing or unparseable; recency needs verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
 
-###  | Chainalysis Sr. Product Marketing Manager, Government Remote · London, England, United Kingdom, London · Posted 17 days ago
+###  | Chainalysis Sr. Product Marketing Manager, Government Remote · London, England, United Kingdom, London · Posted 18 days ago
 
 https://jobs.ashbyhq.com/chainalysis-careers/acb89ce6-040d-4cdb-8d01-451cb2d07702
 review | unconfirmed_open | unknown | previously_collected
@@ -365,7 +365,7 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 - cryptocurrencyjobs: returned, 51 listings, 0 failures, 1 requests
 - cryptojobs: returned, 0 listings, 0 failures, 1 requests; warnings: zero_results
 - cryptojobsdaily_telegram: returned, 13 listings, 0 failures, 1 requests
-- cryptojobslist: returned, 25 listings, 0 failures, 1 requests
+- cryptojobslist: returned, 24 listings, 0 failures, 1 requests
 - cryptojobslist_rss: returned, 100 listings, 0 failures, 1 requests; warnings: bounded_public_rss_100, rss_original_posting_dates_unverified
 - cryptojobslist_telegram: returned, 14 listings, 0 failures, 1 requests
 - cryptojobslist_web3: returned, 25 listings, 0 failures, 1 requests
