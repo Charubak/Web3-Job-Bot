@@ -1,12 +1,12 @@
 # Public job collection
 
-Generated: 2026-11-16T07:48:40.472585+00:00
+Generated: 2026-11-16T16:49:01.453746+00:00
 
 Public collection evidence, not a delivered digest. First collection does not mean a new job. Research unresolved evidence and use private delivery history to label new/reminders.
 
-Counts: {"qualified": 3, "raw": 2080, "rejected": 2035, "review": 42, "source_failures": 1, "unconfirmed_open": 38, "unknown_age": 27, "withheld_public_urls": 2, "zero_result_sources": 7}
+Counts: {"qualified": 3, "raw": 1657, "rejected": 1612, "review": 42, "source_failures": 3, "unconfirmed_open": 38, "unknown_age": 28, "withheld_public_urls": 2, "zero_result_sources": 7}
 
-Incomplete sources: reviewed_public_roles
+Incomplete sources: greenhouse, lever, reviewed_public_roles
 Successful requests with no listings (not proof of no jobs): cryptojobs, direct_gains, linkedin_hiring_posts, remotive, twitter_bing, workable
 Bounded sources: cryptojobslist_rss, web3career
 
@@ -166,14 +166,6 @@ Location: Remote
 Reasons: Adjacent marketing specialty; growth / GTM / PMM ownership is not established; Mid/senior individual-contributor or manager experience needs verification; Description does not establish ownership of growth, GTM, or product marketing; Employer home country is unknown; verified non-India employer evidence is required; Full role description is missing or too thin to verify requirements; First-party employer / ATS evidence is missing; aggregator claims need verification; Posting date is missing or unparseable; recency needs verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
 
-### Together.Fun | Growth & Ecosystem Lead (GTM) | Together.Fun
-
-https://cjl.ist/1j30mhepm
-review | unconfirmed_open | within_30_days | previously_collected
-Location: Remote
-Reasons: Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification
-Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
-
 ### Monetaz (Fundscrow) | Digital Marketing & Growth Manager (hands-on)
 
 https://cjl.ist/qxlg3nzhz
@@ -246,7 +238,15 @@ Location:
 Reasons: Adjacent marketing specialty; growth / GTM / PMM ownership is not established; Mid/senior individual-contributor or manager experience needs verification; Description does not establish ownership of growth, GTM, or product marketing; Employer home country is unknown; verified non-India employer evidence is required; Full role description is missing or too thin to verify requirements; First-party employer / ATS evidence is missing; aggregator claims need verification; Role-level remote work is unconfirmed; empty locations and distributed-company prose are insufficient; Posting date is missing or unparseable; recency needs verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Verify India eligibility and distinguish market scope, working hours, benefits and applicant residence. Check role-level remote terms and all contradictory residence/office requirements. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
 
-###  | Tempo APAC GTM Lead Remote · Singapore, Singapore · Posted 5 days ago
+### Revolut | Product Marketing Manager (Crypto)
+
+https://cryptojobslist.com/jobs/product-marketing-manager-crypto-remote-poland-portugal-spain-uae-uk-at-revolut
+review | unconfirmed_open | unknown | previously_collected
+Location: 
+Reasons: Mid/senior individual-contributor or manager experience needs verification; Description does not establish ownership of growth, GTM, or product marketing; Employer home country is unknown; verified non-India employer evidence is required; Full role description is missing or too thin to verify requirements; First-party employer / ATS evidence is missing; aggregator claims need verification; Role-level remote work is unconfirmed; empty locations and distributed-company prose are insufficient; Posting date is missing or unparseable; recency needs verification
+Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Verify India eligibility and distinguish market scope, working hours, benefits and applicant residence. Check role-level remote terms and all contradictory residence/office requirements. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
+
+###  | Tempo APAC GTM Lead Remote · Singapore, Singapore · Posted 6 days ago
 
 https://jobs.ashbyhq.com/tempo-xyz/1f015e8e-c684-45dc-8817-603edbf35d45
 review | unconfirmed_open | unknown | previously_collected
@@ -262,7 +262,7 @@ Location:
 Reasons: Description does not establish ownership of growth, GTM, or product marketing; Regional title may describe a market or a hiring restriction; verify eligibility; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Posting date is missing or unparseable; recency needs verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
 
-###  | Chainalysis Sr Product Marketing Manager, Platform Remote · United Kingdom, United Kingdom · Posted 25 days ago
+###  | Chainalysis Sr Product Marketing Manager, Platform Remote · United Kingdom, United Kingdom · Posted 26 days ago
 
 https://jobs.ashbyhq.com/chainalysis-careers/c68702ec-c016-456c-a7fe-92be1da2d08b
 review | unconfirmed_open | unknown | previously_collected
@@ -365,24 +365,24 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 - cryptocurrencyjobs: returned, 51 listings, 0 failures, 1 requests
 - cryptojobs: returned, 0 listings, 0 failures, 1 requests; warnings: zero_results
 - cryptojobsdaily_telegram: returned, 13 listings, 0 failures, 1 requests
-- cryptojobslist: returned, 24 listings, 0 failures, 1 requests
+- cryptojobslist: returned, 23 listings, 0 failures, 1 requests
 - cryptojobslist_rss: returned, 100 listings, 0 failures, 1 requests; warnings: bounded_public_rss_100, rss_original_posting_dates_unverified
 - cryptojobslist_telegram: returned, 14 listings, 0 failures, 1 requests
 - cryptojobslist_web3: returned, 25 listings, 0 failures, 1 requests
 - curated_companies: returned, 4 listings, 0 failures, 7 requests
-- direct_ashby: returned, 100 listings, 0 failures, 12 requests
+- direct_ashby: returned, 102 listings, 0 failures, 12 requests
 - direct_gains: returned, 0 listings, 0 failures, 2 requests; warnings: zero_results
 - direct_hacken: returned, 1 listings, 0 failures, 1 requests
-- greenhouse: returned, 1137 listings, 0 failures, 13 requests
+- greenhouse: partial, 742 listings, 1 failures, 13 requests
 - hylo_verified: returned, 1 listings, 0 failures, 1 requests
-- lever: returned, 96 listings, 0 failures, 9 requests
+- lever: partial, 65 listings, 1 failures, 9 requests
 - lever_aave: returned, 13 listings, 0 failures, 1 requests
 - linkedin_hiring_posts: returned, 0 listings, 0 failures, 2 requests; warnings: zero_results
 - registry_careers: returned, 217 listings, 0 failures, 9 requests; warnings: registry_unreviewed_associations_not_fetched
 - remote3: returned, 8 listings, 0 failures, 1 requests
 - remoteok: returned, 14 listings, 0 failures, 1 requests
 - remotive: returned, 0 listings, 0 failures, 1 requests; warnings: zero_results
-- reviewed_public_roles: unavailable, 0 listings, 1 failures, 1 requests; warnings: application_cta_unverified
+- reviewed_public_roles: unavailable, 0 listings, 1 failures, 1 requests
 - teamtailor: returned, 5 listings, 0 failures, 1 requests; warnings: ats_original_posting_dates_unverified
 - twitter_bing: returned, 0 listings, 0 failures, 4 requests; warnings: zero_results
 - web3_marketing_jobs_telegram: returned, 17 listings, 0 failures, 1 requests
