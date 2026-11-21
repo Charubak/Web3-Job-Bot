@@ -1,10 +1,10 @@
 # Public job collection
 
-Generated: 2026-11-21T08:21:06.661558+00:00
+Generated: 2026-11-21T15:08:30.706477+00:00
 
 Public collection evidence, not a delivered digest. First collection does not mean a new job. Research unresolved evidence and use private delivery history to label new/reminders.
 
-Counts: {"qualified": 0, "raw": 2055, "rejected": 2011, "review": 44, "source_failures": 1, "unconfirmed_open": 40, "unknown_age": 29, "withheld_public_urls": 1, "zero_result_sources": 7}
+Counts: {"qualified": 0, "raw": 2054, "rejected": 2010, "review": 44, "source_failures": 1, "unconfirmed_open": 40, "unknown_age": 29, "withheld_public_urls": 1, "zero_result_sources": 7}
 
 Incomplete sources: reviewed_public_roles
 Successful requests with no listings (not proof of no jobs): cryptojobs, direct_gains, linkedin_hiring_posts, remotive, twitter_bing, workable
@@ -230,17 +230,17 @@ Location:
 Reasons: Regional title may describe a market or a hiring restriction; verify eligibility; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Posting date is missing or unparseable; recency needs verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
 
-###  | Chainalysis Sr. Product Marketing Manager, Government USD 152-230K/year · Remote · United States · Posted 24 days ago
+###  | Chainalysis Sr Product Marketing Manager, Platform USD 152-230K/year · Remote · United States · Posted 24 days ago
 
-https://jobs.ashbyhq.com/chainalysis-careers/202fadfb-a054-4ef0-addb-5f27c9c0c78d
+https://jobs.ashbyhq.com/chainalysis-careers/c3ad81f0-701a-42c7-b008-76fa4076a2dd
 review | unconfirmed_open | unknown | previously_collected
 Location: 
 Reasons: Description does not establish ownership of growth, GTM, or product marketing; Regional title may describe a market or a hiring restriction; verify eligibility; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Posting date is missing or unparseable; recency needs verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
 
-###  | Chainalysis Sr Product Marketing Manager, Platform USD 152-230K/year · Remote · United States · Posted 24 days ago
+###  | Chainalysis Sr. Product Marketing Manager, Government USD 152-230K/year · Remote · United States · Posted 24 days ago
 
-https://jobs.ashbyhq.com/chainalysis-careers/c3ad81f0-701a-42c7-b008-76fa4076a2dd
+https://jobs.ashbyhq.com/chainalysis-careers/202fadfb-a054-4ef0-addb-5f27c9c0c78d
 review | unconfirmed_open | unknown | previously_collected
 Location: 
 Reasons: Description does not establish ownership of growth, GTM, or product marketing; Regional title may describe a market or a hiring restriction; verify eligibility; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Posting date is missing or unparseable; recency needs verification
@@ -361,7 +361,7 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 ## Source health
 
 - blockace: returned, 63 listings, 0 failures, 8 requests; warnings: expired_blockace_listing_suppressed
-- careers_discovery: returned, 27 listings, 0 failures, 2 requests; warnings: index_leads_require_primary_verification
+- careers_discovery: returned, 26 listings, 0 failures, 2 requests; warnings: index_leads_require_primary_verification
 - cryptocurrencyjobs: returned, 41 listings, 0 failures, 1 requests
 - cryptojobs: returned, 0 listings, 0 failures, 1 requests; warnings: zero_results
 - cryptojobsdaily_telegram: returned, 13 listings, 0 failures, 1 requests
@@ -387,7 +387,7 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 - twitter_bing: returned, 0 listings, 0 failures, 4 requests; warnings: zero_results
 - web3_marketing_jobs_telegram: returned, 17 listings, 0 failures, 1 requests
 - web3career: returned, 123 listings, 0 failures, 9 requests; warnings: bounded_pagination
-- web3hiring_telegram: returned, 19 listings, 0 failures, 1 requests
+- web3hiring_telegram: returned, 18 listings, 0 failures, 1 requests
 - web3marketingjobs_telegram: returned, 17 listings, 0 failures, 1 requests
 - workable: returned, 0 listings, 0 failures, 1 requests; warnings: zero_results, ats_original_posting_dates_unverified
 
