@@ -1,13 +1,13 @@
 # Public job collection
 
-Generated: 2026-11-22T07:31:07.017628+00:00
+Generated: 2026-11-22T15:05:49.738265+00:00
 
 Public collection evidence, not a delivered digest. First collection does not mean a new job. Research unresolved evidence and use private delivery history to label new/reminders.
 
-Counts: {"qualified": 0, "raw": 2057, "rejected": 2012, "review": 45, "source_failures": 1, "unconfirmed_open": 41, "unknown_age": 30, "withheld_public_urls": 1, "zero_result_sources": 7}
+Counts: {"qualified": 0, "raw": 2051, "rejected": 2006, "review": 45, "source_failures": 1, "unconfirmed_open": 41, "unknown_age": 30, "withheld_public_urls": 1, "zero_result_sources": 8}
 
 Incomplete sources: reviewed_public_roles
-Successful requests with no listings (not proof of no jobs): cryptojobs, direct_gains, linkedin_hiring_posts, remotive, twitter_bing, workable
+Successful requests with no listings (not proof of no jobs): cryptojobs, cryptojobsdaily_telegram, direct_gains, linkedin_hiring_posts, remotive, twitter_bing, workable
 Bounded sources: cryptojobslist_rss, web3career
 
 Public application URL warning: 1 non-rejected listings were withheld because their public application URL could not be safely preserved. Verify the exact requisitions before proposing them.
@@ -238,17 +238,17 @@ Location:
 Reasons: Regional title may describe a market or a hiring restriction; verify eligibility; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Posting date is missing or unparseable; recency needs verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
 
-###  | Chainalysis Sr Product Marketing Manager, Platform USD 152-230K/year · Remote · United States · Posted 25 days ago
+###  | Chainalysis Sr. Product Marketing Manager, Government USD 152-230K/year · Remote · United States · Posted 25 days ago
 
-https://jobs.ashbyhq.com/chainalysis-careers/c3ad81f0-701a-42c7-b008-76fa4076a2dd
+https://jobs.ashbyhq.com/chainalysis-careers/202fadfb-a054-4ef0-addb-5f27c9c0c78d
 review | unconfirmed_open | unknown | previously_collected
 Location: 
 Reasons: Description does not establish ownership of growth, GTM, or product marketing; Regional title may describe a market or a hiring restriction; verify eligibility; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Posting date is missing or unparseable; recency needs verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
 
-###  | Chainalysis Sr. Product Marketing Manager, Government USD 152-230K/year · Remote · United States · Posted 25 days ago
+###  | Chainalysis Sr Product Marketing Manager, Platform USD 152-230K/year · Remote · United States · Posted 25 days ago
 
-https://jobs.ashbyhq.com/chainalysis-careers/202fadfb-a054-4ef0-addb-5f27c9c0c78d
+https://jobs.ashbyhq.com/chainalysis-careers/c3ad81f0-701a-42c7-b008-76fa4076a2dd
 review | unconfirmed_open | unknown | previously_collected
 Location: 
 Reasons: Description does not establish ownership of growth, GTM, or product marketing; Regional title may describe a market or a hiring restriction; verify eligibility; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Posting date is missing or unparseable; recency needs verification
@@ -372,7 +372,7 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 - careers_discovery: returned, 26 listings, 0 failures, 2 requests; warnings: index_leads_require_primary_verification
 - cryptocurrencyjobs: returned, 41 listings, 0 failures, 1 requests
 - cryptojobs: returned, 0 listings, 0 failures, 1 requests; warnings: zero_results
-- cryptojobsdaily_telegram: returned, 13 listings, 0 failures, 1 requests
+- cryptojobsdaily_telegram: returned, 0 listings, 0 failures, 1 requests; warnings: zero_results
 - cryptojobslist: returned, 24 listings, 0 failures, 1 requests
 - cryptojobslist_rss: returned, 100 listings, 0 failures, 1 requests; warnings: bounded_public_rss_100, rss_original_posting_dates_unverified
 - cryptojobslist_telegram: returned, 14 listings, 0 failures, 1 requests
@@ -381,7 +381,7 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 - direct_ashby: returned, 96 listings, 0 failures, 12 requests
 - direct_gains: returned, 0 listings, 0 failures, 2 requests; warnings: zero_results
 - direct_hacken: returned, 1 listings, 0 failures, 1 requests
-- greenhouse: returned, 1133 listings, 0 failures, 13 requests
+- greenhouse: returned, 1140 listings, 0 failures, 13 requests
 - hylo_verified: returned, 1 listings, 0 failures, 1 requests
 - lever: returned, 91 listings, 0 failures, 9 requests
 - lever_aave: returned, 14 listings, 0 failures, 1 requests
