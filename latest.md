@@ -1,12 +1,12 @@
 # Public job collection
 
-Generated: 2026-11-23T07:32:04.113460+00:00
+Generated: 2026-11-23T19:00:57.604622+00:00
 
 Public collection evidence, not a delivered digest. First collection does not mean a new job. Research unresolved evidence and use private delivery history to label new/reminders.
 
-Counts: {"qualified": 0, "raw": 2039, "rejected": 1994, "review": 45, "source_failures": 2, "unconfirmed_open": 41, "unknown_age": 30, "withheld_public_urls": 1, "zero_result_sources": 8}
+Counts: {"qualified": 0, "raw": 2043, "rejected": 1997, "review": 46, "source_failures": 1, "unconfirmed_open": 41, "unknown_age": 31, "withheld_public_urls": 1, "zero_result_sources": 8}
 
-Incomplete sources: lever, reviewed_public_roles
+Incomplete sources: reviewed_public_roles
 Successful requests with no listings (not proof of no jobs): cryptojobs, cryptojobsdaily_telegram, direct_gains, linkedin_hiring_posts, remotive, twitter_bing, workable
 Bounded sources: cryptojobslist_rss, web3career
 
@@ -29,6 +29,14 @@ review | verified_open | within_30_days | previously_collected
 Location: Remote; remote
 Reasons: Employer home country is unknown; verified non-India employer evidence is required; Role has jurisdiction exclusions; verify India eligibility against the exact exclusion and ATS country metadata
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Resolve exact jurisdiction exclusions and structured ATS country metadata; do not infer US-only hiring from US-only benefits. ATS country field is US; reconcile it with Remote terms before claiming India eligibility.
+
+### Trust Wallet | Global KOL Manager
+
+https://jobs.ashbyhq.com/trust-wallet/f6e6cb95-a8ac-4924-9646-5759171788a7
+review | verified_open | unknown | first_collection
+Location: Remote - Global; Remote
+Reasons: Adjacent marketing specialty; growth / GTM / PMM ownership is not established; Employer home country is unknown; verified non-India employer evidence is required
+Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source.
 
 ### Ether.fi | KOL and Social Manager
 
@@ -254,7 +262,7 @@ Location:
 Reasons: Description does not establish ownership of growth, GTM, or product marketing; Regional title may describe a market or a hiring restriction; verify eligibility; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Posting date is missing or unparseable; recency needs verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
 
-###  | Chainalysis Sr. Product Marketing Manager, Government Remote · London, England, United Kingdom · Posted 25 days ago
+###  | Chainalysis Sr. Product Marketing Manager, Government Remote · London, England, United Kingdom · Posted 26 days ago
 
 https://jobs.ashbyhq.com/chainalysis-careers/acb89ce6-040d-4cdb-8d01-451cb2d07702
 review | unconfirmed_open | unknown | previously_collected
@@ -378,15 +386,15 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 - cryptojobslist_telegram: returned, 14 listings, 0 failures, 1 requests
 - cryptojobslist_web3: returned, 25 listings, 0 failures, 1 requests
 - curated_companies: returned, 4 listings, 0 failures, 7 requests
-- direct_ashby: returned, 96 listings, 0 failures, 12 requests
+- direct_ashby: returned, 100 listings, 0 failures, 12 requests
 - direct_gains: returned, 0 listings, 0 failures, 2 requests; warnings: zero_results
 - direct_hacken: returned, 1 listings, 0 failures, 1 requests
-- greenhouse: returned, 1143 listings, 0 failures, 13 requests
+- greenhouse: returned, 1138 listings, 0 failures, 13 requests
 - hylo_verified: returned, 1 listings, 0 failures, 1 requests
-- lever: partial, 87 listings, 1 failures, 9 requests
+- lever: returned, 90 listings, 0 failures, 9 requests
 - lever_aave: returned, 14 listings, 0 failures, 1 requests
 - linkedin_hiring_posts: returned, 0 listings, 0 failures, 2 requests; warnings: zero_results
-- registry_careers: returned, 212 listings, 0 failures, 9 requests; warnings: registry_unreviewed_associations_not_fetched
+- registry_careers: returned, 214 listings, 0 failures, 9 requests; warnings: registry_unreviewed_associations_not_fetched
 - remote3: returned, 8 listings, 0 failures, 1 requests
 - remoteok: returned, 2 listings, 0 failures, 1 requests
 - remotive: returned, 0 listings, 0 failures, 1 requests; warnings: zero_results
