@@ -1,10 +1,10 @@
 # Public job collection
 
-Generated: 2026-11-25T12:44:08.003508+00:00
+Generated: 2026-11-25T17:51:19.278133+00:00
 
 Public collection evidence, not a delivered digest. First collection does not mean a new job. Research unresolved evidence and use private delivery history to label new/reminders.
 
-Counts: {"qualified": 0, "raw": 2021, "rejected": 1977, "review": 44, "source_failures": 3, "unconfirmed_open": 39, "unknown_age": 30, "withheld_public_urls": 1, "zero_result_sources": 9}
+Counts: {"qualified": 0, "raw": 2014, "rejected": 1971, "review": 43, "source_failures": 3, "unconfirmed_open": 38, "unknown_age": 29, "withheld_public_urls": 1, "zero_result_sources": 9}
 
 Incomplete sources: direct_hacken, lever, reviewed_public_roles
 Successful requests with no listings (not proof of no jobs): cryptojobs, cryptojobsdaily_telegram, direct_gains, linkedin_hiring_posts, remotive, twitter_bing, workable
@@ -27,8 +27,8 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 https://jobs.lever.co/offchainlabs/ab942e1a-e976-4837-a666-d8ff24606829
 review | verified_open | within_30_days | previously_collected
 Location: Remote; remote
-Reasons: Employer home country is unknown; verified non-India employer evidence is required; Role has jurisdiction exclusions; verify India eligibility against the exact exclusion and ATS country metadata
-Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Resolve exact jurisdiction exclusions and structured ATS country metadata; do not infer US-only hiring from US-only benefits. ATS country field is US; reconcile it with Remote terms before claiming India eligibility.
+Reasons: Employer home country is unknown; verified non-India employer evidence is required
+Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. ATS country field is US; reconcile it with Remote terms before claiming India eligibility.
 
 ### Trust Wallet | Global KOL Manager
 
@@ -49,7 +49,7 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 ### OpenSea | Growth Marketer
 
 https://web3.career/growth-marketer-opensea/156503
-review | unconfirmed_open | within_30_days | first_collection
+review | unconfirmed_open | within_30_days | previously_collected
 Location: Remote
 Reasons: Mid/senior individual-contributor or manager experience needs verification; Description does not establish ownership of growth, GTM, or product marketing; Employer home country is unknown; verified non-India employer evidence is required; Full role description is missing or too thin to verify requirements; First-party employer / ATS evidence is missing; aggregator claims need verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
@@ -214,14 +214,6 @@ Location:
 Reasons: Adjacent marketing specialty; growth / GTM / PMM ownership is not established; Mid/senior individual-contributor or manager experience needs verification; Description does not establish ownership of growth, GTM, or product marketing; Employer home country is unknown; verified non-India employer evidence is required; Full role description is missing or too thin to verify requirements; First-party employer / ATS evidence is missing; aggregator claims need verification; Role-level remote work is unconfirmed; empty locations and distributed-company prose are insufficient; Posting date is missing or unparseable; recency needs verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Verify India eligibility and distinguish market scope, working hours, benefits and applicant residence. Check role-level remote terms and all contradictory residence/office requirements. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
 
-###  | True Anomaly Lead, Marketing & Communications Program Manager USD 150-205K/year · Long Beach, CA · Posted 1 day ago
-
-https://job-boards.greenhouse.io/trueanomalyinc/jobs/5302708007
-review | unconfirmed_open | unknown | previously_collected
-Location: 
-Reasons: Adjacent marketing specialty; growth / GTM / PMM ownership is not established; Description does not establish ownership of growth, GTM, or product marketing; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Role-level remote work is unconfirmed; empty locations and distributed-company prose are insufficient; Posting date is missing or unparseable; recency needs verification
-Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Verify India eligibility and distinguish market scope, working hours, benefits and applicant residence. Check role-level remote terms and all contradictory residence/office requirements. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
-
 ###  | OpenSea Growth Marketer Remote · · Posted 2 days ago
 
 https://jobs.ashbyhq.com/OpenSea/3f57893b-b674-46e2-949e-286e97a84b69
@@ -229,6 +221,14 @@ review | unconfirmed_open | unknown | previously_collected
 Location: 
 Reasons: Mid/senior individual-contributor or manager experience needs verification; Description does not establish ownership of growth, GTM, or product marketing; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Posting date is missing or unparseable; recency needs verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
+
+###  | True Anomaly Lead, Marketing & Communications Program Manager USD 150-205K/year · Long Beach, CA · Posted 1 day ago
+
+https://job-boards.greenhouse.io/trueanomalyinc/jobs/5302708007
+review | unconfirmed_open | unknown | previously_collected
+Location: 
+Reasons: Adjacent marketing specialty; growth / GTM / PMM ownership is not established; Description does not establish ownership of growth, GTM, or product marketing; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Role-level remote work is unconfirmed; empty locations and distributed-company prose are insufficient; Posting date is missing or unparseable; recency needs verification
+Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Verify India eligibility and distinguish market scope, working hours, benefits and applicant residence. Check role-level remote terms and all contradictory residence/office requirements. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
 
 ###  | Mavria Director of Marketing USD 175-275K/year · San Francisco, California, United States, The Woodlands, Texas, United States · Posted 16 days ago
 
@@ -302,14 +302,6 @@ Location:
 Reasons: Description does not establish ownership of growth, GTM, or product marketing; Regional title may describe a market or a hiring restriction; verify eligibility; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Posting date is missing or unparseable; recency needs verification
 Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
 
-###  | Andromeda Head of Marketing Remote · United States · Posted 1 month ago
-
-https://jobs.ashbyhq.com/andromeda/5bc7280c-952a-4e2e-8fa0-03d471d5904f
-review | unconfirmed_open | unknown | previously_collected
-Location: 
-Reasons: Adjacent marketing specialty; growth / GTM / PMM ownership is not established; Description does not establish ownership of growth, GTM, or product marketing; Head / director role needs evidence of early-stage, hands-on scope; Regional title may describe a market or a hiring restriction; verify eligibility; Employer home country is unknown; verified non-India employer evidence is required; First-party employer / ATS evidence is missing; aggregator claims need verification; Posting date is missing or unparseable; recency needs verification
-Research: Verify employer identity and explicit non-India headquarters/base from an authoritative source. Follow the listing to the official employer or ATS, and join evidence only for this exact requisition. Read the full current role description; distinguish broad ownership from dedicated community/BD/events/social duties. Check responsibility and seniority from the full role, not just the title. Find the earliest original posting date; label unknown age without inventing a date. Verify that this exact opening is still active; recent unconfirmed-open evidence must retain that label.
-
 ###  | Chainalysis Sr Product Marketing Manager, Platform Remote · United Kingdom · Posted 1 month ago
 
 https://jobs.ashbyhq.com/chainalysis-careers/c68702ec-c016-456c-a7fe-92be1da2d08b
@@ -361,8 +353,8 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 ## Source health
 
 - blockace: returned, 63 listings, 0 failures, 8 requests; warnings: expired_blockace_listing_suppressed
-- careers_discovery: returned, 26 listings, 0 failures, 2 requests; warnings: index_leads_require_primary_verification
-- cryptocurrencyjobs: returned, 41 listings, 0 failures, 1 requests
+- careers_discovery: returned, 24 listings, 0 failures, 2 requests; warnings: index_leads_require_primary_verification
+- cryptocurrencyjobs: returned, 42 listings, 0 failures, 1 requests
 - cryptojobs: returned, 0 listings, 0 failures, 1 requests; warnings: zero_results
 - cryptojobsdaily_telegram: returned, 0 listings, 0 failures, 1 requests; warnings: zero_results
 - cryptojobslist: returned, 23 listings, 0 failures, 1 requests
@@ -370,13 +362,13 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 - cryptojobslist_telegram: returned, 13 listings, 0 failures, 1 requests
 - cryptojobslist_web3: returned, 25 listings, 0 failures, 1 requests
 - curated_companies: returned, 4 listings, 0 failures, 7 requests
-- direct_ashby: returned, 99 listings, 0 failures, 12 requests
+- direct_ashby: returned, 100 listings, 0 failures, 12 requests
 - direct_gains: returned, 0 listings, 0 failures, 2 requests; warnings: zero_results
 - direct_hacken: unavailable, 0 listings, 1 failures, 1 requests
-- greenhouse: returned, 1135 listings, 0 failures, 13 requests
+- greenhouse: returned, 1132 listings, 0 failures, 13 requests
 - hylo_verified: returned, 1 listings, 0 failures, 1 requests
-- lever: partial, 82 listings, 1 failures, 9 requests
-- lever_aave: returned, 14 listings, 0 failures, 1 requests
+- lever: partial, 79 listings, 2 failures, 9 requests
+- lever_aave: returned, 13 listings, 0 failures, 1 requests
 - linkedin_hiring_posts: returned, 0 listings, 0 failures, 2 requests; warnings: zero_results
 - registry_careers: returned, 212 listings, 0 failures, 9 requests; warnings: registry_unreviewed_associations_not_fetched
 - remote3: returned, 8 listings, 0 failures, 1 requests
