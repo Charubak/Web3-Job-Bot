@@ -1,6 +1,6 @@
 # Public job collection
 
-Generated: 2026-11-28T11:18:16.777062+00:00
+Generated: 2026-11-28T15:59:17.438133+00:00
 
 Public collection evidence, not a delivered digest. First collection does not mean a new job. Research unresolved evidence and use private delivery history to label new/reminders.
 
@@ -214,7 +214,7 @@ Research: Verify employer identity and explicit non-India headquarters/base from
 - remote3: returned, 8 listings, 0 failures, 1 requests
 - remoteok: returned, 2 listings, 0 failures, 1 requests
 - remotive: returned, 0 listings, 0 failures, 1 requests; warnings: zero_results
-- reviewed_public_roles: unavailable, 0 listings, 1 failures, 1 requests
+- reviewed_public_roles: unavailable, 0 listings, 1 failures, 1 requests; warnings: application_cta_unverified
 - teamtailor: returned, 6 listings, 0 failures, 1 requests; warnings: ats_original_posting_dates_unverified
 - twitter_bing: returned, 0 listings, 0 failures, 4 requests; warnings: zero_results
 - web3_marketing_jobs_telegram: returned, 17 listings, 0 failures, 1 requests
